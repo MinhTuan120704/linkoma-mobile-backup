@@ -6,7 +6,9 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-import feedbackService from "../../../services/feedbackService";
+// Import feedbackService để thực hiện các chức năng:
+// - Cập nhật phản hồi (updateFeedback)
+// - Xóa phản hồi (deleteFeedback)
 
 export default function FeedbackEditScreen({ route, navigation }) {
   const { feedback } = route.params || {};
@@ -47,7 +49,7 @@ export default function FeedbackEditScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      await feedbackService.updateFeedback(feedback.id, formData);
+      // TODO: Call API updateFeedback(id, data) để cập nhật phản hồi
       Alert.alert("Thành công", "Cập nhật phản hồi thành công", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);

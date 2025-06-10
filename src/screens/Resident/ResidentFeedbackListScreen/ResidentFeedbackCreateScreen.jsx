@@ -1,21 +1,24 @@
 import React, { useState } from "react";
-import { Alert, View } from "react-native";
+import { View, Alert } from "react-native";
 import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
-} from "../../../components";
+} from "../../components";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../../context/AuthContext";
 // Import feedbackService để thực hiện chức năng:
-// - Tạo phản hồi mới (createFeedback)
+// - Tạo mới phản hồi (createFeedback)
 
-export default function FeedbackCreateScreen({ navigation }) {
+export default function ResidentFeedbackCreateScreen() {
+  const navigation = useNavigation();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     category: "",
-    priority: "",
-    status: "pending",
+    priority: "medium",
   });
   const [errors, setErrors] = useState({});
 
@@ -38,14 +41,14 @@ export default function FeedbackCreateScreen({ navigation }) {
     if (!validateForm()) {
       return;
     }
+
     try {
-      setLoading(true);
-      // TODO: Call API createFeedback(formData) để tạo phản hồi mới
-      Alert.alert("Thành công", "Tạo phản hồi thành công!", [
+      setLoading(true); // TODO: Call API createFeedback(data) để tạo mới phản hồi
+      Alert.alert("Thành công", "Gửi phản hồi thành công!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
-    } catch (error) {
-      Alert.alert("Lỗi", "Không thể tạo phản hồi. Vui lòng thử lại.");
+    } catch (e) {
+      Alert.alert("Lỗi", "Không gửi được phản hồi");
     } finally {
       setLoading(false);
     }
@@ -60,9 +63,9 @@ export default function FeedbackCreateScreen({ navigation }) {
 
   return (
     <ModernScreenWrapper
-      title="Tạo phản hồi mới"
-      subtitle="Nhập thông tin phản hồi"
-      headerColor="#2C3E50"
+      title="Gửi phản hồi"
+      subtitle="Tạo phản hồi mới"
+      headerColor="#1976D2"
     >
       <View style={{ paddingBottom: 20 }}>
         <ModernFormInput
@@ -79,7 +82,7 @@ export default function FeedbackCreateScreen({ navigation }) {
           label="Nội dung"
           value={formData.content}
           onChangeText={(value) => updateField("content", value)}
-          placeholder="Nhập nội dung phản hồi"
+          placeholder="Mô tả chi tiết vấn đề hoặc đề xuất của bạn"
           icon="description"
           multiline
           numberOfLines={6}
@@ -100,26 +103,17 @@ export default function FeedbackCreateScreen({ navigation }) {
           label="Mức độ ưu tiên"
           value={formData.priority}
           onChangeText={(value) => updateField("priority", value)}
-          placeholder="Thấp/Trung bình/Cao/Khẩn cấp"
+          placeholder="low/medium/high/urgent"
           icon="priority-high"
           error={errors.priority}
         />
 
-        <ModernFormInput
-          label="Trạng thái"
-          value={formData.status}
-          onChangeText={(value) => updateField("status", value)}
-          placeholder="pending/processing/resolved"
-          icon="assignment"
-          error={errors.status}
-        />
-
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
-            title="Tạo phản hồi"
+            title="Gửi phản hồi"
             onPress={handleSubmit}
             loading={loading}
-            icon="add-comment"
+            icon="send"
             fullWidth
           />
 

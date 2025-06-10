@@ -6,7 +6,9 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-import notificationService from "../../../services/notificationService";
+// Import notificationService để thực hiện các chức năng:
+// - Lấy thông tin chi tiết thông báo (getNotificationById)
+// - Xóa thông báo (deleteNotification)
 
 export default function NotificationViewScreen({ route, navigation }) {
   const { notificationId } = route.params || {};
@@ -17,9 +19,8 @@ export default function NotificationViewScreen({ route, navigation }) {
     if (!notificationId) return;
     setLoading(true);
     try {
-      const data = await notificationService.getNotificationById(
-        notificationId
-      );
+      // TODO: Call API getNotificationById(id) để lấy thông tin chi tiết thông báo
+      const data = null;
       setNotification(data);
     } catch (error) {
       console.error("Error fetching notification:", error);

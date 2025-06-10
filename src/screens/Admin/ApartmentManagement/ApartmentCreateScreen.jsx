@@ -5,7 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-import { createApartment } from "../../../services/apartmentService";
+/// Import apartmentService to handle API calls
 
 export default function ApartmentCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -46,7 +46,9 @@ export default function ApartmentCreateScreen({ navigation }) {
 
     try {
       setLoading(true);
-      await createApartment(formData);
+      // Giả lập gọi API để tạo căn hộ
+      // await createApartment(formData);
+      // Thay thế bằng hàm gọi API thực tế
       Alert.alert("Thành công", "Tạo căn hộ thành công!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);

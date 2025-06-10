@@ -6,7 +6,8 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-import serviceFeeService from "../../../services/serviceFeeService";
+// Import serviceFeeService để thực hiện chức năng:
+// - Tạo mới phí dịch vụ (createServiceFee)
 
 export default function ServiceFeeCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -49,13 +50,7 @@ export default function ServiceFeeCreateScreen({ navigation }) {
     }
 
     try {
-      setLoading(true);
-      await serviceFeeService.createServiceFee({
-        ...formData,
-        amount: parseFloat(formData.amount),
-        isActive: formData.isActive === "true",
-        createdAt: new Date().toISOString(),
-      });
+      setLoading(true); // TODO: Call API createServiceFee(data) để tạo mới phí dịch vụ
       Alert.alert("Thành công", "Tạo phí dịch vụ thành công!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
