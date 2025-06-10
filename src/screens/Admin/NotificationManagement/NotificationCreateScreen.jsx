@@ -5,7 +5,8 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-import { createNotification } from "../../../services/notificationService";
+// Import notificationService để thực hiện chức năng:
+// - Tạo thông báo mới (createNotification)
 
 export default function NotificationCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -40,8 +41,7 @@ export default function NotificationCreateScreen({ navigation }) {
     }
 
     try {
-      setLoading(true);
-      await createNotification(formData);
+      setLoading(true); // TODO: Call API createNotification(formData) để tạo thông báo mới
       Alert.alert("Thành công", "Tạo thông báo thành công!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);

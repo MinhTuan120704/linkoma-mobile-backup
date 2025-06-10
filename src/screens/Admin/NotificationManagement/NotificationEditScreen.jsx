@@ -6,7 +6,9 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-import notificationService from "../../../services/notificationService";
+// Import notificationService để thực hiện các chức năng:
+// - Cập nhật thông báo (updateNotification)
+// - Xóa thông báo (deleteNotification)
 
 export default function NotificationEditScreen({ route, navigation }) {
   const { notification } = route.params || {};
@@ -47,7 +49,7 @@ export default function NotificationEditScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      await notificationService.updateNotification(notification.id, formData);
+      // TODO: Call API updateNotification(id, data) để cập nhật thông báo
       Alert.alert("Thành công", "Cập nhật thông báo thành công", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
