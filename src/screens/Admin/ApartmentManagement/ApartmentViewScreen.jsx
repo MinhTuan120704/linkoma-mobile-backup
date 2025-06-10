@@ -6,7 +6,8 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-import { removeApartment } from "../../../services/apartmentService";
+// Import apartmentService để thực hiện chức năng:
+// - Xóa căn hộ (removeApartment)
 
 export default function ApartmentViewScreen({ route, navigation }) {
   const { apartment } = route.params || {};
@@ -25,7 +26,7 @@ export default function ApartmentViewScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            await removeApartment(apartment.id);
+            // TODO: Call API removeApartment(id) để xóa căn hộ
             Alert.alert("Thành công", "Xóa căn hộ thành công!", [
               { text: "OK", onPress: () => navigation.goBack() },
             ]);

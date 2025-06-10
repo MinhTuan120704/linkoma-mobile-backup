@@ -6,7 +6,9 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-import serviceFeeService from "../../../services/serviceFeeService";
+// Import serviceFeeService để thực hiện các chức năng:
+// - Lấy chi tiết phí dịch vụ (getServiceFeeById)
+// - Xóa phí dịch vụ (removeServiceFee)
 
 export default function ServiceFeeViewScreen({ route, navigation }) {
   const { serviceFee } = route.params || {};
@@ -25,7 +27,7 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await serviceFeeService.removeServiceFee(serviceFee.id);
+            // TODO: Call API removeServiceFee(id) để xóa phí dịch vụ
             Alert.alert("Thành công", "Xóa phí dịch vụ thành công", [
               { text: "OK", onPress: () => navigation.goBack() },
             ]);

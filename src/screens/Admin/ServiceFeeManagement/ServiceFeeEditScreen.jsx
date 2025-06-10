@@ -6,7 +6,11 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-import serviceFeeService from "../../../services/serviceFeeService";
+// Import serviceFeeService để thực hiện các chức năng:
+// - Tạo mới phí dịch vụ (createServiceFee)
+// - Cập nhật phí dịch vụ (updateServiceFee)
+// - Xóa phí dịch vụ (deleteServiceFee)
+// - Lấy chi tiết phí dịch vụ (getServiceFeeById)
 
 export default function ServiceFeeEditScreen({ route, navigation }) {
   const { serviceFee } = route.params || {};
@@ -56,7 +60,7 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
         isActive: formData.isActive === "true",
       };
 
-      await serviceFeeService.updateServiceFee(serviceFee.id, updateData);
+      // TODO: Call API updateServiceFee(id, data) để cập nhật phí dịch vụ
       Alert.alert("Thành công", "Cập nhật phí dịch vụ thành công", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
@@ -77,7 +81,7 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await serviceFeeService.deleteServiceFee(serviceFee.id);
+            // TODO: Call API deleteServiceFee(id) để xóa phí dịch vụ
             Alert.alert("Thành công", "Xóa phí dịch vụ thành công", [
               { text: "OK", onPress: () => navigation.goBack() },
             ]);

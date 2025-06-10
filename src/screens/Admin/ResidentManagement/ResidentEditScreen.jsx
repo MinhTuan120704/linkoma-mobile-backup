@@ -6,7 +6,9 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-import residentService from "../../../services/residentService";
+// Import residentService để thực hiện các chức năng:
+// - Cập nhật thông tin cư dân (updateResident)
+// - Xóa cư dân (deleteResident)
 
 export default function ResidentEditScreen({ route, navigation }) {
   const { resident } = route.params;
@@ -64,7 +66,7 @@ export default function ResidentEditScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      await residentService.updateResident(resident.id, formData);
+      // TODO: Call API updateResident(id, data) để cập nhật thông tin cư dân
       Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);

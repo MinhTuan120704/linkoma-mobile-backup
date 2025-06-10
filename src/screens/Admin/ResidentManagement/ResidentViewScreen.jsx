@@ -6,7 +6,9 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-import residentService from "../../../services/residentService";
+// Import residentService để thực hiện các chức năng:
+// - Lấy thông tin chi tiết cư dân (getResidentById)
+// - Xóa cư dân (deleteResident)
 
 export default function ResidentViewScreen({ route, navigation }) {
   const { residentId } = route.params;
@@ -16,7 +18,8 @@ export default function ResidentViewScreen({ route, navigation }) {
   const fetchResident = async () => {
     setLoading(true);
     try {
-      const data = await residentService.getResidentById(residentId);
+      // TODO: Call API getResidentById(id) để lấy thông tin chi tiết cư dân
+      const data = null;
       setResident(data);
     } catch (error) {
       console.error("Error fetching resident:", error);
