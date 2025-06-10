@@ -28,8 +28,14 @@ export const createAnnouncement = async (announcementData) => {
 
 export const getAllAnnouncements = async (params = {}) => {
   try {
-    const response = await httpClient.get(ENDPOINTS.ANNOUNCEMENTS_GET_ALL, { params });
+    // Debug: Check if we have a token before making request
+    const { getAccessToken } = await import('./storage');
+    const token = await getAccessToken();
+    console.log('Current token before getAllAnnouncements:', token ? 'Token exists' : 'No token');
     
+    const response = await httpClient.get(ENDPOINTS.ANNOUNCEMENTS_GET_ALL, { params });
+    console.log('Get all announcements response:', response);
+
     if (response.data && response.status === 200) {
       return {
         success: true,
@@ -40,12 +46,16 @@ export const getAllAnnouncements = async (params = {}) => {
     
     return {
       success: false,
+      data: null,
       message: response.data?.message || 'Lấy danh sách thông báo thất bại'
     };
   } catch (error) {
     console.error('Get all announcements error:', error);
+    console.error('Error response status:', error.response?.status);
+    console.error('Error response data:', error.response?.data);
     return {
       success: false,
+      data: null,
       message: error.response?.data?.message || 'Có lỗi xảy ra khi lấy danh sách thông báo'
     };
   }

@@ -13,7 +13,10 @@ export const getAccessToken = async () => {
 
 export const setAccessToken = async (token) => {
   try {
-    await AsyncStorage.setItem(ACCESS_TOKEN_KEY, token);
+    const tokenString = typeof token === 'string' ? token : JSON.stringify(token);
+    console.log("Setting access token:", tokenString);
+    
+    await AsyncStorage.setItem(ACCESS_TOKEN_KEY, tokenString);
   } catch (error) {
     console.error("Error setting access token:", error);
   }
