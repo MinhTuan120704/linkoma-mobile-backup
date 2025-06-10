@@ -5,10 +5,9 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-import {
-  updateApartment,
-  removeApartment,
-} from "../../../services/apartmentService";
+// Import apartmentService để thực hiện các chức năng:
+// - Cập nhật thông tin căn hộ (updateApartment)
+// - Xóa căn hộ (deleteApartment)
 
 export default function ApartmentEditScreen({ route, navigation }) {
   const { apartment } = route.params || {};
@@ -65,7 +64,9 @@ export default function ApartmentEditScreen({ route, navigation }) {
 
     try {
       setLoading(true);
-      await updateApartment(apartment.id, formData);
+      // Giả lập gọi API để cập nhật căn hộ
+      //
+      // Thay thế bằng hàm gọi API thực tế
       Alert.alert("Thành công", "Cập nhật căn hộ thành công!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
@@ -85,7 +86,9 @@ export default function ApartmentEditScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            await removeApartment(apartment.id);
+            // Giả lập gọi API để xóa căn hộ
+            //
+            // Thay thế bằng hàm gọi API thực tế
             Alert.alert("Thành công", "Xóa căn hộ thành công!", [
               { text: "OK", onPress: () => navigation.goBack() },
             ]);

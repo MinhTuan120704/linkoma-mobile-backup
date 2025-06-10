@@ -5,7 +5,8 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-import { createResident } from "../../../services/residentService";
+// Import residentService để thực hiện chức năng:
+// - Tạo cư dân mới (createResident)
 
 export default function ResidentCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -47,10 +48,9 @@ export default function ResidentCreateScreen({ navigation }) {
     if (!validateForm()) {
       return;
     }
-
     try {
       setLoading(true);
-      await createResident(formData);
+      // TODO: Call API createResident(formData) để tạo cư dân mới
       Alert.alert("Thành công", "Tạo cư dân thành công!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);

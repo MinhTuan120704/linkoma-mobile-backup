@@ -6,7 +6,10 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-import { removeFeedback } from "../../../services/feedbackService";
+// Import feedbackService để thực hiện các chức năng:
+// - Lấy chi tiết phản hồi (getFeedbackById)
+// - Xóa phản hồi (removeFeedback)
+// - Cập nhật trạng thái phản hồi (updateFeedbackStatus)
 
 export default function FeedbackViewScreen({ route, navigation }) {
   const { feedback } = route.params || {};
