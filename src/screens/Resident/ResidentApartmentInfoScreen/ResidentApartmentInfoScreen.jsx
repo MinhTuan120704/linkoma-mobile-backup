@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Alert, ScrollView } from "react-native";
-import { ModernScreenWrapper, ModernCard, InfoRow } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
+import { useAuth } from "../../../contexts/AuthContext";
+import apartmentService from "../../../services/apartmentService";
 
 // Import apartmentService để thực hiện chức năng:
 // - Lấy thông tin căn hộ (getApartmentById)

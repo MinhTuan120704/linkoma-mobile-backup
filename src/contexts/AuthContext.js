@@ -102,7 +102,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     checkAuthStatus();
   }, []);
-
   const checkAuthStatus = async () => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
@@ -110,11 +109,27 @@ export const AuthProvider = ({ children }) => {
       const token = await getAccessToken();
       
       if (token) {
-        console.log('Token found in storage, user is authenticated');
-        dispatch({
-          type: AUTH_ACTIONS.CHECK_AUTH_SUCCESS,
-          payload: { token }
-        });
+        console.log('Token found in storage, getting user info...');
+        
+        // Get user info with the token
+        try {
+          const userInfo = await authService.getUserInfo();
+          if (userInfo.success) {
+            dispatch({
+              type: AUTH_ACTIONS.LOGIN_SUCCESS,
+              payload: {
+                user: userInfo.data,
+                token: token
+              }
+            });
+          } else {
+            // Token might be invalid
+            dispatch({ type: AUTH_ACTIONS.CHECK_AUTH_FAILURE });
+          }
+        } catch (userError) {
+          console.error('Error getting user info:', userError);
+          dispatch({ type: AUTH_ACTIONS.CHECK_AUTH_FAILURE });
+        }
       } else {
         console.log('No token found, user is not authenticated');
         dispatch({ type: AUTH_ACTIONS.CHECK_AUTH_FAILURE });
@@ -124,7 +139,6 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.CHECK_AUTH_FAILURE });
     }
   };
-
   const login = async (email, password) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
@@ -132,7 +146,6 @@ export const AuthProvider = ({ children }) => {
       const response = await authService.login(email, password);
       
       if (response.success) {
-        console.log('Login successful:', response.data);
         dispatch({
           type: AUTH_ACTIONS.LOGIN_SUCCESS,
           payload: {
@@ -140,7 +153,12 @@ export const AuthProvider = ({ children }) => {
             token: response.data.accessToken
           }
         });
-        return { success: true, data: response.data };
+        
+        return { 
+          success: true, 
+          data: response.data,
+          message: response.message 
+        };
       } else {
         console.log('Login failed:', response.message);
         dispatch({
@@ -159,7 +177,6 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: errorMessage };
     }
   };
-
   const logout = async () => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
@@ -167,19 +184,25 @@ export const AuthProvider = ({ children }) => {
       // Call logout API
       await authService.logout();
       
-      // Clear local storage
-      await clearAll();
+      // Clear local storage - authService đã gọi clearAll() rồi
+      // Không cần gọi lại ở đây
       
       // Update state
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
       
-      console.log('Logout successful');
+      console.log('Logout successful from AuthContext');
       return { success: true, message: 'Đăng xuất thành công' };
     } catch (error) {
       console.error('Logout error:', error);
       
       // Even if API fails, clear local data
-      await clearAll();
+      try {
+        await clearAll();
+        console.log('Cleared storage from AuthContext as fallback');
+      } catch (clearError) {
+        console.error('Error clearing storage in AuthContext:', clearError);
+      }
+      
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
       
       return { success: true, message: 'Đăng xuất thành công' };
@@ -189,9 +212,61 @@ export const AuthProvider = ({ children }) => {
   const clearError = () => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
   };
-
   const refreshAuth = async () => {
     await checkAuthStatus();
+  };
+  // Update user info function
+  const updateUserInfo = async (userData) => {
+    try {
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+      
+      const response = await authService.updateUserInfo(userData);
+      
+      if (response) {
+        // Update user data in state
+        dispatch({
+          type: AUTH_ACTIONS.LOGIN_SUCCESS,
+          payload: {
+            user: response.data,
+            token: state.token
+          }
+        });
+        
+        return { success: true, data: response.data };
+      } else {
+        dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+        return { success: false, message: response.message };
+      }
+    } catch (error) {
+      console.error('Update user info error:', error);
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return { success: false, message: error.message || 'Có lỗi xảy ra khi cập nhật thông tin' };
+    }
+  };  // Change password function - supports both regular and first login scenarios
+  const changePassword = async (currentPasswordOrUserId, newPassword, isFirstLogin = false) => {
+    try {
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
+      
+      let response;
+      if (isFirstLogin) {
+        // First login: currentPasswordOrUserId is actually userId
+        response = await authService.changePassword(currentPasswordOrUserId, newPassword);
+      } else {
+        // Regular password change: currentPasswordOrUserId is current password
+        response = await authService.changePassword(currentPasswordOrUserId, newPassword);
+      }
+        if (response.success) {
+        dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+        return { success: true, message: response.message };
+      } else {
+        dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+        return { success: false, message: response.message };
+      }
+    } catch (error) {
+      console.error('Change password error:', error);
+      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return { success: false, message: error.message || 'Có lỗi xảy ra khi đổi mật khẩu' };
+    }
   };
 
   // Context value
@@ -205,6 +280,8 @@ export const AuthProvider = ({ children }) => {
     clearError,
     refreshAuth,
     checkAuthStatus,
+    updateUserInfo,
+    changePassword,
   };
 
   return (

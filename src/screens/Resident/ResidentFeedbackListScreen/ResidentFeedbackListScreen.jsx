@@ -4,14 +4,15 @@ import {
   ModernScreenWrapper,
   ModernCard,
   ModernButton,
-} from "../../components";
+} from "../../../components";
 import { MaterialIcons } from "@expo/vector-icons";
+import feedbackService from "../../../services/feedbackService";
 // Import feedbackService để thực hiện các chức năng:
 // - Lấy danh sách phản hồi theo resident (getFeedbacksByResident)
 // - Tạo phản hồi mới (createFeedback)
 // - Cập nhật phản hồi (updateFeedback)
 // - Xóa phản hồi (removeFeedback)
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
 export default function ResidentFeedbackListScreen() {

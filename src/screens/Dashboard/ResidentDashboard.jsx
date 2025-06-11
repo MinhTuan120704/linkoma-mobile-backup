@@ -11,13 +11,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
 
-import ResidentInfoScreen from "../Resident/ResidentInfoScreen";
-import ResidentApartmentInfoScreen from "../Resident/ResidentApartmentInfoScreen";
-import ResidentFeedbackListScreen from "../Resident/ResidentFeedbackListScreen";
-import ResidentServiceListScreen from "../Resident/ResidentServiceListScreen";
-import ResidentNotificationListScreen from "../Resident/ResidentNotificationListScreen";
-import ResidentInvoiceListScreen from "../Resident/ResidentInvoiceListScreen";
-import ResidentContractListScreen from "../Resident/ResidentContractListScreen";
+import ResidentInfoScreen from "../Resident/ResidentInfoScreen/ResidentInfoScreen";
+import ResidentApartmentInfoScreen from "../Resident/ResidentApartmentInfoScreen/ResidentApartmentInfoScreen";
+import ResidentFeedbackListScreen from "../Resident/ResidentFeedbackListScreen/ResidentFeedbackListScreen";
+import ResidentServiceListScreen from "../Resident/ResidentServiceListScreen/ResidentServiceListScreen";
+import ResidentNotificationListScreen from "../Resident/ResidentNotificationListScreen/ResidentNotificationListScreen";
+import ResidentInvoiceListScreen from "../Resident/ResidentInvoiceListScreen/ResidentInvoiceListScreen";
 
 const { width, height } = Dimensions.get("window");
 
@@ -103,7 +102,7 @@ export default function ResidentDashboard() {
       case 5:
         return <ResidentInvoiceListScreen />;
       case 6:
-        return <ResidentContractListScreen />;
+        return <ResidentInfoScreen />; // Placeholder for contract screen
       default:
         return <ResidentInfoScreen />;
     }

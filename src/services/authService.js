@@ -4,30 +4,18 @@ import { setAccessToken, setRefreshToken, clearAll, saveTokens, getAccessToken }
 
 export const login = async (email, password) => {
   try {
-    // Tạo credentials object từ email và password
     const credentials = { email, password };
-    
-    console.log('Login with credentials:', credentials);
     
     const response = await httpClient.post(ENDPOINTS.LOGIN, credentials, {
       withCredentials: true,
     });
 
-    console.log('Login response status:', response.status);
-    console.log('Login response data:', response.data);
-
     if (response.data && response.status === 200) {
       const { accessToken, user } = response.data;
-      
-      console.log('AccessToken received:', accessToken);
-      console.log('AccessToken type:', typeof accessToken);      
+        
       if (accessToken) {
         await saveTokens(accessToken.token);
         
-        // Verify token was saved
-        const savedToken = await getAccessToken();
-        console.log('Token saved successfully:', savedToken ? 'Yes' : 'No');
-        console.log('Saved token value:', savedToken);
       }
 
       return {
@@ -58,9 +46,13 @@ export const login = async (email, password) => {
 // Đăng xuất
 export const logout = async () => {
   try {
+    // Call logout API first
     await httpClient.post(ENDPOINTS.LOGOUT);
     
+    // Clear all local storage and cache
     await clearAll();
+    
+    console.log('Logout successful - all data cleared');
     
     return {
       success: true,
@@ -68,10 +60,15 @@ export const logout = async () => {
       message: 'Đăng xuất thành công'
     };
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error('Logout API error:', error);
     
-    // Vẫn clear tokens local dù API lỗi
-    await clearAll();
+    // Vẫn clear local data dù API lỗi để đảm bảo security
+    try {
+      await clearAll();
+      console.log('Local data cleared despite API error');
+    } catch (clearError) {
+      console.error('Error clearing local data:', clearError);
+    }
     
     return {
       success: true,
@@ -139,11 +136,101 @@ export const resetPassword = async (token, newPassword, confirmPassword) => {
   }
 };
 
+// Lấy thông tin user hiện tại
+export const getUserInfo = async () => {
+  try {
+    const response = await httpClient.get(ENDPOINTS.USER_INFO);
+    
+    if (response.data && response.status === 200) {
+      return {
+        success: true,
+        data: response.data,
+        message: 'Lấy thông tin user thành công'
+      };
+    }
+    
+    return {
+      success: false,
+      data: null,
+      message: response.data?.message || 'Lấy thông tin user thất bại'
+    };
+  } catch (error) {
+    console.error('Get user info error:', error);
+    return {
+      success: false,
+      data: null,
+      message: error.response?.data?.message || 'Có lỗi xảy ra khi lấy thông tin user'
+    };
+  }
+};
+
+// Cập nhật thông tin user
+export const updateUserInfo = async (userData) => {
+  try {
+    const response = await httpClient.put(ENDPOINTS.USERS_UPDATE, userData);
+    
+    if (response.data && response.status === 200) {
+      return {
+        success: true,
+        data: response.data,
+        message: response.data?.message || 'Cập nhật thông tin thành công'
+      };
+    }
+    
+    return {
+      success: false,
+      data: null,
+      message: response.data?.message || 'Cập nhật thông tin thất bại'
+    };
+  } catch (error) {
+    console.error('Update user info error:', error);
+    return {
+      success: false,
+      data: null,
+      message: error.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin'
+    };
+  }
+};
+
+// Đổi mật khẩu
+export const changePassword = async (userId, newPassword) => {
+  try {
+    const response = await httpClient.post(ENDPOINTS.USERS_UPDATE, {
+      userId: userId,
+      password: newPassword
+    });
+
+    if (response.data && response.status === 200) {
+      return {
+        success: true,
+        data: response.data,
+        message: response.data?.message || 'Đổi mật khẩu thành công'
+      };
+    }
+    
+    return {
+      success: false,
+      data: null,
+      message: response.data?.message || 'Đổi mật khẩu thất bại'
+    };
+  } catch (error) {
+    console.error('Change password error:', error);
+    return {
+      success: false,
+      data: null,
+      message: error.response?.data?.message || 'Có lỗi xảy ra khi đổi mật khẩu'
+    };
+  }
+};
+
 const authService = {
   login,
   logout,
   forgotPassword,
   resetPassword,
+  getUserInfo,
+  updateUserInfo,
+  changePassword,
 };
 
 export default authService;

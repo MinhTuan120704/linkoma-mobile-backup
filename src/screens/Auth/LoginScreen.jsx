@@ -5,49 +5,49 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { Toast } from "@ant-design/react-native";
 
 export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    email: "", // Đổi từ username thành email
     password: "",
   });
   const { login } = useAuth();
 
   const handleLogin = async () => {
-    if (!formData.username || !formData.password) {
+    // Validation
+    if (!formData.email || !formData.password) {
       Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin");
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      Alert.alert("Lỗi", "Email không hợp lệ");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await login(formData.username, formData.password);
+      
+      // Call login from AuthContext
+      const response = await login(formData.email, formData.password);
 
-      // Check if this is first time login
-      if (response.isFirstLogin) {
-        // Navigate to change password screen with first login flag
-        navigation.navigate("ChangePassword", { isFirstLogin: true });
-        return;
-      }
-
-      // Normal login flow - navigate to appropriate dashboard
-      if (response.user.role === "admin") {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "AdminDashboard" }],
-        });
+      if (response.success === true) {
+        Toast.success("Đăng nhập thành công", 2);
+        
       } else {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "ResidentDashboard" }],
-        });
+        Alert.alert("Lỗi đăng nhập", response.message || "Sai email hoặc mật khẩu");
       }
+      
     } catch (error) {
+      console.error("Login error in component:", error);
       Alert.alert(
         "Lỗi đăng nhập",
-        error.message || "Sai tên đăng nhập hoặc mật khẩu"
+        error.message || "Có lỗi xảy ra khi đăng nhập"
       );
     } finally {
       setLoading(false);
@@ -64,14 +64,15 @@ export default function LoginScreen({ navigation }) {
     >
       <View style={styles.container}>
         <ModernFormInput
-          label="Tên đăng nhập"
-          value={formData.username}
+          label="Email"
+          value={formData.email}
           onChangeText={(value) =>
-            setFormData((prev) => ({ ...prev, username: value }))
+            setFormData((prev) => ({ ...prev, email: value }))
           }
-          placeholder="Nhập tên đăng nhập"
-          icon="person"
+          placeholder="Nhập email"
+          icon="email"
           autoCapitalize="none"
+          keyboardType="email-address"
         />
 
         <ModernFormInput

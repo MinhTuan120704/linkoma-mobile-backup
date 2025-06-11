@@ -4,14 +4,15 @@ import {
   ModernScreenWrapper,
   ModernCard,
   ModernButton,
-} from "../../components";
+} from "../../../components";
 import { MaterialIcons } from "@expo/vector-icons";
-// Import serviceFeeService để thực hiện các chức năng:
+import serviceRegistrationService from "../../../services/serviceRegistrationService";
+// Import serviceRegistrationService để thực hiện các chức năng:
 // - Lấy danh sách dịch vụ đã đăng ký của cư dân
 // - Xem chi tiết dịch vụ
 // - Đăng ký dịch vụ mới
 import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ResidentServiceListScreen() {
   const [services, setServices] = useState([]);

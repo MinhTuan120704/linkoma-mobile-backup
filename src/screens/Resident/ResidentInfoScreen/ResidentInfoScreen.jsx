@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Alert } from "react-native";
-import { ModernScreenWrapper, ModernCard, InfoRow } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
+import { useAuth } from "../../../contexts/AuthContext";
 
 // Import residentService để thực hiện chức năng:
 // - Lấy thông tin cư dân (getResidentById)

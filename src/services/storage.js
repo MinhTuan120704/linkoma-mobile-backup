@@ -14,7 +14,6 @@ export const getAccessToken = async () => {
 export const setAccessToken = async (token) => {
   try {
     const tokenString = typeof token === 'string' ? token : JSON.stringify(token);
-    console.log("Setting access token:", tokenString);
     
     await AsyncStorage.setItem(ACCESS_TOKEN_KEY, tokenString);
   } catch (error) {
@@ -32,9 +31,25 @@ export const removeAccessToken = async () => {
 
 export const clearAll = async () => {
   try {
+    // Clear specific keys
     await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
+    
+    // Clear all AsyncStorage cache (optional - uncomment nếu muốn clear toàn bộ)
+    // await AsyncStorage.clear();
+    
+    console.log('All storage cleared successfully');
   } catch (error) {
     console.error("Error clearing storage:", error);
+  }
+};
+
+// Function to clear all app data (use với caution)
+export const clearAllAppData = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log('All app data cleared successfully');
+  } catch (error) {
+    console.error("Error clearing all app data:", error);
   }
 };
 
