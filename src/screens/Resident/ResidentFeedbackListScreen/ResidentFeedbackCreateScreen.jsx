@@ -16,22 +16,22 @@ export default function ResidentFeedbackCreateScreen() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
+    userId: user?.userId || "",
     category: "",
-    priority: "medium",
+    description: "",
+    status: "Pending",
   });
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Tiêu đề là bắt buộc";
+    if (!formData.category.trim()) {
+      newErrors.category = "Tiêu đề là bắt buộc";
     }
 
-    if (!formData.content.trim()) {
-      newErrors.content = "Nội dung là bắt buộc";
+    if (!formData.description.trim()) {
+      newErrors.description = "Nội dung là bắt buộc";
     }
 
     setErrors(newErrors);
@@ -44,7 +44,8 @@ export default function ResidentFeedbackCreateScreen() {
     }
 
     try {
-      setLoading(true); // TODO: Call API createFeedback(data) để tạo mới phản hồi
+      setLoading(true);
+      const response = await feedbackService.createFeedback(formData);
       Alert.alert("Thành công", "Gửi phản hồi thành công!", [
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
@@ -69,7 +70,7 @@ export default function ResidentFeedbackCreateScreen() {
       headerColor="#1976D2"
     >
       <View style={{ paddingBottom: 20 }}>
-        <ModernFormInput
+        {/* <ModernFormInput
           label="Tiêu đề"
           value={formData.title}
           onChangeText={(value) => updateField("title", value)}
@@ -77,37 +78,38 @@ export default function ResidentFeedbackCreateScreen() {
           icon="title"
           required
           error={errors.title}
+        /> */}
+
+        <ModernFormInput
+          label="Danh mục (chọn một trong các danh mục sau Maintenance, Complaint hoặc Service)"
+          value={formData.category}
+          onChangeText={(value) => updateField("category", value)}
+          placeholder="Danh mục phản hồi"
+          icon="category"
+          required
+          error={errors.category}
         />
 
         <ModernFormInput
           label="Nội dung"
-          value={formData.content}
-          onChangeText={(value) => updateField("content", value)}
+          value={formData.description}
+          onChangeText={(value) => updateField("description", value)}
           placeholder="Mô tả chi tiết vấn đề hoặc đề xuất của bạn"
           icon="description"
           multiline
           numberOfLines={6}
           required
-          error={errors.content}
+          error={errors.description}
         />
 
-        <ModernFormInput
-          label="Danh mục"
-          value={formData.category}
-          onChangeText={(value) => updateField("category", value)}
-          placeholder="Ví dụ: Khiếu nại, Đề xuất, Báo cáo sự cố"
-          icon="category"
-          error={errors.category}
-        />
-
-        <ModernFormInput
+        {/*    <ModernFormInput
           label="Mức độ ưu tiên"
           value={formData.priority}
           onChangeText={(value) => updateField("priority", value)}
           placeholder="low/medium/high/urgent"
           icon="priority-high"
           error={errors.priority}
-        />
+        /> */}
 
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
@@ -121,7 +123,7 @@ export default function ResidentFeedbackCreateScreen() {
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>

@@ -208,6 +208,7 @@ export default function ResidentInvoiceListScreen() {
       headerColor="#1976D2"
       loading={loading}
       onRefresh={fetchInvoices}
+      showBackButton={false}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         {invoices.length === 0 ? (

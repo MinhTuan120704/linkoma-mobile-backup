@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Alert } from "react-native";
 import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
 import { useUserSetup } from "../../../hooks/useUserSetup";
+import apartmentService from "../../../services/apartmentService";
 
 // Import residentService để thực hiện chức năng:
 // - Lấy thông tin cư dân (getResidentById)
@@ -30,6 +31,7 @@ export default function ResidentInfoScreen() {
         dateOfBirth: user.dateOfBirth,
         citizenId: user.citizenId,
         address: user.address,
+        apartmentId: user.apartmentId,
         licensePlate: user.licensePlate,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
@@ -107,19 +109,19 @@ export default function ResidentInfoScreen() {
             />
 
             <InfoRow
-              label="Căn hộ"
-              value={residentData.apartmentName || residentData.apartmentId}
+              label="Căn hộ số"
+              value={residentData.apartmentId}
               icon="home"
               type="highlight"
             />
 
-            <InfoRow label="Block" value={residentData.block} icon="business" />
+            {/* <InfoRow label="Block" value={residentData.block} icon="business" />
 
             <InfoRow
               label="Tầng"
               value={residentData.floor?.toString()}
               icon="layers"
-            />
+            /> */}
           </ModernCard>
 
           <ModernCard title="Thông tin khác">

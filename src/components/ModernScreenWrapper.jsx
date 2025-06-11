@@ -110,11 +110,11 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    shadowColor: "#000",
+    /* shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 4, */
   },
   headerLeft: {
     width: 40,

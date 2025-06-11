@@ -26,8 +26,10 @@ export default function ResidentFeedbackListScreen() {
     setLoading(true);
     console.log("Fetching feedbacks for user:", user.userId);
     try {
-      const data = await feedbackService.getFeedbacksByResident(user.userId);
-      setFeedbacks(data || []);
+      const response = await feedbackService.getFeedbacksByUserId(user.userId);
+      console.log("Feedback: " + JSON.stringify(response.data));
+
+      setFeedbacks(response.data.results || []);
     } catch (e) {
       setFeedbacks([]);
     } finally {
@@ -47,24 +49,24 @@ export default function ResidentFeedbackListScreen() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "resolved":
-        return "#27AE60";
-      case "processing":
-        return "#F39C12";
-      case "pending":
-        return "#E74C3C";
+      case "Resolved":
+        return "green";
+      case "In Progress":
+        return "blue";
+      case "Pending":
+        return "orange";
       default:
-        return "#7F8C8D";
+        return "gray";
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case "resolved":
+      case "Resolved":
         return "Đã giải quyết";
-      case "processing":
+      case "In Progress":
         return "Đang xử lý";
-      case "pending":
+      case "Pending":
         return "Chờ xử lý";
       default:
         return "Không xác định";
@@ -73,14 +75,12 @@ export default function ResidentFeedbackListScreen() {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case "urgent":
+      case "Resolved":
         return "#E74C3C";
-      case "high":
+      case "In Progress":
         return "#F39C12";
-      case "medium":
+      case "Pending":
         return "#3498DB";
-      case "low":
-        return "#95A5A6";
       default:
         return "#7F8C8D";
     }
@@ -118,7 +118,7 @@ export default function ResidentFeedbackListScreen() {
       <ModernCard style={{ marginBottom: 12 }}>
         <View style={styles.feedbackHeader}>
           <Text style={styles.feedbackTitle} numberOfLines={2}>
-            {feedback.title}
+            {feedback.category}
           </Text>
           <View style={styles.statusContainer}>
             <View
@@ -135,7 +135,7 @@ export default function ResidentFeedbackListScreen() {
         </View>
 
         <Text style={styles.feedbackContent} numberOfLines={3}>
-          {feedback.content}
+          {feedback.description || "Không có mô tả"}
         </Text>
 
         <View style={styles.feedbackFooter}>
@@ -147,25 +147,32 @@ export default function ResidentFeedbackListScreen() {
               </Text>
             </View>
 
-            {feedback.priority && (
+            {/* {feedback.status && (
               <View style={styles.metaItem}>
                 <MaterialIcons
                   name="priority-high"
                   size={16}
-                  color={getPriorityColor(feedback.priority)}
+                  color={getPriorityColor(feedback.status)}
                 />
                 <Text
                   style={[
                     styles.metaText,
-                    { color: getPriorityColor(feedback.priority) },
+                    { color: getPriorityColor(feedback.status) },
                   ]}
                 >
-                  {feedback.priority}
+                  {feedback.status}
                 </Text>
               </View>
-            )}
+            )} */}
           </View>
-
+          {feedback?.responseDate && (
+            <View style={styles.metaItem}>
+              <MaterialIcons name="check" size={16} color="#7F8C8D" />
+              <Text style={styles.metaText}>
+                {formatDate(feedback?.responseDate)}
+              </Text>
+            </View>
+          )}
           <View style={styles.actionButtons}>
             <TouchableOpacity
               style={styles.actionButton}
@@ -192,6 +199,7 @@ export default function ResidentFeedbackListScreen() {
       headerColor="#1976D2"
       loading={loading}
       onRefresh={fetchFeedbacks}
+      showBackButton={false}
       rightHeaderComponent={
         <ModernButton
           title="Tạo"
@@ -201,7 +209,7 @@ export default function ResidentFeedbackListScreen() {
         />
       }
     >
-      <View style={{ paddingBottom: 20 }}>
+      <View>
         {!loading && feedbacks.length === 0 ? (
           renderEmptyState()
         ) : (

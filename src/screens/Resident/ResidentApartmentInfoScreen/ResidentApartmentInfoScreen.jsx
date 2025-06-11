@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, Alert, ScrollView, RefreshControl } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons";
 import { useAuth } from "../../../contexts/AuthContext";
 import ModernScreenWrapper from "../../../components/ModernScreenWrapper";
 import ModernCard from "../../../components/ModernCard";
-import { InfoRow } from "../../../components/InfoRow";
+import InfoRow from "../../../components/InfoRow";
 import apartmentService from "../../../services/apartmentService";
 
 // Import apartmentService để thực hiện chức năng:
@@ -24,9 +23,13 @@ export default function ResidentApartmentInfoScreen() {
 
     setLoading(true);
     try {
+      console.log("apartmentId: " + user.apartmentId);
+
       const response = await apartmentService.getApartmentById(
         user.apartmentId
       );
+      console.log("response: " + JSON.stringify(response.data));
+      
       if (response.success) {
         setApartmentData(response.data);
       } else {
@@ -118,6 +121,7 @@ export default function ResidentApartmentInfoScreen() {
       headerColor="#1976D2"
       loading={loading}
       onRefresh={fetchApartment}
+      showBackButton={false}
     >
       {apartmentData && (
         <ScrollView
@@ -129,22 +133,22 @@ export default function ResidentApartmentInfoScreen() {
           <ModernCard title="Thông tin cơ bản">
             <InfoRow
               label="Tên căn hộ"
-              value={apartmentData.name || apartmentData.apartmentName}
+              value={apartmentData.apartmentType.typeName}
               icon="home"
               type="highlight"
             />
 
             <InfoRow
               label="Số căn hộ"
-              value={apartmentData.apartmentNumber}
+              value={apartmentData.apartmentId}
               icon="door-front"
             />
 
-            <InfoRow
+           {/*  <InfoRow
               label="Block"
               value={apartmentData.block}
               icon="business"
-            />
+            /> */}
 
             <InfoRow
               label="Tầng"
@@ -155,15 +159,15 @@ export default function ResidentApartmentInfoScreen() {
             <InfoRow
               label="Diện tích"
               value={
-                apartmentData.area
-                  ? `${apartmentData.area} m²`
+                apartmentData.apartmentType.area
+                  ? `${apartmentData.apartmentType.area} m²`
                   : "Không có dữ liệu"
               }
               icon="square-foot"
             />
           </ModernCard>
 
-          <ModernCard title="Thông tin địa chỉ">
+          {/* <ModernCard title="Thông tin địa chỉ">
             <InfoRow
               label="Địa chỉ"
               value={apartmentData.address}
@@ -187,43 +191,43 @@ export default function ResidentApartmentInfoScreen() {
               value={apartmentData.city}
               icon="location-city"
             />
-          </ModernCard>
+          </ModernCard> */}
 
           <ModernCard title="Thông tin phòng">
             <InfoRow
               label="Số phòng ngủ"
-              value={apartmentData.bedrooms?.toString() || "Không có dữ liệu"}
+              value={apartmentData.apartmentType.numBedrooms?.toString() || "Không có dữ liệu"}
               icon="bed"
             />
 
             <InfoRow
               label="Số phòng tắm"
-              value={apartmentData.bathrooms?.toString() || "Không có dữ liệu"}
+              value={apartmentData.apartmentType.numBathrooms?.toString() || "Không có dữ liệu"}
               icon="bathtub"
             />
 
-            <InfoRow
+           {/*  <InfoRow
               label="Có ban công"
               value={apartmentData.hasBalcony ? "Có" : "Không"}
               icon="balcony"
-            />
+            /> */}
 
-            <InfoRow
+           {/*  <InfoRow
               label="Có thang máy"
               value={apartmentData.hasElevator ? "Có" : "Không"}
               icon="elevator"
-            />
+            /> */}
           </ModernCard>
 
           <ModernCard title="Thông tin tài chính">
             <InfoRow
               label="Giá thuê"
-              value={formatCurrency(apartmentData.rentPrice)}
+              value={formatCurrency(apartmentData.apartmentType.rentFee)}
               icon="attach-money"
               type="highlight"
             />
 
-            <InfoRow
+            {/* <InfoRow
               label="Phí dịch vụ"
               value={formatCurrency(apartmentData.servicePrice)}
               icon="receipt-long"
@@ -233,10 +237,10 @@ export default function ResidentApartmentInfoScreen() {
               label="Tiền cọc"
               value={formatCurrency(apartmentData.deposit)}
               icon="account-balance-wallet"
-            />
+            /> */}
           </ModernCard>
 
-          <ModernCard title="Thông tin khác">
+          {/* <ModernCard title="Thông tin khác">
             <InfoRow
               label="Trạng thái"
               value={getStatusText(apartmentData.status)}
@@ -255,13 +259,13 @@ export default function ResidentApartmentInfoScreen() {
               value={apartmentData.yearBuilt?.toString()}
               icon="construction"
             />
-          </ModernCard>
+          </ModernCard> */}
 
-          {apartmentData.description && (
+          {apartmentData.apartmentType.description && (
             <ModernCard title="Mô tả">
               <InfoRow
                 label="Mô tả"
-                value={apartmentData.description}
+                value={apartmentData.apartmentType.description}
                 icon="description"
               />
             </ModernCard>
