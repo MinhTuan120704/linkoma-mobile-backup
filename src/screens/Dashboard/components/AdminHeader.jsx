@@ -1,11 +1,51 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export const AdminHeader = () => {
+  const navigation = useNavigation();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Đăng xuất",
+      "Bạn có chắc chắn muốn đăng xuất?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Đăng xuất",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout();
+              navigation.replace("Auth");
+            } catch (error) {
+              console.error("Logout error:", error);
+              Alert.alert("Lỗi", "Không thể đăng xuất. Vui lòng thử lại sau.");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   return (
     <View style={styles.header}>
-      <Text style={styles.headerTitle}>Admin Dashboard</Text>
-      <Text style={styles.headerSubtitle}>Quản lý tòa nhà Linkoma</Text>
+      <View style={styles.headerContent}>
+        <View style={styles.headerTitleContainer}>
+          <Text style={styles.headerTitle}>Admin Dashboard</Text>
+          <Text style={styles.headerSubtitle}>Quản lý tòa nhà Linkoma</Text>
+        </View>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <MaterialIcons name="logout" size={24} color="#FFF" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -24,6 +64,14 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerTitleContainer: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
@@ -35,5 +83,9 @@ const styles = StyleSheet.create({
     color: "#E3F2FD",
     textAlign: "center",
     marginTop: 5,
+  },
+  logoutButton: {
+    padding: 8,
+    marginLeft: 16,
   },
 });
