@@ -112,3 +112,65 @@ export const saveAuthData = async (token, userData) => {
     return false;
   }
 };
+
+// Cookie helper functions with improved error handling
+export const saveCookie = async (name, value, options = {}) => {
+  if (!name || !value) {
+    console.error("Cookie name and value are required");
+    return;
+  }
+
+  try {
+    const cookieOptions = {
+      path: "/",
+      secure: true,
+      sameSite: "strict",
+      ...options,
+    };
+
+    const cookieString = `${name}=${value}; ${Object.entries(cookieOptions)
+      .map(([key, val]) => `${key}=${val}`)
+      .join("; ")}`;
+
+    await AsyncStorage.setItem(`cookie_${name}`, cookieString);
+    console.debug(`Cookie ${name} saved successfully`);
+  } catch (error) {
+    console.error(`Error saving cookie ${name}:`, error);
+    throw error; // Propagate error for better error handling
+  }
+};
+
+export const getCookie = async (name) => {
+  if (!name) {
+    console.error("Cookie name is required");
+    return null;
+  }
+
+  try {
+    const cookieString = await AsyncStorage.getItem(`cookie_${name}`);
+    if (!cookieString) {
+      return null;
+    }
+
+    const value = cookieString.split(";")[0].split("=")[1];
+    return value;
+  } catch (error) {
+    console.error(`Error getting cookie ${name}:`, error);
+    return null;
+  }
+};
+
+export const removeCookie = async (name) => {
+  if (!name) {
+    console.error("Cookie name is required");
+    return;
+  }
+
+  try {
+    await AsyncStorage.removeItem(`cookie_${name}`);
+    console.debug(`Cookie ${name} removed successfully`);
+  } catch (error) {
+    console.error(`Error removing cookie ${name}:`, error);
+    throw error;
+  }
+};

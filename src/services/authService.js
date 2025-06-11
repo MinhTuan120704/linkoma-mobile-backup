@@ -1,27 +1,27 @@
 import httpClient from "./httpClient";
 import { ENDPOINTS } from "./apiConfig";
-import { setAccessToken, clearAll, saveTokens } from "./storage";
+import { setAccessToken, clearAll, saveTokens, removeCookie } from "./storage";
 
 export const login = async (email, password) => {
   try {
     const credentials = { email, password };
 
     const response = await httpClient.post(ENDPOINTS.LOGIN, credentials, {
-      withCredentials: true,
+      withCredentials: true, // Important for receiving cookies
     });
 
     if (response.data && response.status === 200) {
       const { accessToken, user } = response.data;
 
-      if (accessToken) {
-        // Ensure token is saved before returning success
-        await saveTokens(accessToken.token);
-      } else {
+      if (!accessToken?.token) {
         throw new Error("No access token received");
       }
 
-      // Add role validation
-      if (!user.role) {
+      // Save access token
+      await saveTokens(accessToken.token);
+
+      // Validate user data
+      if (!user?.role) {
         throw new Error("User role not specified");
       }
 
@@ -39,51 +39,24 @@ export const login = async (email, password) => {
     };
   } catch (error) {
     console.error("Login error:", error);
-    console.error("Error response:", error.response?.data);
-    console.error("Error status:", error.response?.status);
     return {
       success: false,
       data: null,
-      message:
-        error.response?.data?.message ||
-        error.message ||
-        "Có lỗi xảy ra khi đăng nhập",
+      message: error.response?.data?.message || "Đăng nhập thất bại",
     };
   }
 };
 
-// Đăng xuất
 export const logout = async () => {
   try {
-    // Call logout API first
-    await httpClient.post(ENDPOINTS.LOGOUT);
-
-    // Clear all local storage and cache
-    await clearAll();
-
-    console.log("Logout successful - all data cleared");
-
-    return {
-      success: true,
-      data: null,
-      message: "Đăng xuất thành công",
-    };
+    // Call logout endpoint to invalidate refresh token on server
+    await httpClient.post(ENDPOINTS.LOGOUT, {}, { withCredentials: true });
   } catch (error) {
     console.error("Logout API error:", error);
-
-    // Vẫn clear local data dù API lỗi để đảm bảo security
-    try {
-      await clearAll();
-      console.log("Local data cleared despite API error");
-    } catch (clearError) {
-      console.error("Error clearing local data:", clearError);
-    }
-
-    return {
-      success: true,
-      data: null,
-      message: "Đăng xuất thành công",
-    };
+  } finally {
+    // Clean up local storage regardless of API call success
+    await clearAll();
+    await removeCookie("refreshToken");
   }
 };
 
