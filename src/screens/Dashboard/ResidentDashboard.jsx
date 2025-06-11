@@ -7,9 +7,12 @@ import {
   StatusBar,
   Dimensions,
   Image,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { useAuth } from "../../contexts/AuthContext";
 
 import ResidentInfoScreen from "../Resident/ResidentInfoScreen/ResidentInfoScreen";
 import ResidentApartmentInfoScreen from "../Resident/ResidentApartmentInfoScreen/ResidentApartmentInfoScreen";
@@ -23,6 +26,35 @@ const { width, height } = Dimensions.get("window");
 export default function ResidentDashboard() {
   const [activeTab, setActiveTab] = React.useState(0);
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert(
+      "Đăng xuất",
+      "Bạn có chắc chắn muốn đăng xuất?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Đăng xuất",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout();
+              navigation.replace("Auth");
+            } catch (error) {
+              console.error("Logout error:", error);
+              Alert.alert("Lỗi", "Không thể đăng xuất. Vui lòng thử lại sau.");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   const tabs = [
     {
@@ -105,8 +137,15 @@ export default function ResidentDashboard() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Resident Portal</Text>
-        <Text style={styles.headerSubtitle}>Cổng thông tin cư dân</Text>
+        <View style={styles.headerContent}>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>Resident Portal</Text>
+            <Text style={styles.headerSubtitle}>Cổng thông tin cư dân</Text>
+          </View>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <MaterialIcons name="logout" size={24} color="#FFF" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Tab Content */}
@@ -167,6 +206,14 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerTitleContainer: {
+    flex: 1,
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: "bold",
@@ -178,6 +225,10 @@ const styles = StyleSheet.create({
     color: "#E3F2FD",
     textAlign: "center",
     marginTop: 5,
+  },
+  logoutButton: {
+    padding: 8,
+    marginLeft: 16,
   },
   content: {
     flex: 1,
