@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Alert, ScrollView } from "react-native";
-import { ModernScreenWrapper, ModernCard, InfoRow } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { View, Alert, ScrollView, RefreshControl } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useAuth } from "../../../contexts/AuthContext";
+import ModernScreenWrapper from "../../../components/ModernScreenWrapper";
+import ModernCard from "../../../components/ModernCard";
+import { InfoRow } from "../../../components/InfoRow";
+import apartmentService from "../../../services/apartmentService";
 
 // Import apartmentService để thực hiện chức năng:
 // - Lấy thông tin căn hộ (getApartmentById)
@@ -10,30 +14,46 @@ export default function ResidentApartmentInfoScreen() {
   const { user } = useAuth();
   const [apartmentData, setApartmentData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchApartment = async () => {
-    if (!user || !user.apartmentId) {
+    if (!user?.apartmentId) {
       setLoading(false);
       return;
     }
 
     setLoading(true);
     try {
-      // TODO: Call API getApartmentById(apartmentId) để lấy thông tin căn hộ
-      // Hiện tại set empty object để test giao diện
-      setApartmentData({});
+      const response = await apartmentService.getApartmentById(
+        user.apartmentId
+      );
+      if (response.success) {
+        setApartmentData(response.data);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tải thông tin căn hộ"
+        );
+        setApartmentData(null);
+      }
     } catch (error) {
       console.error("Error fetching apartment:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin căn hộ");
-      setApartmentData({});
+      setApartmentData(null);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
   useEffect(() => {
     fetchApartment();
   }, [user]);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchApartment();
+  }, []);
 
   const formatCurrency = (amount) => {
     if (!amount) return "Không có dữ liệu";
@@ -100,7 +120,12 @@ export default function ResidentApartmentInfoScreen() {
       onRefresh={fetchApartment}
     >
       {apartmentData && (
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <ModernCard title="Thông tin cơ bản">
             <InfoRow
               label="Tên căn hộ"

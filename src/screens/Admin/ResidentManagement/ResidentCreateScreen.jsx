@@ -4,6 +4,7 @@ import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
+  ModernDateTimePicker,
 } from "../../../components";
 // Import residentService để thực hiện chức năng:
 // - Tạo cư dân mới (createResident)
@@ -84,7 +85,6 @@ export default function ResidentCreateScreen({ navigation }) {
           required
           error={errors.name}
         />
-
         <ModernFormInput
           label="Email"
           value={formData.email}
@@ -95,7 +95,6 @@ export default function ResidentCreateScreen({ navigation }) {
           required
           error={errors.email}
         />
-
         <ModernFormInput
           label="Số điện thoại"
           value={formData.phone}
@@ -105,17 +104,15 @@ export default function ResidentCreateScreen({ navigation }) {
           keyboardType="phone-pad"
           required
           error={errors.phone}
-        />
-
-        <ModernFormInput
+        />{" "}
+        <ModernDateTimePicker
           label="Ngày sinh"
-          value={formData.dob}
-          onChangeText={(value) => updateField("dob", value)}
-          placeholder="DD/MM/YYYY"
+          value={formData.dob ? new Date(formData.dob) : null}
+          onChange={(date) => updateField("dob", date.toISOString())}
           icon="cake"
           error={errors.dob}
+          maximumDate={new Date()}
         />
-
         <ModernFormInput
           label="Giới tính"
           value={formData.gender}
@@ -124,7 +121,6 @@ export default function ResidentCreateScreen({ navigation }) {
           icon="person-outline"
           error={errors.gender}
         />
-
         <ModernFormInput
           label="CCCD/CMND"
           value={formData.idCard}
@@ -134,7 +130,6 @@ export default function ResidentCreateScreen({ navigation }) {
           keyboardType="numeric"
           error={errors.idCard}
         />
-
         <ModernFormInput
           label="Địa chỉ"
           value={formData.address}
@@ -145,7 +140,6 @@ export default function ResidentCreateScreen({ navigation }) {
           numberOfLines={3}
           error={errors.address}
         />
-
         <ModernFormInput
           label="Người liên hệ khẩn cấp"
           value={formData.emergencyContact}
@@ -154,7 +148,6 @@ export default function ResidentCreateScreen({ navigation }) {
           icon="contact-emergency"
           error={errors.emergencyContact}
         />
-
         <ModernFormInput
           label="SĐT liên hệ khẩn cấp"
           value={formData.emergencyPhone}
@@ -164,7 +157,6 @@ export default function ResidentCreateScreen({ navigation }) {
           keyboardType="phone-pad"
           error={errors.emergencyPhone}
         />
-
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
             title="Tạo cư dân"

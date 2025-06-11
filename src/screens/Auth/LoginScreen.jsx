@@ -1,54 +1,52 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Alert } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, StyleSheet } from "react-native";
 import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
 } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { useAuthNavigation } from "../../hooks/useAuthNavigation";
+import { Toast } from "@ant-design/react-native";
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
   const { login } = useAuth();
+  const { navigateBasedOnRole } = useAuthNavigation();
+
+  const validateInput = useCallback(() => {
+    if (!email) {
+      Toast.info("Vui lòng nhập email", 2);
+      return false;
+    }
+    if (!password) {
+      Toast.info("Vui lòng nhập mật khẩu", 2);
+      return false;
+    }
+    return true;
+  }, [email, password]);
 
   const handleLogin = async () => {
-    if (!formData.username || !formData.password) {
-      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ thông tin");
-      return;
-    }
+    if (!validateInput()) return;
 
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await login(formData.username, formData.password);
-
-      // Check if this is first time login
-      if (response.isFirstLogin) {
-        // Navigate to change password screen with first login flag
-        navigation.navigate("ChangePassword", { isFirstLogin: true });
-        return;
-      }
-
-      // Normal login flow - navigate to appropriate dashboard
-      if (response.user.role === "admin") {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "AdminDashboard" }],
-        });
+      const response = await login(email, password);
+      if (response.success) {
+        Toast.success("Đăng nhập thành công", 2);
+        // Role-based navigation will be handled by AppNavigator
       } else {
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "ResidentDashboard" }],
-        });
+        Toast.fail(response.message || "Đăng nhập thất bại", 2);
+
+        // Clear password on failure
+        setPassword("");
       }
     } catch (error) {
-      Alert.alert(
-        "Lỗi đăng nhập",
-        error.message || "Sai tên đăng nhập hoặc mật khẩu"
-      );
+      console.error("Login error:", error);
+      Toast.fail("Đã xảy ra lỗi. Vui lòng thử lại sau.", 2);
+      setPassword("");
     } finally {
       setLoading(false);
     }
@@ -64,42 +62,29 @@ export default function LoginScreen({ navigation }) {
     >
       <View style={styles.container}>
         <ModernFormInput
-          label="Tên đăng nhập"
-          value={formData.username}
-          onChangeText={(value) =>
-            setFormData((prev) => ({ ...prev, username: value }))
-          }
-          placeholder="Nhập tên đăng nhập"
-          icon="person"
+          label="Email "
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Nhập email"
           autoCapitalize="none"
+          editable={!loading}
+          returnKeyType="next"
         />
-
         <ModernFormInput
           label="Mật khẩu"
-          value={formData.password}
-          onChangeText={(value) =>
-            setFormData((prev) => ({ ...prev, password: value }))
-          }
+          value={password}
+          onChangeText={setPassword}
           placeholder="Nhập mật khẩu"
-          icon="lock"
           secureTextEntry
+          editable={!loading}
+          returnKeyType="done"
+          onSubmitEditing={handleLogin}
         />
-
         <View style={styles.buttonContainer}>
           <ModernButton
             title="Đăng nhập"
             onPress={handleLogin}
             loading={loading}
-            icon="login"
-            fullWidth
-          />
-
-          <ModernButton
-            title="Quên mật khẩu?"
-            onPress={() => navigation.navigate("ForgotPassword")}
-            type="outline"
-            fullWidth
-            style={styles.forgotButton}
           />
         </View>
       </View>
@@ -115,8 +100,5 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 24,
     gap: 12,
-  },
-  forgotButton: {
-    marginTop: 8,
   },
 });

@@ -116,8 +116,13 @@ export const useDeleteHandlers = (setters) => {
     ),
     handleDeleteInvoice: createDeleteHandler(
       "hóa đơn",
-      removeInvoice,
-      getAllInvoices,
+      async (id) => {
+        // TODO: Call API removeInvoice(id) để xóa hóa đơn
+      },
+      async () => {
+        // TODO: Call API getAllInvoices() để lấy danh sách hóa đơn
+        return [];
+      },
       setInvoices,
       "Không thể xóa hóa đơn"
     ),

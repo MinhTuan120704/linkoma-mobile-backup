@@ -11,13 +11,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
 
-import ResidentInfoScreen from "../Resident/ResidentInfoScreen";
-import ResidentApartmentInfoScreen from "../Resident/ResidentApartmentInfoScreen";
-import ResidentFeedbackListScreen from "../Resident/ResidentFeedbackListScreen";
-import ResidentServiceListScreen from "../Resident/ResidentServiceListScreen";
-import ResidentNotificationListScreen from "../Resident/ResidentNotificationListScreen";
-import ResidentInvoiceListScreen from "../Resident/ResidentInvoiceListScreen";
-import ResidentContractListScreen from "../Resident/ResidentContractListScreen";
+import ResidentInfoScreen from "../Resident/ResidentInfoScreen/ResidentInfoScreen";
+import ResidentApartmentInfoScreen from "../Resident/ResidentApartmentInfoScreen/ResidentApartmentInfoScreen";
+import ResidentFeedbackListScreen from "../Resident/ResidentFeedbackListScreen/ResidentFeedbackListScreen";
+import ResidentServiceListScreen from "../Resident/ResidentServiceListScreen/ResidentServiceListScreen";
+import ResidentNotificationListScreen from "../Resident/ResidentNotificationListScreen/ResidentNotificationListScreen";
+import ResidentInvoiceListScreen from "../Resident/ResidentInvoiceListScreen/ResidentInvoiceListScreen";
 
 const { width, height } = Dimensions.get("window");
 
@@ -62,12 +61,6 @@ export default function ResidentDashboard() {
       iconLibrary: "MaterialIcons",
       color: "#00BCD4",
     },
-    {
-      title: "Hợp đồng",
-      icon: "description",
-      iconLibrary: "MaterialIcons",
-      color: "#795548",
-    },
   ];
 
   // Hàm render icon
@@ -102,8 +95,6 @@ export default function ResidentDashboard() {
         return <ResidentNotificationListScreen />;
       case 5:
         return <ResidentInvoiceListScreen />;
-      case 6:
-        return <ResidentContractListScreen />;
       default:
         return <ResidentInfoScreen />;
     }

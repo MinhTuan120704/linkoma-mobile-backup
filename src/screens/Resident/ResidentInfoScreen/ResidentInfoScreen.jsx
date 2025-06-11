@@ -1,32 +1,50 @@
 import React, { useEffect, useState } from "react";
 import { View, Alert } from "react-native";
-import { ModernScreenWrapper, ModernCard, InfoRow } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
+import { useUserSetup } from "../../../hooks/useUserSetup";
 
 // Import residentService để thực hiện chức năng:
 // - Lấy thông tin cư dân (getResidentById)
 
 export default function ResidentInfoScreen() {
-  const { user } = useAuth();
+  const { user } = useUserSetup(); // Sử dụng useUserSetup thay vì useAuth
   const [residentData, setResidentData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchResident = async () => {
-    if (!user) return;
+    console.log("Fetching resident data for user:", user);
+
+    if (!user) {
+      console.log("No user data available");
+      return;
+    }
+
     try {
-      setLoading(true); // TODO: Call API getResidentById(userId) để lấy thông tin cư dân
-      // Hiện tại set empty object để test giao diện
-      setResidentData({});
+      setLoading(true);
+      // TODO: Call API getResidentById(userId) để lấy thông tin cư dân
+      // Tạm thời sử dụng dữ liệu user từ storage
+      setResidentData({
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        dateOfBirth: user.dateOfBirth,
+        citizenId: user.citizenId,
+        address: user.address,
+        licensePlate: user.licensePlate,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        status: "active",
+      });
     } catch (e) {
       console.error("Error fetching resident:", e);
       Alert.alert("Lỗi", "Không thể tải thông tin cư dân");
-      setResidentData({});
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    console.log("Current user in effect:", user);
     fetchResident();
   }, [user]);
 

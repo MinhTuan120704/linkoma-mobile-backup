@@ -5,7 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function ChangePasswordScreen({ navigation, route }) {
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,25 @@ export default function ChangePasswordScreen({ navigation, route }) {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const { user, changePassword } = useAuth();
+  const { user, changePassword, logout, refreshAuth } = useAuth();
+
+  // Get user data from route params
+  const { 
+    isFirstLogin, 
+    userId, 
+    userEmail, 
+    userData 
+  } = route.params || {};
+
+  // Log user info for debugging
+  React.useEffect(() => {
+    if (isFirstLogin) {
+      console.log('ChangePasswordScreen - First login detected');
+      console.log('User ID:', userId);
+      console.log('User Email:', userEmail);
+      console.log('User Data:', userData);
+    }
+  }, [isFirstLogin, userId, userEmail, userData]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -41,16 +59,31 @@ export default function ChangePasswordScreen({ navigation, route }) {
 
     try {
       setLoading(true);
-      // This is a placeholder for the actual API call
-      await changePassword(formData.currentPassword, formData.newPassword);
-
-      Alert.alert("Thành công", "Đổi mật khẩu thành công!");
-
-      // If this is first time login, navigate to update info
+      
+      let response;
+      
       if (route.params?.isFirstLogin) {
-        navigation.navigate("UpdateUserInfo");
+        // Use changePassword for first login (userId, newPassword, isFirstLogin=true)
+        response = await changePassword(userId, formData.newPassword, true);
       } else {
-        navigation.goBack();
+        // Use changePassword for normal password change (currentPassword, newPassword, isFirstLogin=false)
+        response = await changePassword(formData.currentPassword, formData.newPassword, false);
+      }
+
+      if (response.success) {
+        Alert.alert("Thành công", "Đổi mật khẩu thành công!");
+
+        // If this is first time login, refresh auth to update user data
+        // AppNavigator will automatically navigate to next step
+        if (route.params?.isFirstLogin) {
+          console.log('First login password change successful for user:', userId);
+          await refreshAuth();
+          // AppNavigator sẽ tự động chuyển đến UpdateUserInfo
+        } else {
+          navigation.goBack();
+        }
+      } else {
+        Alert.alert("Lỗi", response.message || "Không thể đổi mật khẩu");
       }
     } catch (error) {
       Alert.alert("Lỗi", error.message || "Không thể đổi mật khẩu");
@@ -59,11 +92,38 @@ export default function ChangePasswordScreen({ navigation, route }) {
     }
   };
 
+  const handleCancel = async () => {
+    Alert.alert(
+      "Xác nhận", 
+      "Bạn có muốn hủy và đăng xuất?",
+      [
+        {
+          text: "Không",
+          style: "cancel"
+        },
+        {
+          text: "Đăng xuất",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout();
+              // AppNavigator sẽ tự động điều hướng về màn hình login
+            } catch (error) {
+              console.error("Logout error:", error);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <ModernScreenWrapper
       title="Đổi mật khẩu"
       subtitle="Vui lòng cập nhật mật khẩu mới"
       loading={loading}
+      showBackButton={!route.params?.isFirstLogin}
+      onBackPress={route.params?.isFirstLogin ? undefined : handleCancel}
     >
       <View style={styles.container}>
         {!route.params?.isFirstLogin && (
@@ -119,7 +179,17 @@ export default function ChangePasswordScreen({ navigation, route }) {
           {!route.params?.isFirstLogin && (
             <ModernButton
               title="Hủy"
-              onPress={() => navigation.goBack()}
+              onPress={handleCancel}
+              type="outline"
+              fullWidth
+              style={styles.cancelButton}
+            />
+          )}
+
+          {route.params?.isFirstLogin && (
+            <ModernButton
+              title="Quay lại đăng nhập"
+              onPress={handleCancel}
               type="outline"
               fullWidth
               style={styles.cancelButton}

@@ -5,7 +5,7 @@ import {
   ModernCard,
   InfoRow,
   ModernButton,
-} from "../../components";
+} from "../../../components";
 import { useRoute, useNavigation } from "@react-navigation/native";
 
 export default function ResidentFeedbackViewScreen() {

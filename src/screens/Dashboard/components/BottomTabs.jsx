@@ -2,7 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { MaterialIcons, FontAwesome5, Ionicons } from "@expo/vector-icons";
 
-export const tabs = [
+const tabs = [
   {
     title: "Cư dân",
     icon: "people",
@@ -38,12 +38,6 @@ export const tabs = [
     icon: "receipt",
     iconLibrary: "MaterialIcons",
     color: "#00BCD4",
-  },
-  {
-    title: "Hợp đồng",
-    icon: "description",
-    iconLibrary: "MaterialIcons",
-    color: "#795548",
   },
 ];
 
@@ -149,3 +143,5 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
+
+export { tabs };

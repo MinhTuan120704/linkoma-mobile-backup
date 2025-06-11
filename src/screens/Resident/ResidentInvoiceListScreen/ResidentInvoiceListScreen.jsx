@@ -10,14 +10,15 @@ import {
   ModernScreenWrapper,
   ModernCard,
   ModernButton,
-} from "../../components";
+} from "../../../components";
 import { MaterialIcons } from "@expo/vector-icons";
+import invoiceService from "../../../services/invoiceService";
 // Import invoiceService để thực hiện các chức năng:
 // - Lấy danh sách hóa đơn theo resident ID
 // - Xem chi tiết hóa đơn
 // - Thanh toán hóa đơn
 import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ResidentInvoiceListScreen() {
   const [invoices, setInvoices] = useState([]);

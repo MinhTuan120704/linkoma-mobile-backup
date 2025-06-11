@@ -5,6 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
   ModernCard,
+  ModernDateTimePicker,
 } from "../../../components";
 // Import invoiceService để thực hiện các chức năng:
 // - Cập nhật hóa đơn (updateInvoice)
@@ -186,24 +187,24 @@ export default function InvoiceEditScreen({ route, navigation }) {
             icon="attach-money"
             keyboardType="numeric"
             error={errors.amount}
-          />
-
-          <ModernFormInput
+          />{" "}
+          <ModernDateTimePicker
             label="Ngày phát hành"
-            value={formData.issueDate}
-            onChangeText={(value) => updateField("issueDate", value)}
-            placeholder="DD/MM/YYYY"
+            value={formData.issueDate ? new Date(formData.issueDate) : null}
+            onChange={(date) => updateField("issueDate", date.toISOString())}
             icon="today"
+            maximumDate={new Date()}
             error={errors.issueDate}
+            required
           />
-
-          <ModernFormInput
+          <ModernDateTimePicker
             label="Ngày đến hạn"
-            value={formData.dueDate}
-            onChangeText={(value) => updateField("dueDate", value)}
-            placeholder="DD/MM/YYYY"
+            value={formData.dueDate ? new Date(formData.dueDate) : null}
+            onChange={(date) => updateField("dueDate", date.toISOString())}
             icon="schedule"
+            minimumDate={new Date()}
             error={errors.dueDate}
+            required
           />
         </ModernCard>
 

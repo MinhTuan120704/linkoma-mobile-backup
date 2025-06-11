@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { ModernScreenWrapper, ModernCard } from "../../components";
+import { ModernScreenWrapper, ModernCard } from "../../../components";
 import { MaterialIcons } from "@expo/vector-icons";
-import notificationService from "../../services/notificationService";
+import announcementService from "../../../services/announcementService";
 import { useNavigation } from "@react-navigation/native";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ResidentNotificationListScreen() {
   const [notifications, setNotifications] = useState([]);

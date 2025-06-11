@@ -4,6 +4,7 @@ import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
+  ModernDateTimePicker,
 } from "../../../components";
 // Import invoiceService để thực hiện chức năng:
 // - Tạo hóa đơn mới (createInvoice)
@@ -81,7 +82,6 @@ export default function InvoiceCreateScreen({ navigation }) {
           required
           error={errors.code}
         />
-
         <ModernFormInput
           label="Tiêu đề hóa đơn"
           value={formData.title}
@@ -91,7 +91,6 @@ export default function InvoiceCreateScreen({ navigation }) {
           required
           error={errors.title}
         />
-
         <ModernFormInput
           label="Số tiền"
           value={formData.amount}
@@ -101,17 +100,16 @@ export default function InvoiceCreateScreen({ navigation }) {
           keyboardType="numeric"
           required
           error={errors.amount}
-        />
-
-        <ModernFormInput
+        />{" "}
+        <ModernDateTimePicker
           label="Hạn thanh toán"
-          value={formData.dueDate}
-          onChangeText={(value) => updateField("dueDate", value)}
-          placeholder="DD/MM/YYYY"
+          value={formData.dueDate ? new Date(formData.dueDate) : null}
+          onChange={(date) => updateField("dueDate", date.toISOString())}
           icon="schedule"
+          minimumDate={new Date()}
           error={errors.dueDate}
+          required
         />
-
         <ModernFormInput
           label="Căn hộ"
           value={formData.apartmentId}
@@ -120,7 +118,6 @@ export default function InvoiceCreateScreen({ navigation }) {
           icon="home"
           error={errors.apartmentId}
         />
-
         <ModernFormInput
           label="Trạng thái"
           value={formData.status}
@@ -129,7 +126,6 @@ export default function InvoiceCreateScreen({ navigation }) {
           icon="assignment"
           error={errors.status}
         />
-
         <ModernFormInput
           label="Mô tả"
           value={formData.description}
@@ -140,7 +136,6 @@ export default function InvoiceCreateScreen({ navigation }) {
           numberOfLines={4}
           error={errors.description}
         />
-
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
             title="Tạo hóa đơn"

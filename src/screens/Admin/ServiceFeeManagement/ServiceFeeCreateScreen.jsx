@@ -5,6 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
   ModernCard,
+  ModernDateTimePicker,
 } from "../../../components";
 // Import serviceFeeService để thực hiện chức năng:
 // - Tạo mới phí dịch vụ (createServiceFee)
@@ -125,6 +126,7 @@ export default function ServiceFeeCreateScreen({ navigation }) {
         </ModernCard>
 
         <ModernCard title="Cài đặt thanh toán">
+          {" "}
           <ModernFormInput
             label="Chu kỳ thanh toán"
             value={formData.billingPeriod}
@@ -132,15 +134,18 @@ export default function ServiceFeeCreateScreen({ navigation }) {
             placeholder="monthly/quarterly/yearly/one-time"
             icon="schedule"
           />
-
-          <ModernFormInput
+          <ModernDateTimePicker
             label="Ngày có hiệu lực"
-            value={formData.effectiveDate}
-            onChangeText={(value) => updateField("effectiveDate", value)}
-            placeholder="DD/MM/YYYY"
+            value={
+              formData.effectiveDate ? new Date(formData.effectiveDate) : null
+            }
+            onChange={(date) =>
+              updateField("effectiveDate", date.toISOString())
+            }
             icon="event"
+            minimumDate={new Date()}
+            required
           />
-
           <ModernFormInput
             label="Trạng thái hoạt động"
             value={formData.isActive}

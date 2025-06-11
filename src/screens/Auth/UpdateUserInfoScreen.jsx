@@ -5,11 +5,11 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../components";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function UpdateUserInfoScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
-  const { user, updateUserInfo } = useAuth();
+  const { user, updateUserInfo, logout } = useAuth();
   const [formData, setFormData] = useState({
     fullName: user?.fullName || "",
     phone: user?.phone || "",
@@ -47,33 +47,48 @@ export default function UpdateUserInfoScreen({ navigation }) {
 
     try {
       setLoading(true);
-      // This is a placeholder for the actual API call
-      await updateUserInfo(formData);
+      const response = await updateUserInfo(formData);
 
-      Alert.alert("Thành công", "Cập nhật thông tin thành công!", [
-        {
-          text: "OK",
-          onPress: () => {
-            // Navigate to the appropriate dashboard based on user role
-            if (user?.role === "admin") {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "AdminDashboard" }],
-              });
-            } else {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "ResidentDashboard" }],
-              });
-            }
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật thông tin thành công!", [
+          {
+            text: "OK",
+            onPress: () => {
+              // AppNavigator sẽ tự động điều hướng dựa trên user info đã được cập nhật
+              // Không cần navigation.goBack() vì có thể không có màn hình để quay lại
+              console.log("User info updated, AppNavigator will handle navigation");
+            },
           },
-        },
-      ]);
+        ]);
+      } else {
+        Alert.alert("Lỗi", response.message || "Không thể cập nhật thông tin");
+      }
     } catch (error) {
       Alert.alert("Lỗi", error.message || "Không thể cập nhật thông tin");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = async () => {
+    Alert.alert(
+      "Đăng xuất",
+      "Bạn có muốn đăng xuất và quay lại màn hình đăng nhập?",
+      [
+        {
+          text: "Hủy",
+          style: "cancel"
+        },
+        {
+          text: "Đăng xuất",
+          style: "destructive",
+          onPress: async () => {
+            await logout();
+            // AppNavigator sẽ tự động chuyển về LoginScreen
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -174,6 +189,15 @@ export default function UpdateUserInfoScreen({ navigation }) {
             icon="check"
             fullWidth
           />
+          
+          <ModernButton
+            title="Đăng xuất"
+            onPress={handleLogout}
+            type="outline"
+            icon="logout"
+            fullWidth
+            style={styles.logoutButton}
+          />
         </View>
       </View>
     </ModernScreenWrapper>
@@ -186,5 +210,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 24,
+    gap: 12,
+  },
+  logoutButton: {
+    marginTop: 8,
   },
 });

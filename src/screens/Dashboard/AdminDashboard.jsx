@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet, StatusBar, Dimensions } from "react-native";
+import { View, StyleSheet, StatusBar } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import {
@@ -11,11 +11,13 @@ import {
   InvoicesTab,
 } from "./components";
 import { AdminHeader } from "./components/AdminHeader";
-import { BottomTabs } from "./components/BottomTabs";
+import { BottomTabs, tabs as bottomTabs } from "./components/BottomTabs";
 import { useNavigationHandlers } from "./hooks/useNavigationHandlers";
 import { useDeleteHandlers } from "./hooks/useDeleteHandlers";
 import { useDataLoader } from "./hooks/useDataLoader";
 import { useTabHandlers } from "./hooks/useTabHandlers";
+
+const TAB_CONFIG = bottomTabs;
 
 export default function AdminDashboard() {
   const insets = useSafeAreaInsets();
@@ -60,8 +62,9 @@ export default function AdminDashboard() {
     const tabProps = {
       refreshing,
       onRefresh,
-      tabs,
+      tabs: TAB_CONFIG,
     };
+
     switch (activeTab) {
       case 0:
         return (

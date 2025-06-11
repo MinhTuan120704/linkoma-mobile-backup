@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "react-native";
-import { ModernScreenWrapper, ModernCard, InfoRow } from "../../components";
+import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
 import { useRoute } from "@react-navigation/native";
 
 export default function ResidentNotificationViewScreen() {
