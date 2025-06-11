@@ -24,6 +24,7 @@ export default function ResidentFeedbackListScreen() {
   const fetchFeedbacks = async () => {
     if (!user) return setLoading(false);
     setLoading(true);
+    console.log("Fetching feedbacks for user:", user.userId);
     try {
       const data = await feedbackService.getFeedbacksByResident(user.userId);
       setFeedbacks(data || []);
@@ -195,7 +196,7 @@ export default function ResidentFeedbackListScreen() {
         <ModernButton
           title="Tạo"
           onPress={handleCreate}
-          type="outline"
+          type="secondary"
           size="small"
         />
       }

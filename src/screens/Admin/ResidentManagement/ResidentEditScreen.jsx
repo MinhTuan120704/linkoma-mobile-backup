@@ -126,7 +126,6 @@ export default function ResidentEditScreen({ route, navigation }) {
             icon="person"
             error={errors.name}
           />
-
           <ModernFormInput
             label="Email"
             value={formData.email}
@@ -136,7 +135,6 @@ export default function ResidentEditScreen({ route, navigation }) {
             keyboardType="email-address"
             error={errors.email}
           />
-
           <ModernFormInput
             label="Số điện thoại"
             value={formData.phoneNumber}
@@ -145,16 +143,14 @@ export default function ResidentEditScreen({ route, navigation }) {
             icon="phone"
             keyboardType="phone-pad"
             error={errors.phoneNumber}
-          />
-
-          <ModernFormInput
+          />{" "}
+          <ModernDateTimePicker
             label="Ngày sinh"
-            value={formData.dateOfBirth}
-            onChangeText={(value) => updateField("dateOfBirth", value)}
-            placeholder="DD/MM/YYYY"
+            value={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
+            onChange={(date) => updateField("dateOfBirth", date.toISOString())}
             icon="cake"
+            maximumDate={new Date()}
           />
-
           <ModernFormInput
             label="CMND/CCCD"
             value={formData.citizenId}

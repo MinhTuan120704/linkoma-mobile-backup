@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerRight: {
-    width: 40,
+    minWidth: 40,
     alignItems: "flex-end",
   },
   backButton: {

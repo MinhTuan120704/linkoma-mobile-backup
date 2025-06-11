@@ -211,7 +211,7 @@ export default function ResidentServiceListScreen() {
         <ModernButton
           title="Đăng ký"
           onPress={handleRegister}
-          type="outline"
+          type="secondary"
           size="small"
         />
       }

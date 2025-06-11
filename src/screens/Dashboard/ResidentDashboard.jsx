@@ -61,12 +61,6 @@ export default function ResidentDashboard() {
       iconLibrary: "MaterialIcons",
       color: "#00BCD4",
     },
-    {
-      title: "Hợp đồng",
-      icon: "description",
-      iconLibrary: "MaterialIcons",
-      color: "#795548",
-    },
   ];
 
   // Hàm render icon
@@ -101,8 +95,6 @@ export default function ResidentDashboard() {
         return <ResidentNotificationListScreen />;
       case 5:
         return <ResidentInvoiceListScreen />;
-      case 6:
-        return <ResidentInfoScreen />; // Placeholder for contract screen
       default:
         return <ResidentInfoScreen />;
     }
