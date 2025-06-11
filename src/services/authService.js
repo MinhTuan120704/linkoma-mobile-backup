@@ -167,7 +167,16 @@ export const getUserInfo = async () => {
 // Cập nhật thông tin user
 export const updateUserInfo = async (userData) => {
   try {
-    const response = await httpClient.put(ENDPOINTS.USERS_UPDATE, userData);
+    // Lấy userId từ userData hoặc từ context
+    const userId = userData.userId || userData.id;
+    if (!userId) {
+      throw new Error('User ID is required for updating user info');
+    }
+    
+    // Loại bỏ userId khỏi userData để tránh gửi trong body
+    const { userId: _, id: __, ...updateData } = userData;
+    
+    const response = await httpClient.patch(`${ENDPOINTS.USERS_UPDATE}/${userId}`, updateData);
     
     if (response.data && response.status === 200) {
       return {
@@ -195,9 +204,9 @@ export const updateUserInfo = async (userData) => {
 // Đổi mật khẩu
 export const changePassword = async (userId, newPassword) => {
   try {
-    const response = await httpClient.post(ENDPOINTS.USERS_UPDATE, {
-      userId: userId,
-      password: newPassword
+    const response = await httpClient.patch(`${ENDPOINTS.USERS_UPDATE}/${userId}`, {
+      password: newPassword,
+      name: "User" // Set a default name to indicate password has been changed
     });
 
     if (response.data && response.status === 200) {

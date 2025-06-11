@@ -123,7 +123,7 @@ export default function ResidentNotificationViewScreen() {
             <InfoRow
               label="Mức độ ưu tiên"
               value={getPriorityText(notification.priority)}
-              icon="priority-high"
+              icon="priority_high"
               type={getPriorityColor(notification.priority)}
             />
           )}
@@ -145,7 +145,7 @@ export default function ResidentNotificationViewScreen() {
           <InfoRow
             label="Trạng thái"
             value={notification.isRead ? "Đã đọc" : "Chưa đọc"}
-            icon={notification.isRead ? "mark-email-read" : "mark-email-unread"}
+            icon={notification.isRead ? "mark_email_read" : "mark_email_unread"}
             type={notification.isRead ? "highlight" : "warning"}
           />
         </ModernCard>

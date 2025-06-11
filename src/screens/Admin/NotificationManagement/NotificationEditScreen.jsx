@@ -134,7 +134,7 @@ export default function NotificationEditScreen({ route, navigation }) {
             value={formData.priority}
             onChangeText={(value) => updateField("priority", value)}
             placeholder="low/normal/high/urgent"
-            icon="priority-high"
+            icon="priority_high"
           />
         </ModernCard>
 

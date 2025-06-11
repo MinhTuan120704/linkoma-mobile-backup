@@ -105,7 +105,7 @@ export default function ResidentFeedbackCreateScreen() {
           value={formData.priority}
           onChangeText={(value) => updateField("priority", value)}
           placeholder="low/medium/high/urgent"
-          icon="priority-high"
+          icon="priority_high"
           error={errors.priority}
         />
 

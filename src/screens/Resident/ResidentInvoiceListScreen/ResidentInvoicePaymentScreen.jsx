@@ -93,7 +93,7 @@ export default function ResidentInvoicePaymentScreen() {
           <InfoRow
             label="Số tiền"
             value={formatCurrency(invoice.amount)}
-            icon="attach-money"
+            icon="attach_money"
             type="highlight"
           />
 

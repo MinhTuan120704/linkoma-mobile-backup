@@ -88,7 +88,7 @@ export default function ResidentFeedbackViewScreen() {
           <InfoRow
             label="Mức độ ưu tiên"
             value={feedback?.priority}
-            icon="priority-high"
+            icon="priority_high"
             type={
               feedback?.priority === "urgent"
                 ? "danger"
@@ -140,7 +140,7 @@ export default function ResidentFeedbackViewScreen() {
                 ? formatDate(feedback.completedAt)
                 : "Chưa hoàn thành"
             }
-            icon="check-circle"
+            icon="check_circle"
             type={feedback?.completedAt ? "highlight" : "default"}
           />
         </ModernCard>

@@ -54,7 +54,7 @@ export default function ModernScreenWrapper({
               style={styles.backButton}
               onPress={() => navigation.goBack()}
             >
-              <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
+              <MaterialIcons name="arrow_back" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           )}
         </View>

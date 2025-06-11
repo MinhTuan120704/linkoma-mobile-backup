@@ -97,7 +97,7 @@ export default function ResidentInvoiceListScreen() {
   const getStatusIcon = (status) => {
     switch (status) {
       case "paid":
-        return "check-circle";
+        return "check_circle";
       case "pending":
         return "schedule";
       case "overdue":
@@ -115,7 +115,7 @@ export default function ResidentInvoiceListScreen() {
   const renderEmptyState = () => (
     <ModernCard>
       <View style={styles.emptyContainer}>
-        <MaterialIcons name="receipt-long" size={64} color="#E0E0E0" />
+        <MaterialIcons name="receipt" size={64} color="#E0E0E0" />
         <Text style={styles.emptyTitle}>Chưa có hóa đơn</Text>
         <Text style={styles.emptyText}>
           Hiện tại bạn chưa có hóa đơn nào cần thanh toán
@@ -163,7 +163,7 @@ export default function ResidentInvoiceListScreen() {
 
           <View style={styles.invoiceDetails}>
             <View style={styles.detailRow}>
-              <MaterialIcons name="attach-money" size={16} color="#1976D2" />
+              <MaterialIcons name="attach_money" size={16} color="#1976D2" />
               <Text style={styles.amount}>
                 {formatCurrency(invoice.amount)}
               </Text>
@@ -178,7 +178,7 @@ export default function ResidentInvoiceListScreen() {
 
             {invoice.period && (
               <View style={styles.detailRow}>
-                <MaterialIcons name="date-range" size={16} color="#757575" />
+                <MaterialIcons name="date_range" size={16} color="#757575" />
                 <Text style={styles.period}>Kỳ: {invoice.period}</Text>
               </View>
             )}

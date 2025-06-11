@@ -1,16 +1,11 @@
 import { Alert } from "react-native";
-// Import các service để thực hiện các chức năng:
-// - Xóa và lấy danh sách cư dân (removeResident, getAllResidents)
-// - Xóa và lấy danh sách căn hộ (removeApartment, getAllApartments)
-// - Xóa và lấy danh sách phản hồi (removeFeedback, getAllFeedbacks)
-// - Xóa và lấy danh sách phí dịch vụ (removeServiceFee, getAllServiceFees)
-// - Xóa và lấy danh sách thông báo (removeNotification, getAllNotifications)
-// - Xóa và lấy danh sách hóa đơn (removeInvoice, getAllInvoices)
+import { deleteInvoice, getAllInvoices } from "../../../services/invoiceService";
+import { residentService } from "../../../services";
 
 export const createDeleteHandler = (
   title,
-  service,
-  getAllItems,
+  deleteService,
+  getAllService,
   setItems,
   errorMessage
 ) => {
@@ -22,10 +17,28 @@ export const createDeleteHandler = (
         style: "destructive",
         onPress: async () => {
           try {
-            // TODO: Call API để xóa item theo id
-            // TODO: Call API để lấy danh sách items mới
-            setItems([]);
+            console.log(`Deleting ${title} with ID:`, id);
+            
+            // Call the delete service
+            const deleteResult = await deleteService(id);
+            console.log(`Delete ${title} result:`, deleteResult);
+            
+            if (deleteResult.success) {
+              // Refresh the list after successful deletion
+              const listResult = await getAllService();
+              console.log(`Get all ${title} result:`, listResult);
+              
+              if (listResult.success && listResult.data) {
+                setItems(listResult.data);
+              } else {
+                setItems([]);
+              }
+              Alert.alert("Thành công", deleteResult.message || `Xóa ${title} thành công`);
+            } else {
+              Alert.alert("Lỗi", deleteResult.message || errorMessage);
+            }
           } catch (error) {
+            console.error(`Error deleting ${title}:`, error);
             Alert.alert("Lỗi", errorMessage);
           }
         },
@@ -49,11 +62,10 @@ export const useDeleteHandlers = (setters) => {
     handleDeleteResident: createDeleteHandler(
       "cư dân",
       async (id) => {
-        // TODO: Call API removeResident(id) để xóa cư dân
+        return await residentService.deleteResident(id);
       },
       async () => {
-        // TODO: Call API getAllResidents() để lấy danh sách cư dân
-        return [];
+        return await residentService.getResidents();
       },
       setResidents,
       "Không thể xóa cư dân"
@@ -63,11 +75,12 @@ export const useDeleteHandlers = (setters) => {
     handleDeleteApartment: createDeleteHandler(
       "căn hộ",
       async (id) => {
-        // TODO: Call API removeApartment(id) để xóa căn hộ
+        const { apartmentService } = require('../../../services');
+        return await apartmentService.deleteApartment(id);
       },
       async () => {
-        // TODO: Call API getAllApartments() để lấy danh sách căn hộ
-        return [];
+        const { apartmentService } = require('../../../services');
+        return await apartmentService.getAllApartments();
       },
       setApartments,
       "Không thể xóa căn hộ"
@@ -116,7 +129,7 @@ export const useDeleteHandlers = (setters) => {
     ),
     handleDeleteInvoice: createDeleteHandler(
       "hóa đơn",
-      removeInvoice,
+      deleteInvoice,
       getAllInvoices,
       setInvoices,
       "Không thể xóa hóa đơn"

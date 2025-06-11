@@ -113,7 +113,7 @@ export default function ResidentApartmentInfoScreen() {
             <InfoRow
               label="Số căn hộ"
               value={apartmentData.apartmentNumber}
-              icon="door-front"
+              icon="door_front"
             />
 
             <InfoRow
@@ -135,7 +135,7 @@ export default function ResidentApartmentInfoScreen() {
                   ? `${apartmentData.area} m²`
                   : "Không có dữ liệu"
               }
-              icon="square-foot"
+              icon="square_foot"
             />
           </ModernCard>
 
@@ -143,13 +143,13 @@ export default function ResidentApartmentInfoScreen() {
             <InfoRow
               label="Địa chỉ"
               value={apartmentData.address}
-              icon="location-on"
+              icon="location_on"
             />
 
             <InfoRow
               label="Mã bưu điện"
               value={apartmentData.postalCode}
-              icon="markunread-mailbox"
+              icon="markunread_mailbox"
             />
 
             <InfoRow
@@ -161,7 +161,7 @@ export default function ResidentApartmentInfoScreen() {
             <InfoRow
               label="Thành phố"
               value={apartmentData.city}
-              icon="location-city"
+              icon="location_city"
             />
           </ModernCard>
 
@@ -195,14 +195,14 @@ export default function ResidentApartmentInfoScreen() {
             <InfoRow
               label="Giá thuê"
               value={formatCurrency(apartmentData.rentPrice)}
-              icon="attach-money"
+              icon="attach_money"
               type="highlight"
             />
 
             <InfoRow
               label="Phí dịch vụ"
               value={formatCurrency(apartmentData.servicePrice)}
-              icon="receipt-long"
+              icon="receipt"
             />
 
             <InfoRow

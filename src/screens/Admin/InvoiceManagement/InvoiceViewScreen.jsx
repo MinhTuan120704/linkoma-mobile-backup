@@ -172,7 +172,7 @@ export default function InvoiceViewScreen({ route, navigation }) {
             <InfoRow
               label="Kỳ thanh toán"
               value={invoice.period || "Không xác định"}
-              icon="date-range"
+              icon="date_range"
             />
 
             {invoice.description && (
@@ -188,7 +188,7 @@ export default function InvoiceViewScreen({ route, navigation }) {
             <InfoRow
               label="Số tiền"
               value={formatCurrency(invoice.amount)}
-              icon="attach-money"
+              icon="attach_money"
               type="highlight"
             />
 
@@ -219,7 +219,7 @@ export default function InvoiceViewScreen({ route, navigation }) {
             <InfoRow
               label="Ngày tạo"
               value={formatDate(invoice.createdAt)}
-              icon="calendar-today"
+              icon="calendar_today"
             />
 
             <InfoRow
@@ -231,7 +231,7 @@ export default function InvoiceViewScreen({ route, navigation }) {
             <InfoRow
               label="Người tạo"
               value={invoice.createdBy || "Hệ thống"}
-              icon="person-add"
+              icon="person_add_alt"
             />
           </ModernCard>
 

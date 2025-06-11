@@ -134,7 +134,7 @@ export default function FeedbackEditScreen({ route, navigation }) {
             value={formData.priority}
             onChangeText={(value) => updateField("priority", value)}
             placeholder="low/medium/high/urgent"
-            icon="priority-high"
+            icon="priority_high"
           />
 
           <ModernFormInput
@@ -162,7 +162,7 @@ export default function FeedbackEditScreen({ route, navigation }) {
             value={formData.resolution}
             onChangeText={(value) => updateField("resolution", value)}
             placeholder="Mô tả giải pháp đã thực hiện"
-            icon="check-circle"
+            icon="check_circle"
             multiline
             numberOfLines={3}
           />

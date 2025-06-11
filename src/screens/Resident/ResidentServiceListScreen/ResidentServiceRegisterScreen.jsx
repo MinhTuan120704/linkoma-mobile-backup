@@ -79,7 +79,7 @@ export default function ResidentServiceRegisterScreen() {
             value={formData.name}
             onChangeText={(value) => updateField("name", value)}
             placeholder="Nhập tên dịch vụ cần đăng ký"
-            icon="room-service"
+            icon="room_service"
             error={errors.name}
           />
 

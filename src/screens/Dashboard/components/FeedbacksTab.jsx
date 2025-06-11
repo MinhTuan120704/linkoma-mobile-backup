@@ -86,7 +86,7 @@ export default function FeedbacksTab({
               >
                 <View style={tabStyles.listItemContent}>
                   <MaterialIcons
-                    name="chat-bubble"
+                    name="chat_bubble"
                     size={18}
                     color={tabs[2].color}
                   />

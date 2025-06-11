@@ -6,21 +6,31 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import residentService để thực hiện các chức năng:
-// - Lấy thông tin chi tiết cư dân (getResidentById)
-// - Xóa cư dân (deleteResident)
+import { residentService } from "../../../services";
 
 export default function ResidentViewScreen({ route, navigation }) {
-  const { residentId } = route.params;
-  const [resident, setResident] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { resident: residentParam } = route.params;
+  const [resident, setResident] = useState(residentParam || null);
+  const [loading, setLoading] = useState(!residentParam);
 
   const fetchResident = async () => {
+    if (residentParam) {
+      // If resident data is already provided, use it
+      setResident(residentParam);
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     try {
-      // TODO: Call API getResidentById(id) để lấy thông tin chi tiết cư dân
-      const data = null;
-      setResident(data);
+      // Call API to get resident by ID
+      const response = await residentService.getResidentById(residentParam?.userId || residentParam?.id);
+      
+      if (response.success) {
+        setResident(response.data);
+      } else {
+        Alert.alert("Lỗi", response.message || "Không thể tải thông tin cư dân");
+      }
     } catch (error) {
       console.error("Error fetching resident:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin cư dân");
@@ -31,10 +41,10 @@ export default function ResidentViewScreen({ route, navigation }) {
 
   useEffect(() => {
     fetchResident();
-  }, [residentId]);
+  }, []);
 
   const handleEdit = () => {
-    navigation.navigate("ResidentEditScreen", { resident });
+    navigation.navigate("ResidentEdit", { resident });
   };
 
   const handleDelete = () => {
@@ -49,13 +59,19 @@ export default function ResidentViewScreen({ route, navigation }) {
           onPress: async () => {
             setLoading(true);
             try {
-              await residentService.deleteResident(residentId);
-              Alert.alert("Thành công", "Xóa cư dân thành công", [
-                { text: "OK", onPress: () => navigation.goBack() },
-              ]);
+              const response = await residentService.deleteResident(resident?.userId || resident?.id);
+              
+              if (response.success) {
+                Alert.alert("Thành công", "Xóa cư dân thành công", [
+                  { text: "OK", onPress: () => navigation.goBack() },
+                ]);
+              } else {
+                Alert.alert("Lỗi", response.message || "Không thể xóa cư dân");
+                setLoading(false);
+              }
             } catch (error) {
               console.error("Error deleting resident:", error);
-              Alert.alert("Lỗi", "Không thể xóa cư dân");
+              Alert.alert("Lỗi", "Có lỗi xảy ra khi xóa cư dân");
               setLoading(false);
             }
           },
@@ -138,7 +154,7 @@ export default function ResidentViewScreen({ route, navigation }) {
             <InfoRow
               label="Địa chỉ"
               value={resident.address}
-              icon="location-on"
+              icon="location_on"
             />
 
             <InfoRow
@@ -161,7 +177,7 @@ export default function ResidentViewScreen({ route, navigation }) {
             <InfoRow
               label="Biển số xe"
               value={resident.licensePlate}
-              icon="directions-car"
+              icon="directions_car"
             />
 
             <InfoRow
@@ -178,7 +194,7 @@ export default function ResidentViewScreen({ route, navigation }) {
             <InfoRow
               label="Ngày tham gia"
               value={formatDate(resident.createdAt)}
-              icon="calendar-today"
+              icon="calendar_today"
             />
 
             <InfoRow
@@ -187,23 +203,6 @@ export default function ResidentViewScreen({ route, navigation }) {
               icon="update"
             />
           </ModernCard>
-
-          {resident.emergencyContact && (
-            <ModernCard title="Liên hệ khẩn cấp">
-              <InfoRow
-                label="Người liên hệ"
-                value={resident.emergencyContact}
-                icon="contact-emergency"
-              />
-
-              <InfoRow
-                label="Số điện thoại"
-                value={resident.emergencyPhone}
-                icon="phone-in-talk"
-                copyable
-              />
-            </ModernCard>
-          )}
 
           <View style={{ marginTop: 20, gap: 12, paddingBottom: 20 }}>
             <ModernButton

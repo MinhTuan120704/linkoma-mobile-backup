@@ -28,7 +28,12 @@ export const createUser = async (userData) => {
 
 export const getAllUsers = async (params = {}) => {
   try {
+    console.log('Making request to:', ENDPOINTS.USERS_GET_ALL);
     const response = await httpClient.get(ENDPOINTS.USERS_GET_ALL, { params });
+    
+    console.log('Raw response status:', response.status);
+    console.log('Raw response data type:', typeof response.data);
+    console.log('Raw response data structure:', response.data);
     
     if (response.data && response.status === 200) {
       return {
@@ -44,6 +49,7 @@ export const getAllUsers = async (params = {}) => {
     };
   } catch (error) {
     console.error('Get all users error:', error);
+    console.error('Error response:', error.response?.data);
     return {
       success: false,
       message: error.response?.data?.message || 'Có lỗi xảy ra khi lấy danh sách user'
@@ -175,6 +181,31 @@ export const deleteUser = async (userId) => {
   }
 };
 
+export const getUsersByRole = async (role) => { 
+  try {
+    const response = await httpClient.get(`${ENDPOINTS.USERS_GET_BY_ROLE}/${role}`);
+    
+    if (response.data && response.status === 200) {
+      return {
+        success: true,
+        data: response.data,
+        message: `Lấy danh sách user với vai trò ${role} thành công`
+      };
+    }
+    
+    return {
+      success: false,
+      message: response.data?.message || `Lấy danh sách user với vai trò ${role} thất bại`
+    };
+  } catch (error) {
+    console.error(`Get users by role ${role} error:`, error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Có lỗi xảy ra khi lấy danh sách user theo vai trò'
+    };
+  }
+}
+
 const userService = {
     createUser,
     getAllUsers,
@@ -182,7 +213,8 @@ const userService = {
     getUserByEmail,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUsersByRole
 };
 
 export default userService;

@@ -97,7 +97,7 @@ export default function InvoiceCreateScreen({ navigation }) {
           value={formData.amount}
           onChangeText={(value) => updateField("amount", value)}
           placeholder="Nhập số tiền"
-          icon="attach-money"
+          icon="attach_money"
           keyboardType="numeric"
           required
           error={errors.amount}
@@ -146,7 +146,7 @@ export default function InvoiceCreateScreen({ navigation }) {
             title="Tạo hóa đơn"
             onPress={handleSubmit}
             loading={loading}
-            icon="receipt-long"
+            icon="receipt"
             fullWidth
           />
           <ModernButton

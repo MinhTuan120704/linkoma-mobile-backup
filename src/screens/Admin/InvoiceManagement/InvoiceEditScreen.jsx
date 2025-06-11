@@ -164,7 +164,7 @@ export default function InvoiceEditScreen({ route, navigation }) {
             value={formData.period}
             onChangeText={(value) => updateField("period", value)}
             placeholder="Ví dụ: Tháng 12/2024"
-            icon="date-range"
+            icon="date_range"
           />
 
           <ModernFormInput
@@ -183,7 +183,7 @@ export default function InvoiceEditScreen({ route, navigation }) {
             value={formData.amount}
             onChangeText={(value) => updateField("amount", value)}
             placeholder="Nhập số tiền"
-            icon="attach-money"
+            icon="attach_money"
             keyboardType="numeric"
             error={errors.amount}
           />

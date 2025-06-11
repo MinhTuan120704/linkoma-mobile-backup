@@ -101,12 +101,13 @@ export const AuthProvider = ({ children }) => {
   // Check authentication status on app start
   useEffect(() => {
     checkAuthStatus();
-  }, []);
-  const checkAuthStatus = async () => {
+  }, []);  const checkAuthStatus = async () => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
+      console.log('Checking auth status...');
       const token = await getAccessToken();
+      console.log('Token from storage:', token ? 'Token exists' : 'No token found');
       
       if (token) {
         console.log('Token found in storage, getting user info...');
@@ -114,7 +115,9 @@ export const AuthProvider = ({ children }) => {
         // Get user info with the token
         try {
           const userInfo = await authService.getUserInfo();
+          console.log('getUserInfo response:', userInfo);
           if (userInfo.success) {
+            console.log('User info retrieved successfully:', userInfo.data);
             dispatch({
               type: AUTH_ACTIONS.LOGIN_SUCCESS,
               payload: {
@@ -123,6 +126,7 @@ export const AuthProvider = ({ children }) => {
               }
             });
           } else {
+            console.log('Failed to get user info:', userInfo.message);
             // Token might be invalid
             dispatch({ type: AUTH_ACTIONS.CHECK_AUTH_FAILURE });
           }
@@ -138,19 +142,27 @@ export const AuthProvider = ({ children }) => {
       console.error('Error checking auth status:', error);
       dispatch({ type: AUTH_ACTIONS.CHECK_AUTH_FAILURE });
     }
-  };
-  const login = async (email, password) => {
+  };  const login = async (email, password) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
+      console.log('Attempting login for:', email);
       const response = await authService.login(email, password);
+      console.log('Login response:', response);
       
       if (response.success) {
+        console.log('Login successful, user:', response.data.user);
+        console.log('Token type:', typeof response.data.accessToken);
+        console.log('Token structure:', response.data.accessToken);
+        
+        const token = response.data.accessToken.token || response.data.accessToken;
+        console.log('Processed token:', token);
+        
         dispatch({
           type: AUTH_ACTIONS.LOGIN_SUCCESS,
           payload: {
             user: response.data.user,
-            token: response.data.accessToken
+            token: token
           }
         });
         
@@ -211,16 +223,42 @@ export const AuthProvider = ({ children }) => {
 
   const clearError = () => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
-  };
-  const refreshAuth = async () => {
+  };  const refreshAuth = async () => {
     await checkAuthStatus();
   };
-  // Update user info function
+
+  // Refresh user info after password change
+  const refreshUserInfo = async () => {
+    try {
+      const userInfo = await authService.getUserInfo();
+      if (userInfo.success) {
+        dispatch({
+          type: AUTH_ACTIONS.LOGIN_SUCCESS,
+          payload: {
+            user: userInfo.data,
+            token: state.token
+          }
+        });
+        return { success: true };
+      } else {
+        return { success: false, message: userInfo.message };
+      }
+    } catch (error) {
+      console.error('Error refreshing user info:', error);
+      return { success: false, message: error.message };
+    }
+  };// Update user info function
   const updateUserInfo = async (userData) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
-      const response = await authService.updateUserInfo(userData);
+      // Thêm userId vào userData nếu chưa có
+      const dataWithUserId = {
+        ...userData,
+        userId: userData.userId || userData.id || state.user?.userId || state.user?.id
+      };
+      
+      const response = await authService.updateUserInfo(dataWithUserId);
       
       if (response) {
         // Update user data in state
@@ -268,7 +306,6 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: error.message || 'Có lỗi xảy ra khi đổi mật khẩu' };
     }
   };
-
   // Context value
   const value = {
     // State
@@ -279,6 +316,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     clearError,
     refreshAuth,
+    refreshUserInfo,
     checkAuthStatus,
     updateUserInfo,
     changePassword,

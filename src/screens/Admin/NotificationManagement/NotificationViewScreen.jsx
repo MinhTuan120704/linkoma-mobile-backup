@@ -184,7 +184,7 @@ export default function NotificationViewScreen({ route, navigation }) {
             <InfoRow
               label="Mức độ ưu tiên"
               value={getPriorityText(notification.priority)}
-              icon="priority-high"
+              icon="priority_high"
               type={getPriorityColor(notification.priority)}
             />
           </ModernCard>
@@ -214,7 +214,7 @@ export default function NotificationViewScreen({ route, navigation }) {
             <InfoRow
               label="Thời gian tạo"
               value={formatDate(notification.createdAt)}
-              icon="calendar-today"
+              icon="calendar_today"
             />
 
             {notification.scheduledTime && (
@@ -239,7 +239,7 @@ export default function NotificationViewScreen({ route, navigation }) {
             <InfoRow
               label="Người tạo"
               value={notification.createdBy || "Hệ thống"}
-              icon="person-add"
+              icon="person_add_alt"
             />
 
             <InfoRow

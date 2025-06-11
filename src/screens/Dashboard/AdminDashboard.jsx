@@ -11,7 +11,7 @@ import {
   InvoicesTab,
 } from "./components";
 import { AdminHeader } from "./components/AdminHeader";
-import { BottomTabs } from "./components/BottomTabs";
+import { BottomTabs, tabs } from "./components/BottomTabs";
 import { useNavigationHandlers } from "./hooks/useNavigationHandlers";
 import { useDeleteHandlers } from "./hooks/useDeleteHandlers";
 import { useDataLoader } from "./hooks/useDataLoader";

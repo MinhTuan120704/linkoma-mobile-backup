@@ -106,7 +106,7 @@ export default function ResidentServiceListScreen() {
   const renderEmptyState = () => (
     <ModernCard>
       <View style={styles.emptyState}>
-        <MaterialIcons name="room-service" size={64} color="#BDC3C7" />
+        <MaterialIcons name="room_service" size={64} color="#BDC3C7" />
         <Text style={styles.emptyTitle}>Chưa đăng ký dịch vụ</Text>
         <Text style={styles.emptySubtitle}>
           Bạn chưa đăng ký dịch vụ nào. Hãy đăng ký dịch vụ để tận hưởng tiện
@@ -158,7 +158,7 @@ export default function ResidentServiceListScreen() {
 
       <View style={styles.serviceDetails}>
         <View style={styles.detailRow}>
-          <MaterialIcons name="attach-money" size={16} color="#27AE60" />
+          <MaterialIcons name="attach_money" size={16} color="#27AE60" />
           <Text style={styles.priceText}>
             {formatCurrency(service.amount)}
             {service.billingPeriod &&
@@ -183,7 +183,7 @@ export default function ResidentServiceListScreen() {
 
         {service.expiresAt && (
           <View style={styles.detailRow}>
-            <MaterialIcons name="event-available" size={16} color="#7F8C8D" />
+            <MaterialIcons name="event_available" size={16} color="#7F8C8D" />
             <Text style={styles.dateText}>
               Hết hạn: {formatDate(service.expiresAt)}
             </Text>

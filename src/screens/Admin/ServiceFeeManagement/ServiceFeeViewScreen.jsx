@@ -114,7 +114,7 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
           <InfoRow
             label="Số tiền"
             value={formatCurrency(serviceFee.amount)}
-            icon="attach-money"
+            icon="attach_money"
             type="highlight"
           />
 
@@ -147,7 +147,7 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
           <InfoRow
             label="Trạng thái"
             value={serviceFee.isActive ? "Đang hoạt động" : "Tạm dừng"}
-            icon={serviceFee.isActive ? "check-circle" : "pause-circle"}
+            icon={serviceFee.isActive ? "check_circle" : "pause_circle"}
             type={serviceFee.isActive ? "highlight" : "warning"}
           />
         </ModernCard>

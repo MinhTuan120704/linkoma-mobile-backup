@@ -5,9 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-// Import apartmentService để thực hiện các chức năng:
-// - Cập nhật thông tin căn hộ (updateApartment)
-// - Xóa căn hộ (deleteApartment)
+import { apartmentService } from "../../../services";
 
 export default function ApartmentEditScreen({ route, navigation }) {
   const { apartment } = route.params || {};
@@ -64,13 +62,28 @@ export default function ApartmentEditScreen({ route, navigation }) {
 
     try {
       setLoading(true);
-      // Giả lập gọi API để cập nhật căn hộ
-      //
-      // Thay thế bằng hàm gọi API thực tế
-      Alert.alert("Thành công", "Cập nhật căn hộ thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      
+      // Chuyển đổi các giá trị số
+      const apartmentData = {
+        ...formData,
+        floor: formData.floor ? parseInt(formData.floor, 10) : undefined,
+        area: formData.area ? parseFloat(formData.area) : undefined,
+        bedrooms: formData.bedrooms ? parseInt(formData.bedrooms, 10) : undefined,
+        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms, 10) : undefined,
+      };
+      
+      // Gọi API để cập nhật căn hộ
+      const result = await apartmentService.updateApartment(apartment.id, apartmentData);
+      
+      if (result.success) {
+        Alert.alert("Thành công", result.message || "Cập nhật căn hộ thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert("Lỗi", result.message || "Không thể cập nhật căn hộ. Vui lòng thử lại.");
+      }
     } catch (error) {
+      console.error("Update apartment error:", error);
       Alert.alert("Lỗi", "Không thể cập nhật căn hộ. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -86,13 +99,18 @@ export default function ApartmentEditScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            // Giả lập gọi API để xóa căn hộ
-            //
-            // Thay thế bằng hàm gọi API thực tế
-            Alert.alert("Thành công", "Xóa căn hộ thành công!", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            // Gọi API để xóa căn hộ
+            const result = await apartmentService.deleteApartment(apartment.id);
+            
+            if (result.success) {
+              Alert.alert("Thành công", result.message || "Xóa căn hộ thành công!", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", result.message || "Không thể xóa căn hộ. Vui lòng thử lại.");
+            }
           } catch (error) {
+            console.error("Delete apartment error:", error);
             Alert.alert("Lỗi", "Không thể xóa căn hộ. Vui lòng thử lại.");
           } finally {
             setDeleteLoading(false);
@@ -152,7 +170,7 @@ export default function ApartmentEditScreen({ route, navigation }) {
           value={formData.area}
           onChangeText={(value) => updateField("area", value)}
           placeholder="Nhập diện tích"
-          icon="square-foot"
+          icon="square_foot"
           keyboardType="numeric"
           error={errors.area}
         />

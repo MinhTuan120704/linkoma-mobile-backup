@@ -58,30 +58,6 @@ import ResidentServiceRegisterScreen from '../screens/Resident/ResidentServiceLi
 
 const Stack = createNativeStackNavigator();
 
-// Helper function to check if this is first time login
-const isFirstTimeLogin = (user) => {
-  if (!user) return false;
-  
-  // Check if user has not set their name yet (indicates first login)
-  return !user.name || user.name === null || user.name.trim() === '';
-};
-
-// Helper function to check if user info is complete
-const isUserInfoComplete = (user) => {
-  if (!user) return false;
-  
-  // Check for essential fields
-  const requiredFields = ['fullName', 'phone', 'idCard'];
-  
-  for (const field of requiredFields) {
-    if (!user[field] || user[field].trim() === '') {
-      return false;
-    }
-  }
-  
-  return true;
-};
-
 // Loading screen component
 const LoadingScreen = () => (
   <View style={styles.loadingContainer}>
@@ -188,11 +164,10 @@ const ResidentStack = () => (
 
 // Main App Navigator
 const AppNavigator = () => {
-  const { isAuthenticated, user, loading, checkAuthStatus } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
 
   useEffect(() => {
-    // Check if this is first launch (you can use AsyncStorage for this)
     checkFirstLaunch();
   }, []);
 
@@ -211,6 +186,7 @@ const AppNavigator = () => {
   if (loading || isFirstLaunch === null) {
     return <LoadingScreen />;
   }
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -223,37 +199,11 @@ const AppNavigator = () => {
             <Stack.Screen name="Auth" component={AuthStack} />
           </>
         ) : (
-          // Authenticated - check first login, then user info completeness and role
+          // Authenticated - route based on user role
           <>
-            {isFirstTimeLogin(user) ? (
-              // First time login - force password change
-              <Stack.Screen 
-                name="ForceChangePassword" 
-                component={ChangePasswordScreen}
-                initialParams={{ 
-                  isFirstLogin: true,
-                  userId: user?.id,
-                  userEmail: user?.email,
-                  userData: user
-                }}
-                options={{
-                  gestureEnabled: false, // Prevent going back
-                }}
-              />
-            ) : !isUserInfoComplete(user) ? (
-              // User info incomplete - force update
-              <Stack.Screen 
-                name="ForceUpdateInfo" 
-                component={UpdateUserInfoScreen}
-                options={{
-                  gestureEnabled: false, // Prevent going back
-                }}
-              />
-            ) : user?.role === 'admin' ? (
-              // Admin user with complete info
+            {user?.role === 'admin' ? (
               <Stack.Screen name="AdminApp" component={AdminStack} />
             ) : (
-              // Resident user with complete info  
               <Stack.Screen name="ResidentApp" component={ResidentStack} />
             )}
           </>
@@ -266,9 +216,9 @@ const AppNavigator = () => {
 const styles = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
   },
 });
 

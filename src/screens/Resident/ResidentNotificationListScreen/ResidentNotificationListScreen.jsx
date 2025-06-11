@@ -92,7 +92,7 @@ export default function ResidentNotificationListScreen() {
   const renderEmptyState = () => (
     <ModernCard>
       <View style={styles.emptyState}>
-        <MaterialIcons name="notifications-none" size={64} color="#BDC3C7" />
+        <MaterialIcons name="notifications_none" size={64} color="#BDC3C7" />
         <Text style={styles.emptyTitle}>Không có thông báo</Text>
         <Text style={styles.emptySubtitle}>
           Bạn chưa có thông báo nào. Thông báo mới sẽ hiển thị ở đây.
@@ -129,7 +129,7 @@ export default function ResidentNotificationListScreen() {
           {notification.priority && notification.priority !== "medium" && (
             <View style={styles.priorityIndicator}>
               <MaterialIcons
-                name="priority-high"
+                name="priority_high"
                 size={20}
                 color={getPriorityColor(notification.priority)}
               />

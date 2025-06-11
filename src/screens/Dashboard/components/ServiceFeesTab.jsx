@@ -86,7 +86,7 @@ export default function ServiceFeesTab({
               >
                 <View style={tabStyles.listItemContent}>
                   <MaterialIcons
-                    name="credit-card"
+                    name="credit_card"
                     size={18}
                     color={tabs[3].color}
                   />

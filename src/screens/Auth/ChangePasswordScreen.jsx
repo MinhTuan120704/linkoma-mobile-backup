@@ -15,7 +15,7 @@ export default function ChangePasswordScreen({ navigation, route }) {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const { user, changePassword, logout, refreshAuth } = useAuth();
+  const { user, changePassword, logout, refreshUserInfo } = useAuth();
 
   // Get user data from route params
   const { 
@@ -77,7 +77,7 @@ export default function ChangePasswordScreen({ navigation, route }) {
         // AppNavigator will automatically navigate to next step
         if (route.params?.isFirstLogin) {
           console.log('First login password change successful for user:', userId);
-          await refreshAuth();
+          await refreshUserInfo();
           // AppNavigator sẽ tự động chuyển đến UpdateUserInfo
         } else {
           navigation.goBack();

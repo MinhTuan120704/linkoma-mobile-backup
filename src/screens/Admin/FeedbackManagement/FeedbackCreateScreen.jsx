@@ -101,7 +101,7 @@ export default function FeedbackCreateScreen({ navigation }) {
           value={formData.priority}
           onChangeText={(value) => updateField("priority", value)}
           placeholder="Thấp/Trung bình/Cao/Khẩn cấp"
-          icon="priority-high"
+          icon="priority_high"
           error={errors.priority}
         />
 
@@ -119,7 +119,7 @@ export default function FeedbackCreateScreen({ navigation }) {
             title="Tạo phản hồi"
             onPress={handleSubmit}
             loading={loading}
-            icon="add-comment"
+            icon="add_comment"
             fullWidth
           />
 

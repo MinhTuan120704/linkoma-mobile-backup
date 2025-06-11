@@ -5,7 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-/// Import apartmentService to handle API calls
+import { apartmentService } from "../../../services";
 
 export default function ApartmentCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -46,13 +46,28 @@ export default function ApartmentCreateScreen({ navigation }) {
 
     try {
       setLoading(true);
-      // Giả lập gọi API để tạo căn hộ
-      // await createApartment(formData);
-      // Thay thế bằng hàm gọi API thực tế
-      Alert.alert("Thành công", "Tạo căn hộ thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      
+      // Chuyển đổi các giá trị số
+      const apartmentData = {
+        ...formData,
+        floor: formData.floor ? parseInt(formData.floor, 10) : undefined,
+        area: formData.area ? parseFloat(formData.area) : undefined,
+        bedrooms: formData.bedrooms ? parseInt(formData.bedrooms, 10) : undefined,
+        bathrooms: formData.bathrooms ? parseInt(formData.bathrooms, 10) : undefined,
+      };
+      
+      // Gọi API để tạo căn hộ
+      const result = await apartmentService.createApartment(apartmentData);
+      
+      if (result.success) {
+        Alert.alert("Thành công", result.message || "Tạo căn hộ thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert("Lỗi", result.message || "Không thể tạo căn hộ. Vui lòng thử lại.");
+      }
     } catch (error) {
+      console.error("Create apartment error:", error);
       Alert.alert("Lỗi", "Không thể tạo căn hộ. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -109,7 +124,7 @@ export default function ApartmentCreateScreen({ navigation }) {
           value={formData.area}
           onChangeText={(value) => updateField("area", value)}
           placeholder="Nhập diện tích"
-          icon="square-foot"
+          icon="square_foot"
           keyboardType="numeric"
           error={errors.area}
         />

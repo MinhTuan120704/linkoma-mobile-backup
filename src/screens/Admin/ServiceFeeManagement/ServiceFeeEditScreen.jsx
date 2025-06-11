@@ -136,7 +136,7 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
             value={formData.amount}
             onChangeText={(value) => updateField("amount", value)}
             placeholder="Nhập số tiền"
-            icon="attach-money"
+            icon="attach_money"
             keyboardType="numeric"
             error={errors.amount}
           />
@@ -180,7 +180,7 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
             value={formData.isActive}
             onChangeText={(value) => updateField("isActive", value)}
             placeholder="true/false"
-            icon="toggle-on"
+            icon="toggle_on"
           />
         </ModernCard>
 

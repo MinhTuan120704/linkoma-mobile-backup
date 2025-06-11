@@ -6,15 +6,14 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import apartmentService để thực hiện chức năng:
-// - Xóa căn hộ (removeApartment)
+import { apartmentService } from "../../../services";
 
 export default function ApartmentViewScreen({ route, navigation }) {
   const { apartment } = route.params || {};
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleEdit = () => {
-    navigation.navigate("ApartmentEditScreen", { apartment });
+    navigation.navigate("ApartmentEdit", { apartment });
   };
 
   const handleDelete = () => {
@@ -26,11 +25,18 @@ export default function ApartmentViewScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            // TODO: Call API removeApartment(id) để xóa căn hộ
-            Alert.alert("Thành công", "Xóa căn hộ thành công!", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            // Gọi API để xóa căn hộ
+            const result = await apartmentService.deleteApartment(apartment.id);
+            
+            if (result.success) {
+              Alert.alert("Thành công", result.message || "Xóa căn hộ thành công!", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", result.message || "Không thể xóa căn hộ. Vui lòng thử lại.");
+            }
           } catch (error) {
+            console.error("Delete apartment error:", error);
             Alert.alert("Lỗi", "Không thể xóa căn hộ. Vui lòng thử lại.");
           } finally {
             setDeleteLoading(false);
@@ -79,7 +85,7 @@ export default function ApartmentViewScreen({ route, navigation }) {
           <InfoRow
             label="Diện tích"
             value={apartment?.area ? `${apartment.area} m²` : null}
-            icon="square-foot"
+            icon="square_foot"
           />
         </ModernCard>
 
@@ -114,7 +120,7 @@ export default function ApartmentViewScreen({ route, navigation }) {
           <InfoRow
             label="Ngày tạo"
             value={formatDate(apartment?.createdAt)}
-            icon="calendar-today"
+            icon="calendar_today"
           />
 
           <InfoRow

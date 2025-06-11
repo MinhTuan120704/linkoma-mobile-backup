@@ -101,7 +101,7 @@ export default function ResidentFeedbackListScreen() {
         <ModernButton
           title="Gửi phản hồi mới"
           onPress={handleCreate}
-          icon="add-comment"
+          icon="add_comment"
           style={{ marginTop: 16 }}
         />
       </View>
@@ -149,7 +149,7 @@ export default function ResidentFeedbackListScreen() {
             {feedback.priority && (
               <View style={styles.metaItem}>
                 <MaterialIcons
-                  name="priority-high"
+                  name="priority_high"
                   size={16}
                   color={getPriorityColor(feedback.priority)}
                 />
@@ -208,7 +208,7 @@ export default function ResidentFeedbackListScreen() {
             <ModernButton
               title="Gửi phản hồi mới"
               onPress={handleCreate}
-              icon="add-comment"
+              icon="add_comment"
               fullWidth
               style={{ marginBottom: 20 }}
             />

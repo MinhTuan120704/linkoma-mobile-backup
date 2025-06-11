@@ -1,14 +1,15 @@
 export const API_BASE_URL = "https://linkoma-be.onrender.com/v1";
 
-export const ENDPOINTS = {
-  // Auth endpoints
+export const ENDPOINTS = {  // Auth endpoints
   LOGIN: "/auth/login",
   LOGOUT: "/auth/logout",
   FORGOT_PASSWORD: "/auth/forgot-password",
   RESET_PASSWORD: "/auth/reset-password",
+  USER_INFO: "/auth/user-info",                       // GET - Get current user info
   // User endpoints
   USERS: "/users",                                    // POST - Create a user
-  USERS_GET_ALL: "/users",                           // GET - Get all users
+  USERS_GET_ALL: "/users",                            // GET - Get all users
+  USERS_GET_BY_ROLE: "/users/role",                   // GET - Get users by role (append /{role})
   USERS_CREATE_WITH_EMAIL: "/users/create-with-email", // POST - Create a user with email only
   USERS_GET_BY_EMAIL: "/users/email",               // GET - Get user by email (append /{email})
   USERS_GET_BY_ID: "/users",                        // GET - Get user by ID (append /{userId})

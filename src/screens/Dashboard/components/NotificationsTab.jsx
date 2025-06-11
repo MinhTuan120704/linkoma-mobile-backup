@@ -53,7 +53,7 @@ export default function NotificationsTab({
         renderEmptyState(
           "Chưa có thông báo nào",
           "Hãy tạo thông báo đầu tiên",
-          "notifications_off"
+          "notifications"
         )
       ) : (
         <Card style={tabStyles.listCard}>

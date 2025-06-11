@@ -6,9 +6,7 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-// Import residentService để thực hiện các chức năng:
-// - Cập nhật thông tin cư dân (updateResident)
-// - Xóa cư dân (deleteResident)
+import { residentService } from "../../../services";
 
 export default function ResidentEditScreen({ route, navigation }) {
   const { resident } = route.params;
@@ -21,8 +19,6 @@ export default function ResidentEditScreen({ route, navigation }) {
     citizenId: resident.citizenId || "",
     address: resident.address || "",
     licensePlate: resident.licensePlate || "",
-    emergencyContact: resident.emergencyContact || "",
-    emergencyPhone: resident.emergencyPhone || "",
     status: resident.status || "active",
   });
 
@@ -66,13 +62,24 @@ export default function ResidentEditScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      // TODO: Call API updateResident(id, data) để cập nhật thông tin cư dân
-      Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await residentService.updateResident(
+        resident.userId,
+        formData
+      );
+
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể cập nhật thông tin cư dân"
+        );
+      }
     } catch (error) {
       console.error("Error updating resident:", error);
-      Alert.alert("Lỗi", "Không thể cập nhật thông tin cư dân");
+      Alert.alert("Lỗi", "Có lỗi xảy ra khi cập nhật thông tin");
     } finally {
       setLoading(false);
     }
@@ -87,13 +94,20 @@ export default function ResidentEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await residentService.deleteResident(resident.id);
-            Alert.alert("Thành công", "Xóa cư dân thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await residentService.deleteResident(
+              resident.userId
+            );
+
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa cư dân thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", response.message || "Không thể xóa cư dân");
+            }
           } catch (error) {
             console.error("Error deleting resident:", error);
-            Alert.alert("Lỗi", "Không thể xóa cư dân");
+            Alert.alert("Lỗi", "Có lỗi xảy ra khi xóa cư dân");
           } finally {
             setLoading(false);
           }
@@ -171,7 +185,7 @@ export default function ResidentEditScreen({ route, navigation }) {
             value={formData.address}
             onChangeText={(value) => updateField("address", value)}
             placeholder="Nhập địa chỉ"
-            icon="location-on"
+            icon="location_on"
             multiline
           />
 
@@ -180,26 +194,7 @@ export default function ResidentEditScreen({ route, navigation }) {
             value={formData.licensePlate}
             onChangeText={(value) => updateField("licensePlate", value)}
             placeholder="Nhập biển số xe"
-            icon="directions-car"
-          />
-        </ModernCard>
-
-        <ModernCard title="Liên hệ khẩn cấp">
-          <ModernFormInput
-            label="Người liên hệ"
-            value={formData.emergencyContact}
-            onChangeText={(value) => updateField("emergencyContact", value)}
-            placeholder="Tên người liên hệ khẩn cấp"
-            icon="contact-emergency"
-          />
-
-          <ModernFormInput
-            label="Số điện thoại khẩn cấp"
-            value={formData.emergencyPhone}
-            onChangeText={(value) => updateField("emergencyPhone", value)}
-            placeholder="Số điện thoại khẩn cấp"
-            icon="phone-in-talk"
-            keyboardType="phone-pad"
+            icon="directions_car"
           />
         </ModernCard>
 

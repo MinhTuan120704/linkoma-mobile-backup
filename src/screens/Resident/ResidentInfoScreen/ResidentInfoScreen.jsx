@@ -85,7 +85,7 @@ export default function ResidentInfoScreen() {
             <InfoRow
               label="Địa chỉ"
               value={residentData.address}
-              icon="location-on"
+              icon="location_on"
             />
 
             <InfoRow
@@ -108,7 +108,7 @@ export default function ResidentInfoScreen() {
             <InfoRow
               label="Biển số xe"
               value={residentData.licensePlate}
-              icon="directions-car"
+              icon="directions_car"
             />
 
             <InfoRow
@@ -125,7 +125,7 @@ export default function ResidentInfoScreen() {
             <InfoRow
               label="Ngày tham gia"
               value={formatDate(residentData.createdAt)}
-              icon="calendar-today"
+              icon="calendar_today"
             />
 
             <InfoRow
@@ -140,7 +140,7 @@ export default function ResidentInfoScreen() {
               <InfoRow
                 label="Người liên hệ"
                 value={residentData.emergencyContact}
-                icon="contact-emergency"
+                icon="contact_emergency"
               />
 
               <InfoRow

@@ -151,7 +151,7 @@ export default function ResidentInvoiceViewScreen() {
             <InfoRow
               label="Kỳ thanh toán"
               value={invoice.period || "Không xác định"}
-              icon="date-range"
+              icon="date_range"
             />
 
             {invoice.description && (
@@ -167,7 +167,7 @@ export default function ResidentInvoiceViewScreen() {
             <InfoRow
               label="Số tiền"
               value={formatCurrency(invoice.amount)}
-              icon="attach-money"
+              icon="attach_money"
               type="highlight"
             />
 
@@ -203,14 +203,14 @@ export default function ResidentInvoiceViewScreen() {
               <InfoRow
                 label="Phương thức thanh toán"
                 value={invoice.paymentMethod}
-                icon="credit-card"
+                icon="credit_card"
               />
 
               {invoice.transactionId && (
                 <InfoRow
                   label="Mã giao dịch"
                   value={invoice.transactionId}
-                  icon="confirmation-number"
+                  icon="confirmation_number"
                   copyable
                 />
               )}

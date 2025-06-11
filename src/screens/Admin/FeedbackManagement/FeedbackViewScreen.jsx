@@ -118,7 +118,7 @@ export default function FeedbackViewScreen({ route, navigation }) {
           <InfoRow
             label="Mức độ ưu tiên"
             value={feedback?.priority}
-            icon="priority-high"
+            icon="priority_high"
             type={
               feedback?.priority === "urgent"
                 ? "danger"
@@ -150,7 +150,7 @@ export default function FeedbackViewScreen({ route, navigation }) {
           <InfoRow
             label="Ngày tạo"
             value={formatDate(feedback?.createdAt)}
-            icon="calendar-today"
+            icon="calendar_today"
           />
 
           <InfoRow

@@ -1,8 +1,8 @@
 import React from "react";
 import { useCallback } from "react";
-// Import các service để thực hiện các chức năng:
-// - Lấy danh sách tất cả cư dân (getAllResidents)
-// - Lấy danh sách tất cả căn hộ (getAllApartments)
+import { residentService } from "../../../services";
+import apartmentService from "../../../services/apartmentService";
+// Import các service khác để thực hiện các chức năng:
 // - Lấy danh sách tất cả phản hồi (getAllFeedbacks)
 // - Lấy danh sách tất cả phí dịch vụ (getAllServiceFees)
 // - Lấy danh sách tất cả thông báo (getAllNotifications)
@@ -20,21 +20,31 @@ export const useDataLoader = (setters) => {
 
   const loadAllData = useCallback(async () => {
     try {
-      // TODO: Call APIs để lấy dữ liệu:
-      // - getAllResidents()
-      // - getAllApartments()
+      // Lấy dữ liệu cư dân
+      let residentsData = [];
+      const residentsResult = await residentService.getResidents();
+      if (residentsResult.success && residentsResult.data) {
+        residentsData = residentsResult.data;
+      }
+      
+      // Lấy dữ liệu căn hộ
+      let apartmentsData = [];
+      const apartmentsResult = await apartmentService.getAllApartments();
+      if (apartmentsResult.success && apartmentsResult.data) {
+        apartmentsData = apartmentsResult.data;
+      }
+      
+      // TODO: Bổ sung gọi API cho các dữ liệu khác
       // - getAllFeedbacks()
       // - getAllServiceFees()
       // - getAllNotifications()
       // - getAllInvoices()
       const [
-        residentsData,
-        apartmentsData,
         feedbacksData,
         serviceFeesData,
         notificationsData,
         invoicesData,
-      ] = [[], [], [], [], [], []];
+      ] = [[], [], [], []];
 
       setResidents(residentsData);
       setApartments(apartmentsData);
@@ -42,6 +52,9 @@ export const useDataLoader = (setters) => {
       setServiceFees(serviceFeesData);
       setNotifications(notificationsData);
       setInvoices(invoicesData);
+      
+      console.log("Data loaded successfully!");
+      console.log("Apartments:", apartmentsData.length);
     } catch (error) {
       console.error("Error loading data:", error);
     }

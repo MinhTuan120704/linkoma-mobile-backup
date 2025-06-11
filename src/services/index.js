@@ -12,6 +12,10 @@ export * from './authService';
 export { default as userService } from './userService';
 export * from './userService';
 
+// Resident service
+export { default as residentService } from './residentService';
+export * from './residentService';
+
 // Apartment services
 export { default as apartmentService } from './apartmentService';
 export * from './apartmentService';
@@ -42,9 +46,23 @@ export * from './invoiceService';
 export { default as invoiceDetailService } from './invoiceDetailService';
 export * from './invoiceDetailService';
 
+// Import all services for the default export object
+import authService from './authService';
+import userService from './userService';
+import residentService from './residentService';
+import apartmentService from './apartmentService';
+import apartmentTypeService from './apartmentTypeService';
+import announcementService from './announcementService';
+import feedbackService from './feedbackService';
+import serviceTypeService from './serviceTypeService';
+import serviceRegistrationService from './serviceRegistrationService';
+import invoiceService from './invoiceService';
+import invoiceDetailService from './invoiceDetailService';
+
 const services = {
   authService,
   userService,
+  residentService,
   apartmentService,
   apartmentTypeService,
   announcementService,

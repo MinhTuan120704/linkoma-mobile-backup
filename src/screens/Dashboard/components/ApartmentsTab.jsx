@@ -21,6 +21,7 @@ export default function ApartmentsTab({
   handleEditApartment,
   handleDeleteApartment,
 }) {
+  
   return (
     <ScrollView
       style={tabStyles.tabContent}
@@ -31,11 +32,11 @@ export default function ApartmentsTab({
       <Card style={tabStyles.headerCard}>
         <Text style={tabStyles.headerTitle}>Quản lý Căn hộ</Text>
         <Text style={tabStyles.headerSubtitle}>
-          Tổng số: {apartments.length} căn hộ
+          Tổng số: {apartments ? apartments.length : 0} căn hộ
         </Text>
         {renderStatsCard(
           "Tổng căn hộ",
-          apartments.length,
+          apartments ? apartments.length : 0,
           tabs[1].color,
           "home"
         )}
@@ -49,11 +50,11 @@ export default function ApartmentsTab({
           <Text style={tabStyles.addButtonText}>Thêm căn hộ</Text>
         </TouchableOpacity>
       </View>
-      {apartments.length === 0 ? (
+      {!apartments || apartments.length === 0 ? (
         renderEmptyState(
           "Chưa có căn hộ nào",
           "Hãy thêm căn hộ đầu tiên cho tòa nhà",
-          "home_work"
+          "business"
         )
       ) : (
         <Card style={tabStyles.listCard}>
