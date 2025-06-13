@@ -84,13 +84,22 @@ export default function ResidentsTab({
                   </View>
                 }
               >
-                <View style={tabStyles.listItemContent}>
+                <View
+                  key={`content-${resident.id}`}
+                  style={tabStyles.listItemContent}
+                >
                   <MaterialIcons
+                    key={`icon-${resident.id}`}
                     name="person"
                     size={20}
                     color={tabs[0].color}
                   />
-                  <Text style={tabStyles.listItemText}>{resident.name}</Text>
+                  <Text
+                    key={`name-${resident.id}`}
+                    style={tabStyles.listItemText}
+                  >
+                    {resident.name}
+                  </Text>
                 </View>
               </List.Item>
             ))}

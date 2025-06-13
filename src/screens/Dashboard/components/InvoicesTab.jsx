@@ -84,13 +84,22 @@ export default function InvoicesTab({
                   </View>
                 }
               >
-                <View style={tabStyles.listItemContent}>
+                <View
+                  key={`content-${invoice.id}`}
+                  style={tabStyles.listItemContent}
+                >
                   <MaterialIcons
+                    key={`icon-${invoice.id}`}
                     name="receipt"
                     size={18}
                     color={tabs[5].color}
                   />
-                  <Text style={tabStyles.listItemText}>{invoice.code}</Text>
+                  <Text
+                    key={`code-${invoice.id}`}
+                    style={tabStyles.listItemText}
+                  >
+                    {invoice.code}
+                  </Text>
                 </View>
               </List.Item>
             ))}

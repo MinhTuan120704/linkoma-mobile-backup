@@ -84,13 +84,22 @@ export default function ApartmentsTab({
                   </View>
                 }
               >
-                <View style={tabStyles.listItemContent}>
+                <View
+                  key={`content-${apartment.id}`}
+                  style={tabStyles.listItemContent}
+                >
                   <FontAwesome5
+                    key={`icon-${apartment.id}`}
                     name="building"
                     size={18}
                     color={tabs[1].color}
                   />
-                  <Text style={tabStyles.listItemText}>{apartment.name}</Text>
+                  <Text
+                    key={`name-${apartment.id}`}
+                    style={tabStyles.listItemText}
+                  >
+                    {apartment.name}
+                  </Text>
                 </View>
               </List.Item>
             ))}

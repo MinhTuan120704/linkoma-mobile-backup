@@ -84,13 +84,22 @@ export default function FeedbacksTab({
                   </View>
                 }
               >
-                <View style={tabStyles.listItemContent}>
+                <View
+                  key={`content-${feedback.id}`}
+                  style={tabStyles.listItemContent}
+                >
                   <MaterialIcons
+                    key={`icon-${feedback.id}`}
                     name="chat-bubble"
                     size={18}
                     color={tabs[2].color}
                   />
-                  <Text style={tabStyles.listItemText}>{feedback.title}</Text>
+                  <Text
+                    key={`title-${feedback.id}`}
+                    style={tabStyles.listItemText}
+                  >
+                    {feedback.title}
+                  </Text>
                 </View>
               </List.Item>
             ))}
