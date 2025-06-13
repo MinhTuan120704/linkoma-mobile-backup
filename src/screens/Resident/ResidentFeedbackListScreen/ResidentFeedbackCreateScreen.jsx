@@ -4,6 +4,7 @@ import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
+  ModernPicker,
 } from "../../../components";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -77,19 +78,21 @@ export default function ResidentFeedbackCreateScreen() {
           placeholder="Nhập tiêu đề phản hồi"
           icon="title"
           required
-          error={errors.title}
-        /> */}
-
-        <ModernFormInput
-          label="Danh mục (chọn một trong các danh mục sau Maintenance, Complaint hoặc Service)"
+          error={errors.title}        /> */}
+        <ModernPicker
+          label="Danh mục"
           value={formData.category}
-          onChangeText={(value) => updateField("category", value)}
-          placeholder="Danh mục phản hồi"
+          onValueChange={(value) => updateField("category", value)}
+          placeholder="Chọn danh mục phản hồi"
           icon="category"
           required
           error={errors.category}
+          options={[
+            { label: "Bảo trì", value: "Maintenance" },
+            { label: "Khiếu nại", value: "Complaint" },
+            { label: "Dịch vụ", value: "Service" },
+          ]}
         />
-
         <ModernFormInput
           label="Nội dung"
           value={formData.description}
@@ -101,7 +104,6 @@ export default function ResidentFeedbackCreateScreen() {
           required
           error={errors.description}
         />
-
         {/*    <ModernFormInput
           label="Mức độ ưu tiên"
           value={formData.priority}
@@ -110,7 +112,6 @@ export default function ResidentFeedbackCreateScreen() {
           icon="priority-high"
           error={errors.priority}
         /> */}
-
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
             title="Gửi phản hồi"

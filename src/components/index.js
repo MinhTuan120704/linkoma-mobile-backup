@@ -5,3 +5,4 @@ export { default as ModernButton } from "./ModernButton";
 export { default as ModernCard } from "./ModernCard";
 export { default as InfoRow } from "./InfoRow";
 export { default as SafeAreaWrapper } from "./SafeAreaWrapper";
+export { default as ModernPicker } from "./ModernPicker";

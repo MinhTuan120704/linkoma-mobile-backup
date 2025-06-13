@@ -58,7 +58,7 @@ export default function ResidentFeedbackViewScreen() {
           <ModernButton
             title="Sửa"
             onPress={handleEdit}
-            type="outline"
+            type="secondary"
             size="small"
           />
         )

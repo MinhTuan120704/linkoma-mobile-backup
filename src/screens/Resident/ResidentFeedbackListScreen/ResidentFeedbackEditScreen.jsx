@@ -159,7 +159,7 @@ export default function ResidentFeedbackEditScreen() {
           <ModernButton
             title="Hủy thay đổi"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>
