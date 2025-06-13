@@ -43,8 +43,7 @@ export default function ResidentDashboard() {
           style: "destructive",
           onPress: async () => {
             try {
-              await logout();
-              navigation.replace("Auth");
+              await logout(navigation);
             } catch (error) {
               console.error("Logout error:", error);
               Alert.alert("Lỗi", "Không thể đăng xuất. Vui lòng thử lại sau.");
@@ -209,10 +208,11 @@ const styles = StyleSheet.create({
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    position: "relative",
+    justifyContent: "center",
   },
   headerTitleContainer: {
-    flex: 1,
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 28,
@@ -228,7 +228,8 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     padding: 8,
-    marginLeft: 16,
+    position: "absolute",
+    right: 0,
   },
   content: {
     flex: 1,

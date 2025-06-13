@@ -7,7 +7,7 @@ import {
   ModernCard,
 } from "../../../components";
 import { useNavigation } from "@react-navigation/native";
-/* import { useAuth } from "../../context/AuthContext"; */
+import { useAuth } from "../../../contexts/AuthContext";
 // useAuth để lấy thông tin người dùng hiện tại
 // Import serviceFeeService để thực hiện chức năng:
 // - Đăng ký dịch vụ mới (registerService)

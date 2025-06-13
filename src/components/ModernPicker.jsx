@@ -13,7 +13,7 @@ export default function ModernPicker({
   label,
   value,
   onValueChange,
-  options,
+  items = [],
   placeholder = "Select an option",
   required = false,
   error = null,
@@ -23,7 +23,15 @@ export default function ModernPicker({
 }) {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const selectedOption = options.find((option) => option.value === value);
+  const normalizedItems =
+    items?.map?.((item) => ({
+      label: String(item.label || ""),
+      value: item.value,
+    })) || [];
+
+  const selectedOption = normalizedItems.find(
+    (option) => option.value === value
+  );
 
   const handleSelect = (option) => {
     onValueChange(option.value);
@@ -90,7 +98,7 @@ export default function ModernPicker({
             </View>
 
             <ScrollView style={styles.optionsList}>
-              {options.map((option) => (
+              {normalizedItems.map((option) => (
                 <TouchableOpacity
                   key={option.value}
                   style={[

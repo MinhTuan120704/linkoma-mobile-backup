@@ -78,7 +78,7 @@ export default function ResidentFeedbackCreateScreen() {
           placeholder="Nhập tiêu đề phản hồi"
           icon="title"
           required
-          error={errors.title}        /> */}
+          error={errors.title}        /> */}{" "}
         <ModernPicker
           label="Danh mục"
           value={formData.category}
@@ -87,7 +87,7 @@ export default function ResidentFeedbackCreateScreen() {
           icon="category"
           required
           error={errors.category}
-          options={[
+          items={[
             { label: "Bảo trì", value: "Maintenance" },
             { label: "Khiếu nại", value: "Complaint" },
             { label: "Dịch vụ", value: "Service" },
