@@ -210,16 +210,19 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
     }
   };
-
-  const logout = async () => {
+  const logout = async (navigation) => {
     try {
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       await authService.logout();
+      await clearAll(); // Clear all stored data
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      if (navigation && navigation.navigateToLogin) {
+        navigation.navigateToLogin();
+      }
     }
   };
 
