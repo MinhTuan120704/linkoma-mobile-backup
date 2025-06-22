@@ -13,6 +13,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const { navigateBasedOnRole } = useAuthNavigation();
 
@@ -44,7 +45,7 @@ export default function LoginScreen() {
         setPassword("");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.log("Login error:", error);
       Toast.fail("Đã xảy ra lỗi. Vui lòng thử lại sau.", 2);
       setPassword("");
     } finally {
@@ -67,9 +68,7 @@ export default function LoginScreen() {
             style={styles.image}
             resizeMode="contain"
           />
-          <Text style={styles.imageText}>
-            Kết nối số với mái ấm của bạn
-          </Text>
+          <Text style={styles.imageText}>Kết nối số với mái ấm của bạn</Text>
         </View>
         <ModernFormInput
           label="Email "
@@ -85,10 +84,12 @@ export default function LoginScreen() {
           value={password}
           onChangeText={setPassword}
           placeholder="Nhập mật khẩu"
-          secureTextEntry
+          secureTextEntry={!showPassword}
           editable={!loading}
           returnKeyType="done"
           onSubmitEditing={handleLogin}
+          rightIcon={showPassword ? "visibility-off" : "visibility"}
+          onRightIconPress={() => setShowPassword(!showPassword)}
         />
         <View style={styles.buttonContainer}>
           <ModernButton
