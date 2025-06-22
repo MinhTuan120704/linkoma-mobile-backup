@@ -56,7 +56,7 @@ export default function ResidentInvoicePaymentScreen() {
                 );
               }
             } catch (error) {
-              console.error("Payment error:", error);
+              console.log("Payment error:", error);
               Alert.alert("Lỗi", "Thanh toán thất bại. Vui lòng thử lại.");
             } finally {
               setLoading(false);

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  Alert,
 } from "react-native";
 import {
   ModernScreenWrapper,
@@ -75,11 +76,19 @@ export default function ResidentInvoiceListScreen() {
         setHasNextPage(result.data.hasNextPage || false);
         setTotalCount(result.data.totalCount || 0);
       } else {
-        console.error("Failed to fetch invoices:", result.message);
+         Alert.alert(
+        "Lỗi",
+        "Có lỗi đã xảy ra: " + result.message || "Không thể tải hóa đơn",
+        [{ text: "OK" }]
+      );
         if (isRefresh) setInvoices([]);
       }
     } catch (error) {
-      console.error("Error fetching invoices:", error);
+      Alert.alert(
+        "Lỗi",
+        "Có lỗi đã xảy ra: " + error.message || "Không thể tải hóa đơn",
+        [{ text: "OK" }]
+      );
       if (isRefresh) setInvoices([]);
     } finally {
       setLoading(false);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import {
   ModernScreenWrapper,
   ModernCard,
@@ -76,7 +76,8 @@ export default function ResidentNotificationListScreen() {
         });
       }
     } catch (e) {
-      console.error("Error fetching notifications:", e);
+      console.log("Error fetching notifications:", e);
+      Alert.alert("Lỗi", "Không thể tải danh sách thông báo");
       setNotifications([]);
     } finally {
       setLoading(false);

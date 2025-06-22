@@ -1,5 +1,6 @@
 import httpClient from "./httpClient";
 import { ENDPOINTS } from "./apiConfig";
+import { Alert } from "react-native";
 
 export const createAnnouncement = async (announcementData) => {
   try {
@@ -21,7 +22,12 @@ export const createAnnouncement = async (announcementData) => {
       message: response.data?.message || "Tạo thông báo thất bại",
     };
   } catch (error) {
-    console.error("Create announcement error:", error);
+    console.log("Create announcement error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       message:
@@ -73,9 +79,24 @@ export const getAllAnnouncements = async (queryParams = null) => {
       message: response.data?.message || "Lấy danh sách thông báo thất bại",
     };
   } catch (error) {
-    console.error("Get all announcements error:", error);
-    console.error("Error response status:", error.response?.status);
-    console.error("Error response data:", error.response?.data);
+    console.log("Get all announcements error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
+    console.log("Error response status:", error.response?.status);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
+    console.log("Error response data:", error.response?.data);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -105,7 +126,12 @@ export const getAnnouncementById = async (announcementId) => {
       message: response.data?.message || "Không tìm thấy thông báo",
     };
   } catch (error) {
-    console.error("Get announcement by ID error:", error);
+    console.log("Get announcement by ID error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       message:
@@ -135,7 +161,12 @@ export const updateAnnouncement = async (announcementId, announcementData) => {
       message: response.data?.message || "Cập nhật thông báo thất bại",
     };
   } catch (error) {
-    console.error("Update announcement error:", error);
+    console.log("Update announcement error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       message:
@@ -162,7 +193,12 @@ export const deleteAnnouncement = async (announcementId) => {
       message: response.data?.message || "Xóa thông báo thất bại",
     };
   } catch (error) {
-    console.error("Delete announcement error:", error);
+    console.log("Delete announcement error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       message:
@@ -201,7 +237,12 @@ export const getAnnouncementsByUserId = async (userId, queryParams = null) => {
       message: response.data?.message || "Lấy thông báo theo user ID thất bại",
     };
   } catch (error) {
-    console.error("Get announcements by user ID error:", error);
+    console.log("Get announcements by user ID error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       message:

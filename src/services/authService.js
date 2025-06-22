@@ -1,6 +1,7 @@
 import httpClient from "./httpClient";
 import { ENDPOINTS } from "./apiConfig";
 import { setAccessToken, clearAll, saveTokens, removeCookie } from "./storage";
+import { Alert } from "react-native";
 
 export const login = async (email, password) => {
   try {
@@ -38,7 +39,12 @@ export const login = async (email, password) => {
       message: response.data?.message || "Đăng nhập thất bại",
     };
   } catch (error) {
-    console.error("Login error:", error);
+    console.log("Login error:", error);
+    Alert.alert(
+      "Lỗi đăng nhập",
+      error.response?.data?.message || "Đăng nhập thất bại",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -52,7 +58,8 @@ export const logout = async () => {
     // Call logout endpoint to invalidate refresh token on server
     await httpClient.post(ENDPOINTS.LOGOUT, {}, { withCredentials: true });
   } catch (error) {
-    console.error("Logout API error:", error);
+    console.log("Logout API error:", error);
+    // Don't show alert for logout errors as it's not critical
   } finally {
     // Clean up local storage regardless of API call success
     await clearAll();
@@ -80,7 +87,12 @@ export const forgotPassword = async (email) => {
       message: response.data?.message || "Gửi email thất bại",
     };
   } catch (error) {
-    console.error("Forgot password error:", error);
+    console.log("Forgot password error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra khi gửi email",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -111,7 +123,12 @@ export const resetPassword = async (token, newPassword, confirmPassword) => {
       message: response.data?.message || "Đặt lại mật khẩu thất bại",
     };
   } catch (error) {
-    console.error("Reset password error:", error);
+    console.log("Reset password error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra khi đặt lại mật khẩu",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -140,7 +157,12 @@ export const getUserInfo = async () => {
       message: response.data?.message || "Lấy thông tin user thất bại",
     };
   } catch (error) {
-    console.error("Get user info error:", error);
+    console.log("Get user info error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra khi lấy thông tin user",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -169,7 +191,12 @@ export const updateUserInfo = async (userData) => {
       message: response.data?.message || "Cập nhật thông tin thất bại",
     };
   } catch (error) {
-    console.error("Update user info error:", error);
+    console.log("Update user info error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra khi cập nhật thông tin",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -201,7 +228,12 @@ export const changePassword = async (userId, newPassword) => {
       message: response.data?.message || "Đổi mật khẩu thất bại",
     };
   } catch (error) {
-    console.error("Change password error:", error);
+    console.log("Change password error:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra khi đổi mật khẩu",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,

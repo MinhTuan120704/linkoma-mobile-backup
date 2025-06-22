@@ -39,12 +39,12 @@ export default function ResidentInfoScreen() {
               setApartmentData(apartmentResult.data);
             }
           } catch (apartmentError) {
-            console.error("Error fetching apartment data:", apartmentError);
+            console.log("Error fetching apartment data:", apartmentError);
             // Don't show error for apartment as it's secondary data
           }
         }
       } else {
-        console.error("Failed to fetch user data:", userResult.message);
+        console.log("Failed to fetch user data:", userResult.message);
         Alert.alert(
           "Lỗi",
           userResult.message || "Không thể tải thông tin cư dân"
@@ -57,7 +57,7 @@ export default function ResidentInfoScreen() {
         });
       }
     } catch (error) {
-      console.error("Error fetching resident:", error);
+      console.log("Error fetching resident:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin cư dân");
 
       // Fallback to using cached user data

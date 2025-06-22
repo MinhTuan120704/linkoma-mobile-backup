@@ -23,11 +23,11 @@ export default function ResidentInvoiceViewScreen() {
       if (result.success && result.data) {
         setInvoice(result.data);
       } else {
-        console.error("Failed to fetch invoice:", result.message);
+        console.log("Failed to fetch invoice:", result.message);
         Alert.alert("Lỗi", result.message || "Không thể tải thông tin hóa đơn");
       }
     } catch (error) {
-      console.error("Error fetching invoice:", error);
+      console.log("Error fetching invoice:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin hóa đơn");
     } finally {
       setLoading(false);

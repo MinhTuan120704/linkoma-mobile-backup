@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View } from "react-native";
+import { View, Alert } from "react-native";
 import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
 import { useRoute } from "@react-navigation/native";
 import announcementService from "../../../services/announcementService";
@@ -23,7 +23,8 @@ export default function ResidentNotificationViewScreen() {
             setNotification(response.data);
           }
         } catch (error) {
-          console.error("Error fetching notification details:", error);
+          console.log("Error fetching notification details:", error);
+          Alert.alert("Lỗi", "Không thể tải chi tiết thông báo");
         } finally {
           setLoading(false);
         }

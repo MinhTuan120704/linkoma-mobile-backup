@@ -41,7 +41,7 @@ export default function ResidentServiceRegisterScreen() {
       if (user?.userId) {
         const userResult = await userService.getUserById(user.userId);
         console.log("User data API fetched:", userResult.data);
-        
+
         if (userResult.success && userResult.data.apartmentId) {
           const apartmentResult = await apartmentService.getApartmentById(
             userResult.data.apartmentId
@@ -69,7 +69,7 @@ export default function ResidentServiceRegisterScreen() {
         setServiceTypes(serviceTypesResult.data.results || []);
       }
     } catch (error) {
-      console.error("Error fetching initial data:", error);
+      console.log("Error fetching initial data:", error);
       Alert.alert("Lỗi", "Không thể tải dữ liệu ban đầu");
     } finally {
       setLoading(false);
@@ -126,7 +126,7 @@ export default function ResidentServiceRegisterScreen() {
         Alert.alert("Lỗi", result.message || "Không thể đăng ký dịch vụ");
       }
     } catch (error) {
-      console.error("Service registration error:", error);
+      console.log("Service registration error:", error);
       Alert.alert(
         "Lỗi",
         "Có lỗi xảy ra khi đăng ký dịch vụ. Vui lòng thử lại."
@@ -154,7 +154,6 @@ export default function ResidentServiceRegisterScreen() {
           <ModernFormInput
             label="Căn hộ"
             value={formData.apartmentId?.toString() || ""}
-            
             placeholder="Đang tải thông tin căn hộ..."
             icon="home"
             editable={false}

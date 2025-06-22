@@ -1,5 +1,6 @@
 import httpClient from "./httpClient";
 import { ENDPOINTS } from "./apiConfig";
+import { Alert } from "react-native";
 
 export const createInvoice = async (invoiceData) => {
   try {
@@ -10,7 +11,12 @@ export const createInvoice = async (invoiceData) => {
       message: "Tạo hóa đơn thành công",
     };
   } catch (error) {
-    console.error("Error creating invoice:", error);
+    console.log("Error creating invoice:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Tạo hóa đơn thất bại",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -52,7 +58,11 @@ export const getAllInvoices = async (queryParams = null) => {
       message: response.data?.message || "Lấy danh sách hóa đơn thất bại",
     };
   } catch (error) {
-    console.error("Error getting all invoices:", error);
+    Alert.alert(
+      "Lỗi",
+      "Có lỗi đã xảy ra: " + error.message || "Không thể tải hóa đơn",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -74,7 +84,12 @@ export const createInvoiceWithDetails = async (invoiceWithDetailsData) => {
       message: "Tạo hóa đơn kèm chi tiết thành công",
     };
   } catch (error) {
-    console.error("Error creating invoice with details:", error);
+    console.log("Error creating invoice with details:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Tạo hóa đơn kèm chi tiết thất bại",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -95,7 +110,12 @@ export const getInvoiceById = async (invoiceId) => {
       message: "Lấy thông tin hóa đơn thành công",
     };
   } catch (error) {
-    console.error("Error getting invoice by ID:", error);
+    console.log("Error getting invoice by ID:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Lấy thông tin hóa đơn thất bại",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -117,7 +137,12 @@ export const updateInvoice = async (invoiceId, updateData) => {
       message: "Cập nhật hóa đơn thành công",
     };
   } catch (error) {
-    console.error("Error updating invoice:", error);
+    console.log("Error updating invoice:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Cập nhật hóa đơn thất bại",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -137,7 +162,12 @@ export const deleteInvoice = async (invoiceId) => {
       message: "Xóa hóa đơn thành công",
     };
   } catch (error) {
-    console.error("Error deleting invoice:", error);
+    console.log("Error deleting invoice:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Xóa hóa đơn thất bại",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
@@ -161,7 +191,12 @@ export const payInvoice = async (invoiceId) => {
       message: "Thanh toán hóa đơn thành công",
     };
   } catch (error) {
-    console.error("Error paying invoice:", error);
+    console.log("Error paying invoice:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Thanh toán hóa đơn thất bại",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,

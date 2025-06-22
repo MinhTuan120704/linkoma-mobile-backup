@@ -1,20 +1,29 @@
-import httpClient from './httpClient';
-import { ENDPOINTS } from './apiConfig';
+import httpClient from "./httpClient";
+import { ENDPOINTS } from "./apiConfig";
+import { Alert } from "react-native";
 
 export const createInvoiceDetail = async (invoiceDetailData) => {
   try {
-    const response = await httpClient.post(ENDPOINTS.INVOICE_DETAILS, invoiceDetailData);
+    const response = await httpClient.post(
+      ENDPOINTS.INVOICE_DETAILS,
+      invoiceDetailData
+    );
     return {
       success: true,
       data: response.data,
-      message: 'Tạo chi tiết hóa đơn thành công'
+      message: "Tạo chi tiết hóa đơn thành công",
     };
   } catch (error) {
-    console.error('Error creating invoice detail:', error);
+    console.log("Error creating invoice detail:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || 'Tạo chi tiết hóa đơn thất bại'
+      message: error.response?.data?.message || "Tạo chi tiết hóa đơn thất bại",
     };
   }
 };
@@ -25,104 +34,154 @@ export const getAllInvoiceDetails = async () => {
     return {
       success: true,
       data: response.data,
-      message: 'Lấy danh sách chi tiết hóa đơn thành công'
+      message: "Lấy danh sách chi tiết hóa đơn thành công",
     };
   } catch (error) {
-    console.error('Error getting all invoice details:', error);
+    console.log("Error getting all invoice details:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || 'Lấy danh sách chi tiết hóa đơn thất bại'
+      message:
+        error.response?.data?.message ||
+        "Lấy danh sách chi tiết hóa đơn thất bại",
     };
   }
 };
 
 export const getInvoiceDetailById = async (invoiceDetailId) => {
   try {
-    const response = await httpClient.get(`${ENDPOINTS.INVOICE_DETAILS_GET_BY_ID}/${invoiceDetailId}`);
+    const response = await httpClient.get(
+      `${ENDPOINTS.INVOICE_DETAILS_GET_BY_ID}/${invoiceDetailId}`
+    );
     return {
       success: true,
       data: response.data,
-      message: 'Lấy thông tin chi tiết hóa đơn thành công'
+      message: "Lấy thông tin chi tiết hóa đơn thành công",
     };
   } catch (error) {
-    console.error('Error getting invoice detail by ID:', error);
+    console.log("Error getting invoice detail by ID:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || 'Lấy thông tin chi tiết hóa đơn thất bại'
+      message:
+        error.response?.data?.message ||
+        "Lấy thông tin chi tiết hóa đơn thất bại",
     };
   }
 };
 
 export const getInvoiceDetailsByInvoiceId = async (invoiceId) => {
   try {
-    const response = await httpClient.get(`${ENDPOINTS.INVOICE_DETAILS_GET_BY_INVOICE_ID}/${invoiceId}`);
+    const response = await httpClient.get(
+      `${ENDPOINTS.INVOICE_DETAILS_GET_BY_INVOICE_ID}/${invoiceId}`
+    );
     return {
       success: true,
       data: response.data,
-      message: 'Lấy chi tiết hóa đơn theo mã hóa đơn thành công'
+      message: "Lấy chi tiết hóa đơn theo mã hóa đơn thành công",
     };
   } catch (error) {
-    console.error('Error getting invoice details by invoice ID:', error);
+    console.log("Error getting invoice details by invoice ID:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || 'Lấy chi tiết hóa đơn theo mã hóa đơn thất bại'
+      message:
+        error.response?.data?.message ||
+        "Lấy chi tiết hóa đơn theo mã hóa đơn thất bại",
     };
   }
 };
 
 export const updateInvoiceDetail = async (invoiceDetailId, updateData) => {
   try {
-    const response = await httpClient.patch(`${ENDPOINTS.INVOICE_DETAILS_UPDATE}/${invoiceDetailId}`, updateData);
+    const response = await httpClient.patch(
+      `${ENDPOINTS.INVOICE_DETAILS_UPDATE}/${invoiceDetailId}`,
+      updateData
+    );
     return {
       success: true,
       data: response.data,
-      message: 'Cập nhật chi tiết hóa đơn thành công'
+      message: "Cập nhật chi tiết hóa đơn thành công",
     };
   } catch (error) {
-    console.error('Error updating invoice detail:', error);
+    console.log("Error updating invoice detail:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || 'Cập nhật chi tiết hóa đơn thất bại'
+      message:
+        error.response?.data?.message || "Cập nhật chi tiết hóa đơn thất bại",
     };
   }
 };
 
 export const deleteInvoiceDetail = async (invoiceDetailId) => {
   try {
-    const response = await httpClient.delete(`${ENDPOINTS.INVOICE_DETAILS_DELETE}/${invoiceDetailId}`);
+    const response = await httpClient.delete(
+      `${ENDPOINTS.INVOICE_DETAILS_DELETE}/${invoiceDetailId}`
+    );
     return {
       success: true,
       data: response.data,
-      message: 'Xóa chi tiết hóa đơn thành công'
+      message: "Xóa chi tiết hóa đơn thành công",
     };
   } catch (error) {
-    console.error('Error deleting invoice detail:', error);
+    console.log("Error deleting invoice detail:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || 'Xóa chi tiết hóa đơn thất bại'
+      message: error.response?.data?.message || "Xóa chi tiết hóa đơn thất bại",
     };
   }
 };
 
 export const deleteInvoiceDetailsByInvoiceId = async (invoiceId) => {
   try {
-    const response = await httpClient.delete(`${ENDPOINTS.INVOICE_DETAILS_DELETE_BY_INVOICE_ID}/${invoiceId}`);
+    const response = await httpClient.delete(
+      `${ENDPOINTS.INVOICE_DETAILS_DELETE_BY_INVOICE_ID}/${invoiceId}`
+    );
     return {
       success: true,
       data: response.data,
-      message: 'Xóa tất cả chi tiết hóa đơn theo mã hóa đơn thành công'
+      message: "Xóa tất cả chi tiết hóa đơn theo mã hóa đơn thành công",
     };
   } catch (error) {
-    console.error('Error deleting invoice details by invoice ID:', error);
+    console.log("Error deleting invoice details by invoice ID:", error);
+    Alert.alert(
+      "Lỗi",
+      error.response?.data?.message || "Có lỗi xảy ra",
+      [{ text: "OK" }]
+    );
     return {
       success: false,
       data: null,
-      message: error.response?.data?.message || 'Xóa tất cả chi tiết hóa đơn theo mã hóa đơn thất bại'
+      message:
+        error.response?.data?.message ||
+        "Xóa tất cả chi tiết hóa đơn theo mã hóa đơn thất bại",
     };
   }
 };
@@ -134,7 +193,7 @@ const invoiceDetailService = {
   getInvoiceDetailsByInvoiceId,
   updateInvoiceDetail,
   deleteInvoiceDetail,
-  deleteInvoiceDetailsByInvoiceId
+  deleteInvoiceDetailsByInvoiceId,
 };
 
 export default invoiceDetailService;

@@ -29,7 +29,7 @@ export default function ResidentApartmentInfoScreen() {
         user.apartmentId
       );
       console.log("response: " + JSON.stringify(response.data));
-      
+
       if (response.success) {
         setApartmentData(response.data);
       } else {
@@ -40,7 +40,7 @@ export default function ResidentApartmentInfoScreen() {
         setApartmentData(null);
       }
     } catch (error) {
-      console.error("Error fetching apartment:", error);
+      console.log("Error fetching apartment:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin căn hộ");
       setApartmentData(null);
     } finally {
@@ -144,7 +144,7 @@ export default function ResidentApartmentInfoScreen() {
               icon="door-front"
             />
 
-           {/*  <InfoRow
+            {/*  <InfoRow
               label="Block"
               value={apartmentData.block}
               icon="business"
@@ -196,23 +196,29 @@ export default function ResidentApartmentInfoScreen() {
           <ModernCard title="Thông tin phòng">
             <InfoRow
               label="Số phòng ngủ"
-              value={apartmentData.apartmentType.numBedrooms?.toString() || "Không có dữ liệu"}
+              value={
+                apartmentData.apartmentType.numBedrooms?.toString() ||
+                "Không có dữ liệu"
+              }
               icon="bed"
             />
 
             <InfoRow
               label="Số phòng tắm"
-              value={apartmentData.apartmentType.numBathrooms?.toString() || "Không có dữ liệu"}
+              value={
+                apartmentData.apartmentType.numBathrooms?.toString() ||
+                "Không có dữ liệu"
+              }
               icon="bathtub"
             />
 
-           {/*  <InfoRow
+            {/*  <InfoRow
               label="Có ban công"
               value={apartmentData.hasBalcony ? "Có" : "Không"}
               icon="balcony"
             /> */}
 
-           {/*  <InfoRow
+            {/*  <InfoRow
               label="Có thang máy"
               value={apartmentData.hasElevator ? "Có" : "Không"}
               icon="elevator"

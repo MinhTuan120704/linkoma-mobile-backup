@@ -51,7 +51,7 @@ export default function ResidentFeedbackEditScreen() {
         { text: "OK", onPress: () => navigation.goBack() },
       ]);
     } catch (e) {
-      console.error("Update feedback error:", e);
+      console.log("Update feedback error:", e);
       Alert.alert("Lỗi", "Không cập nhật được phản hồi. Vui lòng thử lại.");
     } finally {
       setLoading(false);

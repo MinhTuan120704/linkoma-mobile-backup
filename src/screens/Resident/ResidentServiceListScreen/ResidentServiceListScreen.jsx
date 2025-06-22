@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import {
   ModernScreenWrapper,
   ModernCard,
@@ -112,7 +112,8 @@ export default function ResidentServiceListScreen() {
         setServiceTypes([]);
       }
     } catch (e) {
-      console.error("Error fetching service types:", e);
+      console.log("Error fetching service types:", e);
+      Alert.alert("Lỗi", "Không thể tải danh sách loại dịch vụ");
       setServiceTypes([]);
     } finally {
       setLoadingServiceTypes(false);
@@ -172,7 +173,8 @@ export default function ResidentServiceListScreen() {
         });
       }
     } catch (e) {
-      console.error("Error fetching services:", e);
+      console.log("Error fetching services:", e);
+      Alert.alert("Lỗi", "Không thể tải danh sách dịch vụ");
       setServices([]);
     } finally {
       setLoading(false);
@@ -205,11 +207,11 @@ export default function ResidentServiceListScreen() {
   const getServiceColor = (status) => {
     switch (status) {
       case "Active":
-        return "#27AE60"; 
+        return "#27AE60";
       case "Inactive":
-        return "#E74C3C"; 
+        return "#E74C3C";
       case "Cancelled":
-        return "#95A5A6"; 
+        return "#95A5A6";
       case "Rejected":
         return "#F39C12";
       default:
