@@ -5,7 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-/// Import apartmentService to handle API calls
+import apartmentService from "../../../services/apartmentService";
 
 export default function ApartmentCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);

@@ -216,6 +216,7 @@ export const deleteUser = async (userId) => {
 const userService = {
   createUser,
   getAllUsers,
+  getUsers: getAllUsers, // Alias for consistency
   createUserWithEmail,
   getUserByEmail,
   getUserById,

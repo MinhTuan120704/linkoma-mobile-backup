@@ -6,9 +6,7 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import invoiceService để thực hiện các chức năng:
-// - Lấy chi tiết hóa đơn (getInvoiceById)
-// - Xóa hóa đơn (removeInvoice)
+import invoiceService from "../../../services/invoiceService";
 
 export default function InvoiceViewScreen({ route, navigation }) {
   const { invoiceId } = route.params || {};
@@ -19,11 +17,18 @@ export default function InvoiceViewScreen({ route, navigation }) {
     if (!invoiceId) return;
     setLoading(true);
     try {
-      // TODO: Call API getInvoiceById(id) để lấy chi tiết hóa đơn
-      // Hiện tại set null để test giao diện
-      setInvoice(null);
+      const response = await invoiceService.getInvoiceById(invoiceId);
+      if (response.success) {
+        setInvoice(response.data);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tải thông tin hóa đơn"
+        );
+        setInvoice(null);
+      }
     } catch (error) {
-      console.error("Error fetching invoice:", error);
+      console.log("Error fetching invoice:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin hóa đơn");
     } finally {
       setLoading(false);
@@ -50,12 +55,17 @@ export default function InvoiceViewScreen({ route, navigation }) {
           onPress: async () => {
             setLoading(true);
             try {
-              await invoiceService.deleteInvoice(invoiceId);
-              Alert.alert("Thành công", "Xóa hóa đơn thành công", [
-                { text: "OK", onPress: () => navigation.goBack() },
-              ]);
+              const response = await invoiceService.deleteInvoice(invoiceId);
+              if (response.success) {
+                Alert.alert("Thành công", "Xóa hóa đơn thành công", [
+                  { text: "OK", onPress: () => navigation.goBack() },
+                ]);
+              } else {
+                Alert.alert("Lỗi", response.message || "Không thể xóa hóa đơn");
+                setLoading(false);
+              }
             } catch (error) {
-              console.error("Error deleting invoice:", error);
+              console.log("Error deleting invoice:", error);
               Alert.alert("Lỗi", "Không thể xóa hóa đơn");
               setLoading(false);
             }

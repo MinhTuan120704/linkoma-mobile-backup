@@ -6,10 +6,7 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import feedbackService để thực hiện các chức năng:
-// - Lấy chi tiết phản hồi (getFeedbackById)
-// - Xóa phản hồi (removeFeedback)
-// - Cập nhật trạng thái phản hồi (updateFeedbackStatus)
+import feedbackService from "../../../services/feedbackService";
 
 export default function FeedbackViewScreen({ route, navigation }) {
   const { feedback } = route.params || {};
@@ -28,11 +25,19 @@ export default function FeedbackViewScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            await removeFeedback(feedback.id);
-            Alert.alert("Thành công", "Xóa phản hồi thành công!", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await feedbackService.deleteFeedback(feedback.id);
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa phản hồi thành công!", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert(
+                "Lỗi",
+                response.message || "Không thể xóa phản hồi. Vui lòng thử lại."
+              );
+            }
           } catch (error) {
+            console.log("Error deleting feedback:", error);
             Alert.alert("Lỗi", "Không thể xóa phản hồi. Vui lòng thử lại.");
           } finally {
             setDeleteLoading(false);

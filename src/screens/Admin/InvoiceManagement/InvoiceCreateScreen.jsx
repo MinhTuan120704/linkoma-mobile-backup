@@ -6,8 +6,7 @@ import {
   ModernButton,
   ModernDateTimePicker,
 } from "../../../components";
-// Import invoiceService để thực hiện chức năng:
-// - Tạo hóa đơn mới (createInvoice)
+import invoiceService from "../../../services/invoiceService";
 
 export default function InvoiceCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -45,14 +44,27 @@ export default function InvoiceCreateScreen({ navigation }) {
     if (!validateForm()) {
       return;
     }
-
     try {
       setLoading(true);
-      await createInvoice(formData);
-      Alert.alert("Thành công", "Tạo hóa đơn thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const invoiceData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        apartmentId: formData.apartmentId || null,
+      };
+
+      const response = await invoiceService.createInvoice(invoiceData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo hóa đơn thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo hóa đơn. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
+      console.log("Error creating invoice:", error);
       Alert.alert("Lỗi", "Không thể tạo hóa đơn. Vui lòng thử lại.");
     } finally {
       setLoading(false);

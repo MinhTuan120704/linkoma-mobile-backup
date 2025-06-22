@@ -24,7 +24,7 @@ export const AdminHeader = () => {
             try {
               await logout(navigation);
             } catch (error) {
-              console.error("Logout error:", error);
+              console.log("Logout error:", error);
               Alert.alert("Lỗi", "Không thể đăng xuất. Vui lòng thử lại sau.");
             }
           },

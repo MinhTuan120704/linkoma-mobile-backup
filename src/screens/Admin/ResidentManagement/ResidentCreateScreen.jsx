@@ -6,8 +6,7 @@ import {
   ModernButton,
   ModernDateTimePicker,
 } from "../../../components";
-// Import residentService để thực hiện chức năng:
-// - Tạo cư dân mới (createResident)
+import userService from "../../../services/userService";
 
 export default function ResidentCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -44,18 +43,25 @@ export default function ResidentCreateScreen({ navigation }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
     try {
       setLoading(true);
-      // TODO: Call API createResident(formData) để tạo cư dân mới
-      Alert.alert("Thành công", "Tạo cư dân thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await userService.createUser(formData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo cư dân thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo cư dân. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
+      console.log("Error creating resident:", error);
       Alert.alert("Lỗi", "Không thể tạo cư dân. Vui lòng thử lại.");
     } finally {
       setLoading(false);

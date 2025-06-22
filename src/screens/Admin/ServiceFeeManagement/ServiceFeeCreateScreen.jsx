@@ -7,8 +7,7 @@ import {
   ModernCard,
   ModernDateTimePicker,
 } from "../../../components";
-// Import serviceFeeService để thực hiện chức năng:
-// - Tạo mới phí dịch vụ (createServiceFee)
+import serviceTypeService from "../../../services/serviceTypeService";
 
 export default function ServiceFeeCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -49,14 +48,21 @@ export default function ServiceFeeCreateScreen({ navigation }) {
     if (!validateForm()) {
       return;
     }
-
     try {
-      setLoading(true); // TODO: Call API createServiceFee(data) để tạo mới phí dịch vụ
-      Alert.alert("Thành công", "Tạo phí dịch vụ thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      setLoading(true);
+      const response = await serviceTypeService.createServiceType(formData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo phí dịch vụ thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo phí dịch vụ. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
-      console.error("Error creating service fee:", error);
+      console.log("Error creating service fee:", error);
       Alert.alert("Lỗi", "Không thể tạo phí dịch vụ. Vui lòng thử lại.");
     } finally {
       setLoading(false);

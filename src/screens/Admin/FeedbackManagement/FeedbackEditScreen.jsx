@@ -6,9 +6,7 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-// Import feedbackService để thực hiện các chức năng:
-// - Cập nhật phản hồi (updateFeedback)
-// - Xóa phản hồi (deleteFeedback)
+import feedbackService from "../../../services/feedbackService";
 
 export default function FeedbackEditScreen({ route, navigation }) {
   const { feedback } = route.params || {};
@@ -46,15 +44,21 @@ export default function FeedbackEditScreen({ route, navigation }) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
       return;
     }
-
     setLoading(true);
     try {
-      // TODO: Call API updateFeedback(id, data) để cập nhật phản hồi
-      Alert.alert("Thành công", "Cập nhật phản hồi thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await feedbackService.updateFeedback(
+        feedback.id,
+        formData
+      );
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật phản hồi thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert("Lỗi", response.message || "Không thể cập nhật phản hồi");
+      }
     } catch (error) {
-      console.error("Error updating feedback:", error);
+      console.log("Error updating feedback:", error);
       Alert.alert("Lỗi", "Không thể cập nhật phản hồi");
     } finally {
       setLoading(false);
@@ -70,14 +74,18 @@ export default function FeedbackEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await feedbackService.deleteFeedback(feedback.id);
-            Alert.alert("Thành công", "Xóa phản hồi thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await feedbackService.deleteFeedback(feedback.id);
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa phản hồi thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", response.message || "Không thể xóa phản hồi");
+              setLoading(false);
+            }
           } catch (error) {
-            console.error("Error deleting feedback:", error);
+            console.log("Error deleting feedback:", error);
             Alert.alert("Lỗi", "Không thể xóa phản hồi");
-          } finally {
             setLoading(false);
           }
         },

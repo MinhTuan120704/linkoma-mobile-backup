@@ -5,8 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-// Import notificationService để thực hiện chức năng:
-// - Tạo thông báo mới (createNotification)
+import announcementService from "../../../services/announcementService";
 
 export default function NotificationCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
@@ -39,13 +38,21 @@ export default function NotificationCreateScreen({ navigation }) {
     if (!validateForm()) {
       return;
     }
-
     try {
-      setLoading(true); // TODO: Call API createNotification(formData) để tạo thông báo mới
-      Alert.alert("Thành công", "Tạo thông báo thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      setLoading(true);
+      const response = await announcementService.createAnnouncement(formData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo thông báo thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo thông báo. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
+      console.log("Error creating notification:", error);
       Alert.alert("Lỗi", "Không thể tạo thông báo. Vui lòng thử lại.");
     } finally {
       setLoading(false);

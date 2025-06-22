@@ -1,12 +1,12 @@
 import React from "react";
 import { useCallback } from "react";
-// Import các service để thực hiện các chức năng:
-// - Lấy danh sách tất cả cư dân (getAllResidents)
-// - Lấy danh sách tất cả căn hộ (getAllApartments)
-// - Lấy danh sách tất cả phản hồi (getAllFeedbacks)
-// - Lấy danh sách tất cả phí dịch vụ (getAllServiceFees)
-// - Lấy danh sách tất cả thông báo (getAllNotifications)
-// - Lấy danh sách tất cả hóa đơn (getAllInvoices)
+import { Alert } from "react-native";
+import userService from "../../../services/userService";
+import apartmentService from "../../../services/apartmentService";
+import feedbackService from "../../../services/feedbackService";
+import serviceTypeService from "../../../services/serviceTypeService";
+import announcementService from "../../../services/announcementService";
+import invoiceService from "../../../services/invoiceService";
 
 export const useDataLoader = (setters) => {
   const {
@@ -20,30 +20,139 @@ export const useDataLoader = (setters) => {
 
   const loadAllData = useCallback(async () => {
     try {
-      // TODO: Call APIs để lấy dữ liệu:
-      // - getAllResidents()
-      // - getAllApartments()
-      // - getAllFeedbacks()
-      // - getAllServiceFees()
-      // - getAllNotifications()
-      // - getAllInvoices()
+      // Load all data in parallel for better performance
       const [
-        residentsData,
-        apartmentsData,
-        feedbacksData,
-        serviceFeesData,
-        notificationsData,
-        invoicesData,
-      ] = [[], [], [], [], [], []];
+        residentsResult,
+        apartmentsResult,
+        feedbacksResult,
+        serviceFeesResult,
+        notificationsResult,
+        invoicesResult,
+      ] = await Promise.allSettled([
+        userService.getAllUsers({ limit: 100, sortBy: "createdAt:desc" }),
+        apartmentService.getAllApartments({
+          limit: 100,
+          sortBy: "apartmentId:asc",
+        }),
+        feedbackService.getAllFeedbacks({
+          limit: 100,
+          sortBy: "createdAt:desc",
+        }),
+        serviceTypeService.getAllServiceTypes({
+          limit: 100,
+          sortBy: "serviceName:asc",
+        }),
+        announcementService.getAllAnnouncements({
+          limit: 100,
+          sortBy: "createdAt:desc",
+        }),
+        invoiceService.getAllInvoices({ limit: 100, sortBy: "createdAt:desc" }),
+      ]);
 
-      setResidents(residentsData);
-      setApartments(apartmentsData);
-      setFeedbacks(feedbacksData);
-      setServiceFees(serviceFeesData);
-      setNotifications(notificationsData);
-      setInvoices(invoicesData);
+      // Process residents data
+      if (
+        residentsResult.status === "fulfilled" &&
+        residentsResult.value.success
+      ) {
+        setResidents(
+          residentsResult.value.data.results || residentsResult.value.data || []
+        );
+      } else {
+        console.log(
+          "Error loading residents:",
+          residentsResult.reason || residentsResult.value?.message
+        );
+        setResidents([]);
+      }
+
+      // Process apartments data
+      if (
+        apartmentsResult.status === "fulfilled" &&
+        apartmentsResult.value.success
+      ) {
+        setApartments(
+          apartmentsResult.value.data.results ||
+            apartmentsResult.value.data ||
+            []
+        );
+      } else {
+        console.log(
+          "Error loading apartments:",
+          apartmentsResult.reason || apartmentsResult.value?.message
+        );
+        setApartments([]);
+      }
+
+      // Process feedbacks data
+      if (
+        feedbacksResult.status === "fulfilled" &&
+        feedbacksResult.value.success
+      ) {
+        setFeedbacks(
+          feedbacksResult.value.data.results || feedbacksResult.value.data || []
+        );
+      } else {
+        console.log(
+          "Error loading feedbacks:",
+          feedbacksResult.reason || feedbacksResult.value?.message
+        );
+        setFeedbacks([]);
+      }
+
+      // Process service fees data
+      if (
+        serviceFeesResult.status === "fulfilled" &&
+        serviceFeesResult.value.success
+      ) {
+        setServiceFees(
+          serviceFeesResult.value.data.results ||
+            serviceFeesResult.value.data ||
+            []
+        );
+      } else {
+        console.log(
+          "Error loading service fees:",
+          serviceFeesResult.reason || serviceFeesResult.value?.message
+        );
+        setServiceFees([]);
+      }
+
+      // Process notifications data
+      if (
+        notificationsResult.status === "fulfilled" &&
+        notificationsResult.value.success
+      ) {
+        setNotifications(
+          notificationsResult.value.data.results ||
+            notificationsResult.value.data ||
+            []
+        );
+      } else {
+        console.log(
+          "Error loading notifications:",
+          notificationsResult.reason || notificationsResult.value?.message
+        );
+        setNotifications([]);
+      }
+
+      // Process invoices data
+      if (
+        invoicesResult.status === "fulfilled" &&
+        invoicesResult.value.success
+      ) {
+        setInvoices(
+          invoicesResult.value.data.results || invoicesResult.value.data || []
+        );
+      } else {
+        console.log(
+          "Error loading invoices:",
+          invoicesResult.reason || invoicesResult.value?.message
+        );
+        setInvoices([]);
+      }
     } catch (error) {
-      console.error("Error loading data:", error);
+      console.log("Error loading data:", error);
+      Alert.alert("Lỗi", "Không thể tải dữ liệu. Vui lòng thử lại.");
     }
   }, [
     setResidents,

@@ -6,9 +6,7 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-// Import notificationService để thực hiện các chức năng:
-// - Cập nhật thông báo (updateNotification)
-// - Xóa thông báo (deleteNotification)
+import announcementService from "../../../services/announcementService";
 
 export default function NotificationEditScreen({ route, navigation }) {
   const { notification } = route.params || {};
@@ -46,15 +44,21 @@ export default function NotificationEditScreen({ route, navigation }) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
       return;
     }
-
     setLoading(true);
     try {
-      // TODO: Call API updateNotification(id, data) để cập nhật thông báo
-      Alert.alert("Thành công", "Cập nhật thông báo thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await announcementService.updateAnnouncement(
+        notification.id,
+        formData
+      );
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật thông báo thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert("Lỗi", response.message || "Không thể cập nhật thông báo");
+      }
     } catch (error) {
-      console.error("Error updating notification:", error);
+      console.log("Error updating notification:", error);
       Alert.alert("Lỗi", "Không thể cập nhật thông báo");
     } finally {
       setLoading(false);
@@ -70,14 +74,20 @@ export default function NotificationEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await notificationService.deleteNotification(notification.id);
-            Alert.alert("Thành công", "Xóa thông báo thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await announcementService.deleteAnnouncement(
+              notification.id
+            );
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa thông báo thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", response.message || "Không thể xóa thông báo");
+              setLoading(false);
+            }
           } catch (error) {
-            console.error("Error deleting notification:", error);
+            console.log("Error deleting notification:", error);
             Alert.alert("Lỗi", "Không thể xóa thông báo");
-          } finally {
             setLoading(false);
           }
         },

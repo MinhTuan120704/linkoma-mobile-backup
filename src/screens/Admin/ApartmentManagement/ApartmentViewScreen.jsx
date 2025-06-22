@@ -6,8 +6,7 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import apartmentService để thực hiện chức năng:
-// - Xóa căn hộ (removeApartment)
+import apartmentService from "../../../services/apartmentService";
 
 export default function ApartmentViewScreen({ route, navigation }) {
   const { apartment } = route.params || {};
@@ -26,11 +25,21 @@ export default function ApartmentViewScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            // TODO: Call API removeApartment(id) để xóa căn hộ
-            Alert.alert("Thành công", "Xóa căn hộ thành công!", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await apartmentService.deleteApartment(
+              apartment.id
+            );
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa căn hộ thành công!", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert(
+                "Lỗi",
+                response.message || "Không thể xóa căn hộ. Vui lòng thử lại."
+              );
+            }
           } catch (error) {
+            console.log("Error deleting apartment:", error);
             Alert.alert("Lỗi", "Không thể xóa căn hộ. Vui lòng thử lại.");
           } finally {
             setDeleteLoading(false);

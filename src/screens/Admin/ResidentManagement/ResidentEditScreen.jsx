@@ -6,9 +6,7 @@ import {
   ModernButton,
   ModernCard,
 } from "../../../components";
-// Import residentService để thực hiện các chức năng:
-// - Cập nhật thông tin cư dân (updateResident)
-// - Xóa cư dân (deleteResident)
+import userService from "../../../services/userService";
 
 export default function ResidentEditScreen({ route, navigation }) {
   const { resident } = route.params;
@@ -57,7 +55,6 @@ export default function ResidentEditScreen({ route, navigation }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleUpdate = async () => {
     if (!validateForm()) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
@@ -66,12 +63,19 @@ export default function ResidentEditScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      // TODO: Call API updateResident(id, data) để cập nhật thông tin cư dân
-      Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await userService.updateUser(resident.id, formData);
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể cập nhật thông tin cư dân"
+        );
+      }
     } catch (error) {
-      console.error("Error updating resident:", error);
+      console.log("Error updating resident:", error);
       Alert.alert("Lỗi", "Không thể cập nhật thông tin cư dân");
     } finally {
       setLoading(false);
@@ -87,14 +91,18 @@ export default function ResidentEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await residentService.deleteResident(resident.id);
-            Alert.alert("Thành công", "Xóa cư dân thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await userService.deleteUser(resident.id);
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa cư dân thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", response.message || "Không thể xóa cư dân");
+              setLoading(false);
+            }
           } catch (error) {
-            console.error("Error deleting resident:", error);
+            console.log("Error deleting resident:", error);
             Alert.alert("Lỗi", "Không thể xóa cư dân");
-          } finally {
             setLoading(false);
           }
         },

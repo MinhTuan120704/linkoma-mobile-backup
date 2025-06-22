@@ -1,16 +1,15 @@
 import { Alert } from "react-native";
-// Import các service để thực hiện các chức năng:
-// - Xóa và lấy danh sách cư dân (removeResident, getAllResidents)
-// - Xóa và lấy danh sách căn hộ (removeApartment, getAllApartments)
-// - Xóa và lấy danh sách phản hồi (removeFeedback, getAllFeedbacks)
-// - Xóa và lấy danh sách phí dịch vụ (removeServiceFee, getAllServiceFees)
-// - Xóa và lấy danh sách thông báo (removeNotification, getAllNotifications)
-// - Xóa và lấy danh sách hóa đơn (removeInvoice, getAllInvoices)
+import userService from "../../../services/userService";
+import apartmentService from "../../../services/apartmentService";
+import feedbackService from "../../../services/feedbackService";
+import serviceTypeService from "../../../services/serviceTypeService";
+import announcementService from "../../../services/announcementService";
+import invoiceService from "../../../services/invoiceService";
 
 export const createDeleteHandler = (
   title,
-  service,
-  getAllItems,
+  deleteService,
+  getAllService,
   setItems,
   errorMessage
 ) => {
@@ -22,10 +21,23 @@ export const createDeleteHandler = (
         style: "destructive",
         onPress: async () => {
           try {
-            // TODO: Call API để xóa item theo id
-            // TODO: Call API để lấy danh sách items mới
-            setItems([]);
+            // Call API to delete item
+            const deleteResult = await deleteService(id);
+
+            if (deleteResult.success) {
+              // Refresh the list after successful deletion
+              const refreshResult = await getAllService({ limit: 100 });
+              if (refreshResult.success) {
+                setItems(
+                  refreshResult.data.results || refreshResult.data || []
+                );
+              }
+              Alert.alert("Thành công", `Đã xóa ${title} thành công!`);
+            } else {
+              Alert.alert("Lỗi", deleteResult.message || errorMessage);
+            }
           } catch (error) {
+            console.log(`Error deleting ${title}:`, error);
             Alert.alert("Lỗi", errorMessage);
           }
         },
@@ -49,67 +61,54 @@ export const useDeleteHandlers = (setters) => {
     handleDeleteResident: createDeleteHandler(
       "cư dân",
       async (id) => {
-        // TODO: Call API removeResident(id) để xóa cư dân
+        return await userService.deleteUser(id);
       },
       async () => {
-        // TODO: Call API getAllResidents() để lấy danh sách cư dân
-        return [];
+        return await userService.getUsers({ limit: 100 });
       },
       setResidents,
       "Không thể xóa cư dân"
-    ),
-
-    // Xử lý xóa căn hộ
+    ), // Xử lý xóa căn hộ
     handleDeleteApartment: createDeleteHandler(
       "căn hộ",
       async (id) => {
-        // TODO: Call API removeApartment(id) để xóa căn hộ
+        return await apartmentService.deleteApartment(id);
       },
       async () => {
-        // TODO: Call API getAllApartments() để lấy danh sách căn hộ
-        return [];
+        return await apartmentService.getAllApartments({ limit: 100 });
       },
       setApartments,
       "Không thể xóa căn hộ"
-    ),
-
-    // Xử lý xóa phản hồi
+    ), // Xử lý xóa phản hồi
     handleDeleteFeedback: createDeleteHandler(
       "phản hồi",
       async (id) => {
-        // TODO: Call API removeFeedback(id) để xóa phản hồi
+        return await feedbackService.deleteFeedback(id);
       },
       async () => {
-        // TODO: Call API getAllFeedbacks() để lấy danh sách phản hồi
-        return [];
+        return await feedbackService.getAllFeedbacks({ limit: 100 });
       },
       setFeedbacks,
       "Không thể xóa phản hồi"
-    ),
-
-    // Xử lý xóa phí dịch vụ
+    ), // Xử lý xóa phí dịch vụ
     handleDeleteServiceFee: createDeleteHandler(
       "phí dịch vụ",
       async (id) => {
-        // TODO: Call API removeServiceFee(id) để xóa phí dịch vụ
+        return await serviceTypeService.deleteServiceType(id);
       },
       async () => {
-        // TODO: Call API getAllServiceFees() để lấy danh sách phí dịch vụ
-        return [];
+        return await serviceTypeService.getAllServiceTypes({ limit: 100 });
       },
       setServiceFees,
       "Không thể xóa phí dịch vụ"
-    ),
-
-    // Xử lý xóa thông báo
+    ), // Xử lý xóa thông báo
     handleDeleteNotification: createDeleteHandler(
       "thông báo",
       async (id) => {
-        // TODO: Call API removeNotification(id) để xóa thông báo
+        return await announcementService.deleteAnnouncement(id);
       },
       async () => {
-        // TODO: Call API getAllNotifications() để lấy danh sách thông báo
-        return [];
+        return await announcementService.getAllAnnouncements({ limit: 100 });
       },
       setNotifications,
       "Không thể xóa thông báo"
@@ -117,11 +116,10 @@ export const useDeleteHandlers = (setters) => {
     handleDeleteInvoice: createDeleteHandler(
       "hóa đơn",
       async (id) => {
-        // TODO: Call API removeInvoice(id) để xóa hóa đơn
+        return await invoiceService.deleteInvoice(id);
       },
       async () => {
-        // TODO: Call API getAllInvoices() để lấy danh sách hóa đơn
-        return [];
+        return await invoiceService.getAllInvoices({ limit: 100 });
       },
       setInvoices,
       "Không thể xóa hóa đơn"

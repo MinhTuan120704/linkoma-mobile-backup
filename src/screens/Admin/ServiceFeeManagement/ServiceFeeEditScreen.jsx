@@ -7,11 +7,7 @@ import {
   ModernCard,
   ModernDateTimePicker,
 } from "../../../components";
-// Import serviceFeeService để thực hiện các chức năng:
-// - Tạo mới phí dịch vụ (createServiceFee)
-// - Cập nhật phí dịch vụ (updateServiceFee)
-// - Xóa phí dịch vụ (deleteServiceFee)
-// - Lấy chi tiết phí dịch vụ (getServiceFeeById)
+import serviceTypeService from "../../../services/serviceTypeService";
 
 export default function ServiceFeeEditScreen({ route, navigation }) {
   const { serviceFee } = route.params || {};
@@ -60,13 +56,22 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
         amount: parseFloat(formData.amount),
         isActive: formData.isActive === "true",
       };
-
-      // TODO: Call API updateServiceFee(id, data) để cập nhật phí dịch vụ
-      Alert.alert("Thành công", "Cập nhật phí dịch vụ thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await serviceTypeService.updateServiceType(
+        serviceFee.id,
+        updateData
+      );
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật phí dịch vụ thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể cập nhật phí dịch vụ"
+        );
+      }
     } catch (error) {
-      console.error("Error updating service fee:", error);
+      console.log("Error updating service fee:", error);
       Alert.alert("Lỗi", "Không thể cập nhật phí dịch vụ");
     } finally {
       setLoading(false);
@@ -82,14 +87,23 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            // TODO: Call API deleteServiceFee(id) để xóa phí dịch vụ
-            Alert.alert("Thành công", "Xóa phí dịch vụ thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await serviceTypeService.deleteServiceType(
+              serviceFee.id
+            );
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa phí dịch vụ thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert(
+                "Lỗi",
+                response.message || "Không thể xóa phí dịch vụ"
+              );
+              setLoading(false);
+            }
           } catch (error) {
-            console.error("Error deleting service fee:", error);
+            console.log("Error deleting service fee:", error);
             Alert.alert("Lỗi", "Không thể xóa phí dịch vụ");
-          } finally {
             setLoading(false);
           }
         },

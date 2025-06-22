@@ -6,23 +6,26 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import residentService để thực hiện các chức năng:
-// - Lấy thông tin chi tiết cư dân (getResidentById)
-// - Xóa cư dân (deleteResident)
+import userService from "../../../services/userService";
 
 export default function ResidentViewScreen({ route, navigation }) {
   const { residentId } = route.params;
   const [resident, setResident] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const fetchResident = async () => {
     setLoading(true);
     try {
-      // TODO: Call API getResidentById(id) để lấy thông tin chi tiết cư dân
-      const data = null;
-      setResident(data);
+      const response = await userService.getUserById(residentId);
+      if (response.success) {
+        setResident(response.data);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tải thông tin cư dân"
+        );
+      }
     } catch (error) {
-      console.error("Error fetching resident:", error);
+      console.log("Error fetching resident:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin cư dân");
     } finally {
       setLoading(false);
@@ -49,12 +52,17 @@ export default function ResidentViewScreen({ route, navigation }) {
           onPress: async () => {
             setLoading(true);
             try {
-              await residentService.deleteResident(residentId);
-              Alert.alert("Thành công", "Xóa cư dân thành công", [
-                { text: "OK", onPress: () => navigation.goBack() },
-              ]);
+              const response = await userService.deleteUser(residentId);
+              if (response.success) {
+                Alert.alert("Thành công", "Xóa cư dân thành công", [
+                  { text: "OK", onPress: () => navigation.goBack() },
+                ]);
+              } else {
+                Alert.alert("Lỗi", response.message || "Không thể xóa cư dân");
+                setLoading(false);
+              }
             } catch (error) {
-              console.error("Error deleting resident:", error);
+              console.log("Error deleting resident:", error);
               Alert.alert("Lỗi", "Không thể xóa cư dân");
               setLoading(false);
             }
