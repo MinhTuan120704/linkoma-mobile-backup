@@ -1,59 +1,136 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Alert, Text } from "react-native";
 import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
   ModernCard,
+  ModernPicker,
 } from "../../../components";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../contexts/AuthContext";
-// useAuth để lấy thông tin người dùng hiện tại
-// Import serviceFeeService để thực hiện chức năng:
-// - Đăng ký dịch vụ mới (registerService)
+import serviceRegistrationService from "../../../services/serviceRegistrationService";
+import serviceTypeService from "../../../services/serviceTypeService";
+import apartmentService from "../../../services/apartmentService";
+import userService from "../../../services/userService";
 
 export default function ResidentServiceRegisterScreen() {
   const navigation = useNavigation();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [serviceTypes, setServiceTypes] = useState([]);
+  const [userApartment, setUserApartment] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    category: "",
-    notes: "",
+    apartmentId: "",
+    serviceTypeId: "",
+    note: "",
+    quantity: 1,
+    startDate: new Date().toISOString().split("T")[0], // Today's date
   });
   const [errors, setErrors] = useState({});
+  // Fetch user's apartment and available service types
+  useEffect(() => {
+    fetchInitialData();
+  }, [user]);
+
+  const fetchInitialData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch user's apartment info
+      if (user?.userId) {
+        const userResult = await userService.getUserById(user.userId);
+        console.log("User data API fetched:", userResult.data);
+        
+        if (userResult.success && userResult.data.apartmentId) {
+          const apartmentResult = await apartmentService.getApartmentById(
+            userResult.data.apartmentId
+          );
+          console.log("Apartment data API fetched:", apartmentResult.data);
+          if (apartmentResult.success) {
+            setUserApartment(apartmentResult.data);
+            setFormData((prev) => ({
+              ...prev,
+              apartmentId: apartmentResult.data.apartmentId,
+            }));
+          }
+        }
+      }
+      console.log("User's apartment fetched:", userApartment);
+
+      // Fetch available service types
+      const serviceTypesResult = await serviceTypeService.getAllServiceTypes({
+        limit: 100,
+        sortBy: "serviceName:asc",
+      });
+      console.log("Service types fetched:", serviceTypesResult.data.results);
+
+      if (serviceTypesResult.success) {
+        setServiceTypes(serviceTypesResult.data.results || []);
+      }
+    } catch (error) {
+      console.error("Error fetching initial data:", error);
+      Alert.alert("Lỗi", "Không thể tải dữ liệu ban đầu");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Tên dịch vụ là bắt buộc";
+    if (!formData.apartmentId) {
+      newErrors.apartmentId =
+        "Vui lòng liên hệ ban quản lý để được phân bổ căn hộ";
     }
 
-    if (!formData.category.trim()) {
-      newErrors.category = "Danh mục dịch vụ là bắt buộc";
+    if (!formData.serviceTypeId) {
+      newErrors.serviceTypeId = "Vui lòng chọn loại dịch vụ";
+    }
+
+    if (!formData.quantity || formData.quantity < 1) {
+      newErrors.quantity = "Số lượng phải lớn hơn 0";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
 
     try {
-      setLoading(true); // TODO: Call API registerService(data) để đăng ký dịch vụ mới
-      Alert.alert(
-        "Thành công",
-        "Đăng ký dịch vụ thành công! Chờ xác nhận từ ban quản lý.",
-        [{ text: "OK", onPress: () => navigation.goBack() }]
+      setLoading(true);
+
+      const registrationData = {
+        apartmentId: parseInt(formData.apartmentId),
+        serviceTypeId: parseInt(formData.serviceTypeId),
+        note: formData.note.trim() || null,
+        quantity: parseInt(formData.quantity),
+        startDate: formData.startDate,
+        status: "Active", // Default status for new registrations
+      };
+
+      const result = await serviceRegistrationService.createServiceRegistration(
+        registrationData
       );
-    } catch (e) {
-      console.error("Service registration error:", e);
-      Alert.alert("Lỗi", "Không đăng ký được dịch vụ. Vui lòng thử lại.");
+
+      if (result.success) {
+        Alert.alert(
+          "Thành công",
+          "Đăng ký dịch vụ thành công! Dịch vụ đã được kích hoạt.",
+          [{ text: "OK", onPress: () => navigation.goBack() }]
+        );
+      } else {
+        Alert.alert("Lỗi", result.message || "Không thể đăng ký dịch vụ");
+      }
+    } catch (error) {
+      console.error("Service registration error:", error);
+      Alert.alert(
+        "Lỗi",
+        "Có lỗi xảy ra khi đăng ký dịch vụ. Vui lòng thử lại."
+      );
     } finally {
       setLoading(false);
     }
@@ -73,43 +150,67 @@ export default function ResidentServiceRegisterScreen() {
       headerColor="#1976D2"
     >
       <View style={{ paddingBottom: 20 }}>
+        <ModernCard title="Thông tin căn hộ">
+          <ModernFormInput
+            label="Căn hộ"
+            value={formData.apartmentId?.toString() || ""}
+            
+            placeholder="Đang tải thông tin căn hộ..."
+            icon="home"
+            editable={false}
+            error={errors.apartmentId}
+          />
+        </ModernCard>
+
         <ModernCard title="Thông tin dịch vụ">
-          <ModernFormInput
-            label="Tên dịch vụ"
-            value={formData.name}
-            onChangeText={(value) => updateField("name", value)}
-            placeholder="Nhập tên dịch vụ cần đăng ký"
+          <ModernPicker
+            label="Loại dịch vụ"
+            value={formData.serviceTypeId}
+            onValueChange={(value) => updateField("serviceTypeId", value)}
+            placeholder="Chọn loại dịch vụ"
             icon="room-service"
-            error={errors.name}
+            required
+            error={errors.serviceTypeId}
+            items={serviceTypes.map((serviceType) => ({
+              label: `${
+                serviceType.serviceName
+              } - ${serviceType.unitPrice?.toLocaleString("vi-VN")}đ/${
+                serviceType.unit || "đơn vị"
+              }`,
+              value: serviceType.serviceTypeId?.toString(),
+              key: serviceType.serviceTypeId?.toString(),
+            }))}
           />
 
           <ModernFormInput
-            label="Mô tả"
-            value={formData.description}
-            onChangeText={(value) => updateField("description", value)}
-            placeholder="Mô tả chi tiết về dịch vụ"
-            icon="description"
-            multiline
-            numberOfLines={3}
+            label="Số lượng"
+            value={formData.quantity?.toString()}
+            onChangeText={(value) => updateField("quantity", value)}
+            placeholder="Nhập số lượng dịch vụ"
+            icon="numbers"
+            required
+            error={errors.quantity}
+            keyboardType="numeric"
           />
 
           <ModernFormInput
-            label="Danh mục dịch vụ"
-            value={formData.category}
-            onChangeText={(value) => updateField("category", value)}
-            placeholder="Ví dụ: Vệ sinh, Bảo trì, Bảo vệ, v.v."
-            icon="category"
-            error={errors.category}
+            label="Ngày bắt đầu"
+            value={formData.startDate}
+            onChangeText={(value) => updateField("startDate", value)}
+            placeholder="YYYY-MM-DD"
+            icon="event"
+            required
+            error={errors.startDate}
           />
 
           <ModernFormInput
-            label="Ghi chú thêm"
-            value={formData.notes}
-            onChangeText={(value) => updateField("notes", value)}
+            label="Ghi chú"
+            value={formData.note}
+            onChangeText={(value) => updateField("note", value)}
             placeholder="Ghi chú thêm về yêu cầu đặc biệt"
             icon="note"
             multiline
-            numberOfLines={2}
+            numberOfLines={3}
           />
         </ModernCard>
 

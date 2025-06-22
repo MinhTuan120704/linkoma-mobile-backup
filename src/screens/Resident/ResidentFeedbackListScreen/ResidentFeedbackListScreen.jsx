@@ -21,8 +21,8 @@ export default function ResidentFeedbackListScreen() {
     setLoading(true);
     try {
       const response = await feedbackService.getFeedbacksByUserId(user.userId);
-     /*  console.log("Feedbacks response:", response.data.results); */
-      
+       console.log("Feedbacks response:", response.data.results);
+
       setFeedbacks(response.data.results || []);
     } catch (e) {
       setFeedbacks([]);
@@ -120,7 +120,7 @@ export default function ResidentFeedbackListScreen() {
               style={{ marginBottom: 20 }}
             />
             {feedbacks.map((feedback) => (
-              <View key={feedback.id} style={{ marginBottom: 12 }}>
+              <View key={feedback.feedbackId} style={{ marginBottom: 12 }}>
                 <TouchableOpacity
                   onPress={() => handleView(feedback)}
                   activeOpacity={0.8}
@@ -145,11 +145,9 @@ export default function ResidentFeedbackListScreen() {
                         </View>
                       </View>
                     </View>
-
                     <Text style={styles.feedbackContent} numberOfLines={3}>
-                      {feedback.description || <Text>Không có mô tả</Text>}
+                      {feedback.description || "Không có mô tả"}
                     </Text>
-
                     <View style={styles.feedbackFooter}>
                       <View style={styles.metaInfo}>
                         <View style={styles.metaItem}>
@@ -163,7 +161,7 @@ export default function ResidentFeedbackListScreen() {
                           </Text>
                         </View>
                       </View>
-                      {feedback?.responseDate && (
+                      {feedback?.responseDate ? (
                         <View style={styles.metaItem}>
                           <MaterialIcons
                             name="check"
@@ -174,7 +172,7 @@ export default function ResidentFeedbackListScreen() {
                             {formatDate(feedback?.responseDate)}
                           </Text>
                         </View>
-                      )}
+                      ) : null}
                       <View style={styles.actionButtons}>
                         <TouchableOpacity
                           style={styles.actionButton}

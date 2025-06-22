@@ -205,11 +205,13 @@ export default function ResidentServiceListScreen() {
   const getServiceColor = (status) => {
     switch (status) {
       case "Active":
-        return "#27AE60"; // Green for active
+        return "#27AE60"; 
       case "Inactive":
-        return "#E74C3C"; // Red for inactive
+        return "#E74C3C"; 
       case "Cancelled":
-        return "#95A5A6"; // Gray for cancelled
+        return "#95A5A6"; 
+      case "Rejected":
+        return "#F39C12";
       default:
         return "#7F8C8D";
     }

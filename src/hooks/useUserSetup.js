@@ -52,7 +52,8 @@ export const useUserSetup = () => {
           /* const needsInfoUpdate = missingFields.length > 0; */
 
           setSetupStatus({
-            isFirstLogin,
+            isFirstLogin: false, // Assuming false for now, as we are not checking first login here
+            //TODO: Uncomment and implement first login logic if needed
             needsInfoUpdate: false,
             isComplete: !isFirstLogin && !false, // Assuming no missing fields for now
             loading: false,

@@ -7,24 +7,25 @@ import {
   ModernButton,
 } from "../../../components";
 import { useRoute, useNavigation } from "@react-navigation/native";
-// Import invoiceService để thực hiện các chức năng:
-// - Lấy chi tiết hóa đơn (getInvoiceById)
-// - Thanh toán hóa đơn (payInvoice)
+import invoiceService from "../../../services/invoiceService";
 
 export default function ResidentInvoiceViewScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { invoiceId } = route.params;
-  const [invoice, setInvoice] = useState(null);
-  const [loading, setLoading] = useState(true);
-
+  const { invoiceId, invoice: passedInvoice } = route.params;
+  const [invoice, setInvoice] = useState(passedInvoice || null);
+  const [loading, setLoading] = useState(!passedInvoice);
   const fetchInvoice = async () => {
     if (!invoiceId) return;
     setLoading(true);
     try {
-      // TODO: Call API getInvoiceById(invoiceId) để lấy chi tiết hóa đơn
-      // Hiện tại set null để test giao diện
-      setInvoice(null);
+      const result = await invoiceService.getInvoiceById(invoiceId);
+      if (result.success && result.data) {
+        setInvoice(result.data);
+      } else {
+        console.error("Failed to fetch invoice:", result.message);
+        Alert.alert("Lỗi", result.message || "Không thể tải thông tin hóa đơn");
+      }
     } catch (error) {
       console.error("Error fetching invoice:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin hóa đơn");
@@ -34,7 +35,9 @@ export default function ResidentInvoiceViewScreen() {
   };
 
   useEffect(() => {
-    fetchInvoice();
+    if (!invoice) {
+      fetchInvoice();
+    }
   }, [invoiceId]);
 
   const handlePay = () => {
@@ -53,12 +56,11 @@ export default function ResidentInvoiceViewScreen() {
       currency: "VND",
     }).format(amount);
   };
-
   const getStatusColor = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "highlight";
-      case "pending":
+      case "unpaid":
         return "warning";
       case "overdue":
         return "danger";
@@ -68,10 +70,10 @@ export default function ResidentInvoiceViewScreen() {
   };
 
   const getStatusText = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "Đã thanh toán";
-      case "pending":
+      case "unpaid":
         return "Chờ thanh toán";
       case "overdue":
         return "Quá hạn";
@@ -84,9 +86,8 @@ export default function ResidentInvoiceViewScreen() {
     if (!dueDate) return false;
     return new Date(dueDate) < new Date();
   };
-
   const canPay = (status, dueDate) => {
-    return status === "pending" || (status === "pending" && isOverdue(dueDate));
+    return status?.toLowerCase() === "unpaid";
   };
 
   if (!invoice && !loading) {
@@ -126,13 +127,15 @@ export default function ResidentInvoiceViewScreen() {
               type="highlight"
               copyable
             />
-
             <InfoRow
               label="Căn hộ"
-              value={invoice.apartmentName || invoice.apartmentId}
+              value={
+                invoice.apartment?.apartmentCode ||
+                invoice.apartmentName ||
+                `Căn hộ #${invoice.apartmentId}`
+              }
               icon="home"
             />
-
             <InfoRow
               label="Trạng thái"
               value={getStatusText(invoice.status)}
@@ -140,17 +143,22 @@ export default function ResidentInvoiceViewScreen() {
               type={getStatusColor(invoice.status)}
             />
           </ModernCard>
-
           <ModernCard title="Thông tin dịch vụ">
             <InfoRow
               label="Loại dịch vụ"
-              value={invoice.serviceType || "Dịch vụ chung"}
+              value={
+                invoice.serviceType?.name ||
+                invoice.serviceTypeName ||
+                "Dịch vụ chung"
+              }
               icon="build"
             />
 
             <InfoRow
               label="Kỳ thanh toán"
-              value={invoice.period || "Không xác định"}
+              value={
+                invoice.period || invoice.servicePeriod || "Không xác định"
+              }
               icon="date-range"
             />
 
@@ -162,18 +170,17 @@ export default function ResidentInvoiceViewScreen() {
               />
             )}
           </ModernCard>
-
           <ModernCard title="Thông tin thanh toán">
             <InfoRow
               label="Số tiền"
-              value={formatCurrency(invoice.amount)}
+              value={formatCurrency(invoice.totalAmount || invoice.amount)}
               icon="attach-money"
               type="highlight"
             />
 
             <InfoRow
               label="Ngày phát hành"
-              value={formatDate(invoice.issueDate)}
+              value={formatDate(invoice.issueDate || invoice.createdAt)}
               icon="today"
             />
 
@@ -182,7 +189,8 @@ export default function ResidentInvoiceViewScreen() {
               value={formatDate(invoice.dueDate)}
               icon="schedule"
               type={
-                isOverdue(invoice.dueDate) && invoice.status === "pending"
+                isOverdue(invoice.dueDate) &&
+                invoice.status?.toLowerCase() === "unpaid"
                   ? "danger"
                   : "default"
               }
@@ -197,7 +205,6 @@ export default function ResidentInvoiceViewScreen() {
               />
             )}
           </ModernCard>
-
           {invoice.paymentMethod && (
             <ModernCard title="Thông tin thanh toán">
               <InfoRow
@@ -216,13 +223,11 @@ export default function ResidentInvoiceViewScreen() {
               )}
             </ModernCard>
           )}
-
           {invoice.notes && (
             <ModernCard title="Ghi chú">
               <InfoRow label="Ghi chú" value={invoice.notes} icon="note" />
             </ModernCard>
           )}
-
           {canPay(invoice.status, invoice.dueDate) && (
             <View style={{ marginTop: 20, paddingBottom: 20 }}>
               <ModernButton

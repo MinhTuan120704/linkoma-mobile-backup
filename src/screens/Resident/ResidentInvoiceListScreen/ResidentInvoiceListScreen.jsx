@@ -5,45 +5,116 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import {
   ModernScreenWrapper,
   ModernCard,
   ModernButton,
+  ModernPicker,
 } from "../../../components";
 import { MaterialIcons } from "@expo/vector-icons";
 import invoiceService from "../../../services/invoiceService";
-// Import invoiceService để thực hiện các chức năng:
-// - Lấy danh sách hóa đơn theo resident ID
-// - Xem chi tiết hóa đơn
-// - Thanh toán hóa đơn
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ResidentInvoiceListScreen() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [params, setParams] = useState({
+    apartmentId: null,
+    status: "",
+    sortBy: "dueDate",
+    limit: 10,
+    page: 1,
+  });
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
   const navigation = useNavigation();
   const { user } = useAuth();
 
-  const fetchInvoices = async () => {
-    if (!user) return setLoading(false);
-    setLoading(true);
+  // Status options for filtering
+  const statusOptions = [
+    { label: "Tất cả", value: "" },
+    { label: "Chờ thanh toán", value: "Unpaid" },
+    { label: "Đã thanh toán", value: "Paid" },
+  ];
+
+  // Sort options
+  const sortOptions = [
+    { label: "Ngày đến hạn", value: "dueDate" },
+    { label: "Ngày tạo", value: "createdAt" },
+    { label: "Số tiền", value: "amount" },
+  ];
+  const fetchInvoices = async (isRefresh = false) => {
+    if (!user?.apartmentId) return setLoading(false);
+
+    if (isRefresh) {
+      setRefreshing(true);
+      setParams((prev) => ({ ...prev, page: 1 }));
+    } else {
+      setLoading(true);
+    }
+
     try {
-      // TODO: Call API getInvoicesByResident(userId) để lấy danh sách hóa đơn
-      // Hiện tại trả về mảng rỗng để test giao diện
-      setInvoices([]);
+      const queryParams = new URLSearchParams();
+      queryParams.append("apartmentId", user.apartmentId);
+      if (params.status) queryParams.append("status", params.status);
+      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      queryParams.append("limit", params.limit.toString());
+      queryParams.append("page", isRefresh ? "1" : params.page.toString());
+
+      const result = await invoiceService.getAllInvoices(queryParams);
+
+      if (result.success && result.data) {
+        const newInvoices = isRefresh
+          ? result.data.data || []
+          : [...invoices, ...(result.data.data || [])];
+        setInvoices(newInvoices);
+        setHasNextPage(result.data.hasNextPage || false);
+        setTotalCount(result.data.totalCount || 0);
+      } else {
+        console.error("Failed to fetch invoices:", result.message);
+        if (isRefresh) setInvoices([]);
+      }
     } catch (error) {
       console.error("Error fetching invoices:", error);
-      setInvoices([]);
+      if (isRefresh) setInvoices([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
+  // Effect to update apartmentId when user changes
   useEffect(() => {
-    fetchInvoices();
+    if (user?.apartmentId) {
+      setParams((prev) => ({
+        ...prev,
+        apartmentId: user.apartmentId,
+        page: 1,
+      }));
+    }
   }, [user]);
+
+  // Effect to fetch invoices when params change
+  useEffect(() => {
+    if (params.apartmentId) {
+      fetchInvoices(true);
+    }
+  }, [params.apartmentId, params.status, params.sortBy]);
+
+  const loadMoreInvoices = () => {
+    if (hasNextPage && !loading) {
+      setParams((prev) => ({ ...prev, page: prev.page + 1 }));
+      fetchInvoices();
+    }
+  };
+
+  const handleFilterChange = (field, value) => {
+    setParams((prev) => ({ ...prev, [field]: value, page: 1 }));
+  };
 
   const handleView = (invoice) => {
     navigation.navigate("ResidentInvoiceViewScreen", { invoiceId: invoice.id });
@@ -67,12 +138,11 @@ export default function ResidentInvoiceListScreen() {
     if (!dateString) return "Không có dữ liệu";
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
-
   const getStatusColor = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "#4CAF50";
-      case "pending":
+      case "unpaid":
         return "#FF9800";
       case "overdue":
         return "#F44336";
@@ -82,10 +152,10 @@ export default function ResidentInvoiceListScreen() {
   };
 
   const getStatusText = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "Đã thanh toán";
-      case "pending":
+      case "unpaid":
         return "Chờ thanh toán";
       case "overdue":
         return "Quá hạn";
@@ -95,10 +165,10 @@ export default function ResidentInvoiceListScreen() {
   };
 
   const getStatusIcon = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "paid":
         return "check-circle";
-      case "pending":
+      case "unpaid":
         return "schedule";
       case "overdue":
         return "error";
@@ -123,10 +193,9 @@ export default function ResidentInvoiceListScreen() {
       </View>
     </ModernCard>
   );
-
   const renderInvoiceItem = (invoice) => {
     const status =
-      isOverdue(invoice.dueDate) && invoice.status === "pending"
+      isOverdue(invoice.dueDate) && invoice.status?.toLowerCase() === "unpaid"
         ? "overdue"
         : invoice.status;
 
@@ -142,7 +211,9 @@ export default function ResidentInvoiceListScreen() {
                 {invoice.invoiceCode || `Hóa đơn #${invoice.id}`}
               </Text>
               <Text style={styles.serviceType}>
-                {invoice.serviceType || "Dịch vụ chung"}
+                {invoice.serviceType?.name ||
+                  invoice.serviceTypeName ||
+                  "Dịch vụ chung"}
               </Text>
             </View>
 
@@ -165,7 +236,7 @@ export default function ResidentInvoiceListScreen() {
             <View style={styles.detailRow}>
               <MaterialIcons name="attach-money" size={16} color="#1976D2" />
               <Text style={styles.amount}>
-                {formatCurrency(invoice.amount)}
+                {formatCurrency(invoice.totalAmount || invoice.amount)}
               </Text>
             </View>
 
@@ -176,15 +247,17 @@ export default function ResidentInvoiceListScreen() {
               </Text>
             </View>
 
-            {invoice.period && (
+            {(invoice.period || invoice.servicePeriod) && (
               <View style={styles.detailRow}>
                 <MaterialIcons name="date-range" size={16} color="#757575" />
-                <Text style={styles.period}>Kỳ: {invoice.period}</Text>
+                <Text style={styles.period}>
+                  Kỳ: {invoice.period || invoice.servicePeriod}
+                </Text>
               </View>
             )}
           </View>
 
-          {status === "pending" || status === "overdue" ? (
+          {status?.toLowerCase() === "unpaid" || status === "overdue" ? (
             <View style={styles.actionButtons}>
               <ModernButton
                 title="Thanh toán"
@@ -200,22 +273,63 @@ export default function ResidentInvoiceListScreen() {
       </ModernCard>
     );
   };
-
   return (
     <ModernScreenWrapper
       title="Hóa đơn của tôi"
-      subtitle="Danh sách hóa đơn cần thanh toán"
+      subtitle={`${totalCount} hóa đơn`}
       headerColor="#1976D2"
       loading={loading}
-      onRefresh={fetchInvoices}
+      onRefresh={() => fetchInvoices(true)}
       showBackButton={false}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {invoices.length === 0 ? (
+      <View style={styles.filterContainer}>
+        <View style={styles.filterRow}>
+          <ModernPicker
+            label="Trạng thái"
+            value={params.status}
+            onValueChange={(value) => handleFilterChange("status", value)}
+            items={statusOptions}
+            style={styles.filterPicker}
+          />
+          <ModernPicker
+            label="Sắp xếp"
+            value={params.sortBy}
+            onValueChange={(value) => handleFilterChange("sortBy", value)}
+            items={sortOptions}
+            style={styles.filterPicker}
+          />
+        </View>
+      </View>
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => fetchInvoices(true)}
+          />
+        }
+        onScroll={({ nativeEvent }) => {
+          const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+          const isCloseToBottom =
+            layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - 20;
+          if (isCloseToBottom && hasNextPage && !loading) {
+            loadMoreInvoices();
+          }
+        }}
+        scrollEventThrottle={400}
+      >
+        {invoices.length === 0 && !loading ? (
           renderEmptyState()
         ) : (
           <View style={styles.container}>
             {invoices.map(renderInvoiceItem)}
+            {loading && invoices.length > 0 && (
+              <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Đang tải thêm...</Text>
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -226,6 +340,33 @@ export default function ResidentInvoiceListScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 20,
+  },
+  filterContainer: {
+    backgroundColor: "#FFFFFF",
+    padding: 16,
+    marginBottom: 8,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+  filterRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  filterPicker: {
+    flex: 1,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: "center",
+  },
+  loadingText: {
+    fontSize: 14,
+    color: "#757575",
   },
   emptyContainer: {
     alignItems: "center",
@@ -246,6 +387,7 @@ const styles = StyleSheet.create({
   },
   invoiceCard: {
     marginBottom: 12,
+    marginHorizontal: 16,
   },
   invoiceItem: {
     padding: 0,

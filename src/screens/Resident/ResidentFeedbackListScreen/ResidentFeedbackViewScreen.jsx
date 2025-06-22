@@ -54,14 +54,14 @@ export default function ResidentFeedbackViewScreen() {
       subtitle="Thông tin phản hồi của tôi"
       headerColor="#1976D2"
       rightHeaderComponent={
-        feedback?.status === "Pending" && (
+        feedback?.status === "Pending" ? (
           <ModernButton
             title="Sửa"
             onPress={handleEdit}
             type="secondary"
             size="small"
           />
-        )
+        ) : null
       }
     >
       <View style={{ paddingBottom: 20 }}>
@@ -97,7 +97,6 @@ export default function ResidentFeedbackViewScreen() {
             }
           /> */}
         </ModernCard>
-
         <ModernCard title="Trạng thái xử lý">
           <InfoRow
             label="Trạng thái hiện tại"
@@ -118,7 +117,6 @@ export default function ResidentFeedbackViewScreen() {
             icon="person"
           /> */}
         </ModernCard>
-
         <ModernCard title="Thời gian">
           <InfoRow
             label="Ngày gửi"
@@ -145,8 +143,7 @@ export default function ResidentFeedbackViewScreen() {
             type={feedback?.completedAt ? "highlight" : "default"}
           />
         </ModernCard>
-
-        {feedback?.status === "Pending" && (
+        {feedback?.status === "Pending" ? (
           <View style={{ marginTop: 20 }}>
             <ModernButton
               title="Chỉnh sửa phản hồi"
@@ -155,7 +152,7 @@ export default function ResidentFeedbackViewScreen() {
               fullWidth
             />
           </View>
-        )}
+        ) : null}
       </View>
     </ModernScreenWrapper>
   );

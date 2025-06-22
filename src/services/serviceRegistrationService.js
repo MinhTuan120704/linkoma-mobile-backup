@@ -79,6 +79,34 @@ export const getServiceRegistrationById = async (serviceRegistrationId) => {
   }
 };
 
+// Lấy service registrations theo apartment ID
+export const getServiceRegistrationsByApartmentId = async (apartmentId, params = {}) => {
+  try {
+    // Add apartmentId to params to filter by apartment
+    const queryParams = { ...params, apartmentId };
+    const response = await httpClient.get(ENDPOINTS.SERVICE_REGISTRATIONS_GET_ALL, { params: queryParams });
+    
+    if (response.data && response.status === 200) {
+      return {
+        success: true,
+        data: response.data,
+        message: 'Lấy danh sách đăng ký dịch vụ theo căn hộ thành công'
+      };
+    }
+    
+    return {
+      success: false,
+      message: response.data?.message || 'Lấy danh sách đăng ký dịch vụ theo căn hộ thất bại'
+    };
+  } catch (error) {
+    console.error('Get service registrations by apartment ID error:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Có lỗi xảy ra khi lấy danh sách đăng ký dịch vụ theo căn hộ'
+    };
+  }
+};
+
 // Cập nhật service registration
 export const updateServiceRegistration = async (serviceRegistrationId, serviceRegistrationData) => {
   try {
@@ -135,6 +163,7 @@ const serviceRegistrationService = {
   createServiceRegistration,
   getAllServiceRegistrations,
   getServiceRegistrationById,
+  getServiceRegistrationsByApartmentId,
   updateServiceRegistration,
   deleteServiceRegistration
 };
