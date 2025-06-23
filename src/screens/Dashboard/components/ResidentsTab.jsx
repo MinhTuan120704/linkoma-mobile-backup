@@ -55,7 +55,7 @@ export default function ResidentsTab({
         renderEmptyState(
           "Chưa có cư dân nào",
           "Hãy thêm cư dân đầu tiên cho tòa nhà",
-          "person_add"
+          "person-add"
         )
       ) : (
         <Card style={tabStyles.listCard}>

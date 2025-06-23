@@ -27,6 +27,14 @@ export default function ManagerDashboard() {
   const [activeTab, setActiveTab] = React.useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
 
+  // Ensure we have valid insets with fallback values
+  const safeInsets = {
+    top: insets?.top || 0,
+    bottom: insets?.bottom || 0,
+    left: insets?.left || 0,
+    right: insets?.right || 0,
+  };
+
   // State declarations
   const [residents, setResidents] = React.useState([]);
   const [apartments, setApartments] = React.useState([]);
@@ -147,19 +155,16 @@ export default function ManagerDashboard() {
         );
     }
   };
-
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: safeInsets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#2C3E50" />
-
       <AdminHeader title="Quản lý Manager" subtitle="Bảng điều khiển quản lý" />
-
-      <View style={styles.content}>{renderContent()}</View>
-
+      <View style={styles.content}>{renderContent()}</View>{" "}
       <BottomTabs
         tabs={TAB_CONFIG}
         activeTab={activeTab}
         onTabPress={setActiveTab}
+        insets={safeInsets}
       />
     </View>
   );
@@ -172,5 +177,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    paddingBottom: 90, // Leave space for bottom nav
   },
 });

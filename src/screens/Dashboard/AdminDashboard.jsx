@@ -24,6 +24,14 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = React.useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
 
+  // Ensure we have valid insets with fallback values
+  const safeInsets = {
+    top: insets?.top || 0,
+    bottom: insets?.bottom || 0,
+    left: insets?.left || 0,
+    right: insets?.right || 0,
+  };
+
   // State declarations
   const [residents, setResidents] = React.useState([]);
   const [apartments, setApartments] = React.useState([]);
@@ -125,7 +133,7 @@ export default function AdminDashboard() {
     }
   };
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: safeInsets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#2C3E50" />
 
       <AdminHeader />
@@ -135,7 +143,7 @@ export default function AdminDashboard() {
       <BottomTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        insets={insets}
+        insets={safeInsets}
       />
     </View>
   );

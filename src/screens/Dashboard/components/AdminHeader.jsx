@@ -4,7 +4,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../contexts/AuthContext";
 
-export const AdminHeader = () => {
+export const AdminHeader = ({
+  title = "Admin Dashboard",
+  subtitle = "Quản lý tòa nhà Linkoma",
+}) => {
   const navigation = useNavigation();
   const { logout } = useAuth();
 
@@ -37,9 +40,10 @@ export const AdminHeader = () => {
   return (
     <View style={styles.header}>
       <View style={styles.headerContent}>
+        {" "}
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Admin Dashboard</Text>
-          <Text style={styles.headerSubtitle}>Quản lý tòa nhà Linkoma</Text>
+          <Text style={styles.headerTitle}>{title}</Text>
+          <Text style={styles.headerSubtitle}>{subtitle}</Text>
         </View>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <MaterialIcons name="logout" size={24} color="#FFF" />

@@ -57,9 +57,13 @@ const renderIcon = (tab, isActive) => {
   );
 };
 
-export const BottomTabs = ({ activeTab, setActiveTab, insets }) => {
+export const BottomTabs = ({
+  activeTab,
+  setActiveTab,
+  insets = { bottom: 0 },
+}) => {
   return (
-    <View style={[styles.bottomNav, { paddingBottom: insets.bottom }]}>
+    <View style={[styles.bottomNav, { paddingBottom: insets?.bottom || 0 }]}>
       {tabs.map((tab, index) => (
         <TouchableOpacity
           key={index}

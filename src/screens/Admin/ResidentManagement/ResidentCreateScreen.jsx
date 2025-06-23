@@ -204,7 +204,7 @@ export default function ResidentCreateScreen({ navigation }) {
           items={[
             { label: "Cư dân", value: "resident" },
             { label: "Quản trị viên", value: "admin" },
-            { label: "Nhân viên", value: "employee" },
+            { label: "Nhân viên", value: "manager" },
           ]}
           placeholder="Chọn vai trò"
           icon="person"
@@ -212,6 +212,7 @@ export default function ResidentCreateScreen({ navigation }) {
           error={errors.role}
         />
         <View style={{ marginTop: 20, gap: 12 }}>
+          {" "}
           <ModernButton
             title="Tạo cư dân"
             onPress={handleSubmit}
@@ -219,11 +220,10 @@ export default function ResidentCreateScreen({ navigation }) {
             icon="person-add"
             fullWidth
           />
-
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>

@@ -212,7 +212,7 @@ export default function ApartmentEditScreen({ route, navigation }) {
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>

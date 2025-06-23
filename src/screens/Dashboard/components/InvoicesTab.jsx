@@ -53,7 +53,7 @@ export default function InvoicesTab({
         renderEmptyState(
           "Chưa có hóa đơn nào",
           "Hãy tạo hóa đơn đầu tiên",
-          "receipt_long"
+          "receipt"
         )
       ) : (
         <Card style={tabStyles.listCard}>

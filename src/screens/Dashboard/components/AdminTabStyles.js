@@ -5,6 +5,7 @@ export const tabStyles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 100, // Add padding to avoid bottom navigation
   },
   headerCard: {
     marginBottom: 16,

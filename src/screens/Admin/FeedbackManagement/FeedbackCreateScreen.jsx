@@ -126,7 +126,7 @@ export default function FeedbackCreateScreen({ navigation }) {
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>

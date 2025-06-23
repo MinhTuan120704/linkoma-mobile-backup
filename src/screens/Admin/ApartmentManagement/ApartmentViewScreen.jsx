@@ -85,13 +85,13 @@ export default function ApartmentViewScreen({ route, navigation }) {
   return (
     <ModernScreenWrapper
       title="Chi tiết căn hộ"
-      subtitle={`${apartment?.name || "Căn hộ"} - ${apartment?.block || ""}`}
+      subtitle={`Căn hộ số ${apartment?.apartmentId}`}
       headerColor="#2C3E50"
       rightHeaderComponent={
         <ModernButton
           title="Sửa"
           onPress={handleEdit}
-          type="outline"
+          type="secondary"
           size="small"
         />
       }
