@@ -5,6 +5,7 @@ import {
   ModernFormInput,
   ModernButton,
   ModernCard,
+  ModernDateTimePicker,
 } from "../../../components";
 import userService from "../../../services/userService";
 
@@ -63,7 +64,8 @@ export default function ResidentEditScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      const response = await userService.updateUser(resident.id, formData);
+      const userId = resident.userId || resident.id;
+      const response = await userService.updateUser(userId, formData);
       if (response.success) {
         Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
           { text: "OK", onPress: () => navigation.goBack() },
@@ -81,7 +83,6 @@ export default function ResidentEditScreen({ route, navigation }) {
       setLoading(false);
     }
   };
-
   const handleDelete = () => {
     Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa cư dân này?", [
       { text: "Hủy", style: "cancel" },
@@ -91,7 +92,8 @@ export default function ResidentEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            const response = await userService.deleteUser(resident.id);
+            const userId = resident.userId || resident.id;
+            const response = await userService.deleteUser(userId);
             if (response.success) {
               Alert.alert("Thành công", "Xóa cư dân thành công", [
                 { text: "OK", onPress: () => navigation.goBack() },
@@ -151,11 +153,18 @@ export default function ResidentEditScreen({ route, navigation }) {
             icon="phone"
             keyboardType="phone-pad"
             error={errors.phoneNumber}
-          />{" "}
+          />
           <ModernDateTimePicker
             label="Ngày sinh"
             value={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
-            onChange={(date) => updateField("dateOfBirth", date.toISOString())}
+            onChange={(date) => {
+              // Format date as YYYY-MM-DD without timezone conversion
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+              const formattedDate = `${year}-${month}-${day}`;
+              updateField("dateOfBirth", formattedDate);
+            }}
             icon="cake"
             maximumDate={new Date()}
           />

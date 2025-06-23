@@ -94,4 +94,9 @@ export const tabStyles = StyleSheet.create({
     color: "#2C3E50",
     fontWeight: "500",
   },
+  listItemSubText: {
+    fontSize: 14,
+    color: "#2C3E50",
+    fontWeight: "200",
+  },
 });

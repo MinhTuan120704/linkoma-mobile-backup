@@ -8,11 +8,14 @@ import {
 } from "../../../components";
 import serviceTypeService from "../../../services/serviceTypeService";
 
-export default function ServiceFeeCreateScreen({ navigation }) {
+export default function ManagerServiceFeeEditScreen({ route, navigation }) {
+  const { serviceFee } = route.params || {};
+
   const [formData, setFormData] = useState({
-    serviceName: "",
-    unitPrice: "",
-    unit: "",
+    serviceName: serviceFee?.serviceName || "",
+    description: serviceFee?.description || "",
+    unitPrice: serviceFee?.unitPrice?.toString() || "",
+    unit: serviceFee?.unit || "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -29,9 +32,9 @@ export default function ServiceFeeCreateScreen({ navigation }) {
       newErrors.unitPrice = "Giá đơn vị không được để trống";
     } else if (
       isNaN(formData.unitPrice) ||
-      parseFloat(formData.unitPrice) <= 0
+      parseFloat(formData.unitPrice) < 0
     ) {
-      newErrors.unitPrice = "Giá đơn vị phải là số dương";
+      newErrors.unitPrice = "Giá đơn vị phải là số hợp lệ và không âm";
     }
 
     if (!formData.unit.trim()) {
@@ -42,7 +45,7 @@ export default function ServiceFeeCreateScreen({ navigation }) {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCreate = async () => {
+  const handleUpdate = async () => {
     if (!validateForm()) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
       return;
@@ -50,22 +53,29 @@ export default function ServiceFeeCreateScreen({ navigation }) {
 
     setLoading(true);
     try {
-      const createData = {
+      const updateData = {
         serviceName: formData.serviceName,
+        description: formData.description,
         unitPrice: parseFloat(formData.unitPrice),
         unit: formData.unit,
       };
-      const response = await serviceTypeService.createServiceType(createData);
+      const response = await serviceTypeService.updateServiceType(
+        serviceFee.serviceTypeId,
+        updateData
+      );
       if (response.success) {
-        Alert.alert("Thành công", "Tạo loại dịch vụ thành công", [
+        Alert.alert("Thành công", "Cập nhật loại dịch vụ thành công", [
           { text: "OK", onPress: () => navigation.goBack() },
         ]);
       } else {
-        Alert.alert("Lỗi", response.message || "Không thể tạo loại dịch vụ");
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể cập nhật loại dịch vụ"
+        );
       }
     } catch (error) {
-      console.log("Error creating service type:", error);
-      Alert.alert("Lỗi", "Không thể tạo loại dịch vụ");
+      console.log("Error updating service type:", error);
+      Alert.alert("Lỗi", "Không thể cập nhật loại dịch vụ");
     } finally {
       setLoading(false);
     }
@@ -80,8 +90,8 @@ export default function ServiceFeeCreateScreen({ navigation }) {
 
   return (
     <ModernScreenWrapper
-      title="Tạo loại dịch vụ"
-      subtitle="Thêm loại dịch vụ mới"
+      title="Chỉnh sửa loại dịch vụ"
+      subtitle="Cập nhật thông tin loại dịch vụ"
       headerColor="#2C3E50"
       loading={loading}
     >
@@ -95,6 +105,16 @@ export default function ServiceFeeCreateScreen({ navigation }) {
             icon="build"
             required
             error={errors.serviceName}
+          />
+
+          <ModernFormInput
+            label="Mô tả"
+            value={formData.description}
+            onChangeText={(value) => updateField("description", value)}
+            placeholder="Mô tả chi tiết về dịch vụ"
+            icon="description"
+            multiline
+            numberOfLines={3}
           />
 
           <ModernFormInput
@@ -121,10 +141,10 @@ export default function ServiceFeeCreateScreen({ navigation }) {
 
         <View style={{ marginTop: 20, gap: 12, paddingBottom: 20 }}>
           <ModernButton
-            title="Tạo loại dịch vụ"
-            onPress={handleCreate}
+            title="Cập nhật loại dịch vụ"
+            onPress={handleUpdate}
             loading={loading}
-            icon="add"
+            icon="save"
             fullWidth
           />
 

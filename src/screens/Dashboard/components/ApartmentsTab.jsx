@@ -6,13 +6,12 @@ import {
   Text,
   RefreshControl,
 } from "react-native";
-import { List, Card } from "@ant-design/react-native";
 import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 import { renderEmptyState, renderStatsCard } from "./AdminSharedComponents";
 import { tabStyles } from "./AdminTabStyles";
 
 export default function ApartmentsTab({
-  apartments,
+  apartments = [], // Default to empty array if undefined
   tabs,
   refreshing,
   onRefresh,
@@ -28,18 +27,18 @@ export default function ApartmentsTab({
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <Card style={tabStyles.headerCard}>
+      <View style={tabStyles.headerCard}>
         <Text style={tabStyles.headerTitle}>Quản lý Căn hộ</Text>
         <Text style={tabStyles.headerSubtitle}>
-          Tổng số: {apartments.length} căn hộ
+          Tổng số: {(apartments || []).length} căn hộ
         </Text>
         {renderStatsCard(
           "Tổng căn hộ",
-          apartments.length,
+          (apartments || []).length,
           tabs[1].color,
           "home"
         )}
-      </Card>
+      </View>
       <View style={tabStyles.actionContainer}>
         <TouchableOpacity
           style={[tabStyles.addButton, { backgroundColor: tabs[1].color }]}
@@ -49,62 +48,72 @@ export default function ApartmentsTab({
           <Text style={tabStyles.addButtonText}>Thêm căn hộ</Text>
         </TouchableOpacity>
       </View>
-      {apartments.length === 0 ? (
+      {(apartments || []).length === 0 ? (
         renderEmptyState(
           "Chưa có căn hộ nào",
           "Hãy thêm căn hộ đầu tiên cho tòa nhà",
           "home_work"
         )
       ) : (
-        <Card style={tabStyles.listCard}>
-          <List>
-            {apartments.map((apartment) => (
-              <List.Item
-                key={apartment.id}
-                extra={
-                  <View style={tabStyles.actionButtonsContainer}>
-                    <TouchableOpacity
-                      style={[tabStyles.actionButton, tabStyles.viewButton]}
-                      onPress={() => handleViewApartment(apartment)}
-                    >
-                      <MaterialIcons name="visibility" size={16} color="#fff" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[tabStyles.actionButton, tabStyles.editButton]}
-                      onPress={() => handleEditApartment(apartment)}
-                    >
-                      <MaterialIcons name="edit" size={16} color="#fff" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[tabStyles.actionButton, tabStyles.deleteButton]}
-                      onPress={() => handleDeleteApartment(apartment.id)}
-                    >
-                      <MaterialIcons name="delete" size={16} color="#fff" />
-                    </TouchableOpacity>
-                  </View>
-                }
+        <View style={tabStyles.listCard}>
+          <View>
+            {(apartments || []).map((apartment) => (
+              <View
+                key={apartment.apartmentId}
+                style={[
+                  tabStyles.listItem,
+                  {
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: 16,
+                  },
+                ]}
               >
                 <View
-                  key={`content-${apartment.id}`}
+                  key={`content-${apartment.apartmentId}`}
                   style={tabStyles.listItemContent}
                 >
                   <FontAwesome5
-                    key={`icon-${apartment.id}`}
+                    key={`icon-${apartment.apartmentId}`}
                     name="building"
                     size={18}
                     color={tabs[1].color}
                   />
                   <Text
-                    key={`name-${apartment.id}`}
+                    key={`name-${apartment.apartmentId}`}
                     style={tabStyles.listItemText}
                   >
-                    {apartment.name}
+                    {"Lầu " +
+                      apartment.floor +
+                      " - Phòng " +
+                      apartment.apartmentId}
                   </Text>
                 </View>
-              </List.Item>
+                <View style={tabStyles.actionButtonsContainer}>
+                  <TouchableOpacity
+                    style={[tabStyles.actionButton, tabStyles.viewButton]}
+                    onPress={() => handleViewApartment(apartment)}
+                  >
+                    <MaterialIcons name="visibility" size={16} color="#fff" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[tabStyles.actionButton, tabStyles.editButton]}
+                    onPress={() => handleEditApartment(apartment)}
+                  >
+                    <MaterialIcons name="edit" size={16} color="#fff" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[tabStyles.actionButton, tabStyles.deleteButton]}
+                    onPress={() => handleDeleteApartment(apartment.apartmentId)}
+                  >
+                    <MaterialIcons name="delete" size={16} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              </View>
             ))}
-          </List>
-        </Card>
+          </View>
+        </View>
       )}
     </ScrollView>
   );

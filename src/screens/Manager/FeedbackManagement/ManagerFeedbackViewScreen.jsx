@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Alert, View } from "react-native";
 import {
   ModernScreenWrapper,
@@ -7,39 +7,13 @@ import {
   ModernButton,
 } from "../../../components";
 import feedbackService from "../../../services/feedbackService";
-import userService from "../../../services/userService";
 
-export default function FeedbackViewScreen({ route, navigation }) {
+export default function ManagerFeedbackViewScreen({ route, navigation }) {
   const { feedback } = route.params || {};
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
-
-  useEffect(() => {
-    if (feedback?.userId) {
-      loadUserInfo();
-    }
-  }, [feedback]);
-
-  const loadUserInfo = async () => {
-    try {
-      setLoadingUser(true);
-      const response = await userService.getUserById(feedback.userId);
-
-      if (response.success) {
-        setUserInfo(response.data);
-      } else {
-        console.log("Error loading user info:", response.message);
-      }
-    } catch (error) {
-      console.log("Error loading user info:", error);
-    } finally {
-      setLoadingUser(false);
-    }
-  };
 
   const handleEdit = () => {
-    navigation.navigate("FeedbackEdit", { feedback });
+    navigation.navigate("ManagerFeedbackEdit", { feedback });
   };
 
   const handleDelete = () => {
@@ -51,9 +25,7 @@ export default function FeedbackViewScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            const response = await feedbackService.deleteFeedback(
-              feedback.feedbackId
-            );
+            const response = await feedbackService.deleteFeedback(feedback.id);
             if (response.success) {
               Alert.alert("Thành công", "Xóa phản hồi thành công!", [
                 { text: "OK", onPress: () => navigation.goBack() },
@@ -74,30 +46,28 @@ export default function FeedbackViewScreen({ route, navigation }) {
       },
     ]);
   };
+
   const getStatusColor = (status) => {
     switch (status) {
-      case "Resolved":
+      case "resolved":
         return "highlight";
-      case "In Progress":
+      case "processing":
         return "warning";
-      case "Pending":
+      case "pending":
         return "danger";
-      case "Rejected":
-        return "default";
       default:
         return "default";
     }
   };
+
   const getStatusText = (status) => {
     switch (status) {
-      case "Resolved":
+      case "resolved":
         return "Đã giải quyết";
-      case "In Progress":
+      case "processing":
         return "Đang xử lý";
-      case "Pending":
+      case "pending":
         return "Chờ xử lý";
-      case "Rejected":
-        return "Đã từ chối";
       default:
         return "Không xác định";
     }
@@ -111,71 +81,29 @@ export default function FeedbackViewScreen({ route, navigation }) {
   return (
     <ModernScreenWrapper
       title="Chi tiết phản hồi"
-      subtitle={`Feedback ID: ${feedback?.feedbackId || ""}`}
+      subtitle={feedback?.title || "Phản hồi"}
       headerColor="#2C3E50"
       rightHeaderComponent={
         <ModernButton
           title="Sửa"
           onPress={handleEdit}
-          type="secondary"
+          type="outline"
           size="small"
         />
       }
     >
       <View style={{ paddingBottom: 20 }}>
-        <ModernCard title="Thông tin người gửi">
+        <ModernCard title="Thông tin phản hồi">
           <InfoRow
-            label="Người gửi"
-            value={
-              loadingUser ? "Đang tải..." : userInfo?.name || "Không có dữ liệu"
-            }
-            icon="person"
+            label="Tiêu đề"
+            value={feedback?.title}
+            icon="title"
             type="highlight"
           />
 
           <InfoRow
-            label="Email"
-            value={
-              loadingUser
-                ? "Đang tải..."
-                : userInfo?.email || "Không có dữ liệu"
-            }
-            icon="email"
-            copyable
-          />
-
-          <InfoRow
-            label="Số điện thoại"
-            value={
-              loadingUser
-                ? "Đang tải..."
-                : userInfo?.phoneNumber || "Không có dữ liệu"
-            }
-            icon="phone"
-          />
-
-          <InfoRow
-            label="Căn hộ"
-            value={
-              loadingUser
-                ? "Đang tải..."
-                : userInfo?.apartmentId
-                ? `Phòng số ${userInfo.apartmentId}`
-                : "Không có dữ liệu"
-            }
-            icon="home"
-          />
-        </ModernCard>
-        <ModernCard title="Thông tin phản hồi">
-          <InfoRow
-            label="Danh mục"
-            value={feedback?.category || "Không có dữ liệu"}
-            icon="category"
-          />
-
-          <InfoRow
-            label="Mô tả"
-            value={feedback?.description || "Không có dữ liệu"}
+            label="Nội dung"
+            value={feedback?.content}
             icon="description"
           />
 
@@ -187,34 +115,63 @@ export default function FeedbackViewScreen({ route, navigation }) {
           />
 
           <InfoRow
-            label="Phản hồi Admin"
-            value={feedback?.response || "Chưa có phản hồi"}
-            icon="admin-panel-settings"
+            label="Danh mục"
+            value={feedback?.category}
+            icon="category"
+          />
+
+          <InfoRow
+            label="Mức độ ưu tiên"
+            value={feedback?.priority}
+            icon="priority-high"
+            type={
+              feedback?.priority === "urgent"
+                ? "danger"
+                : feedback?.priority === "high"
+                ? "warning"
+                : "default"
+            }
           />
         </ModernCard>
+
+        <ModernCard title="Thông tin cư dân">
+          <InfoRow
+            label="Người gửi"
+            value={feedback?.residentName || feedback?.residentId}
+            icon="person"
+          />
+
+          <InfoRow
+            label="Email"
+            value={feedback?.residentEmail}
+            icon="email"
+            copyable
+          />
+
+          <InfoRow label="Căn hộ" value={feedback?.apartmentName} icon="home" />
+        </ModernCard>
+
         <ModernCard title="Thời gian">
           <InfoRow
             label="Ngày tạo"
             value={formatDate(feedback?.createdAt)}
             icon="calendar-today"
           />
+
           <InfoRow
             label="Cập nhật lần cuối"
             value={formatDate(feedback?.updatedAt)}
             icon="update"
           />
-          <InfoRow
-            label="Ngày phản hồi"
-            value={formatDate(feedback?.responseDate)}
-            icon="schedule"
-          />
+
           <InfoRow
             label="ID phản hồi"
-            value={feedback?.feedbackId?.toString() || "Không có dữ liệu"}
+            value={feedback?.id?.toString()}
             icon="tag"
-            type="secondary"
+            copyable
           />
         </ModernCard>
+
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
             title="Chỉnh sửa"

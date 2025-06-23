@@ -12,7 +12,7 @@ import { renderEmptyState, renderStatsCard } from "./AdminSharedComponents";
 import { tabStyles } from "./AdminTabStyles";
 
 export default function InvoicesTab({
-  invoices,
+  invoices = [], // Default to empty array if undefined
   tabs,
   refreshing,
   onRefresh,

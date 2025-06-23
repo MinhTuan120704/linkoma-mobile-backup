@@ -8,7 +8,7 @@ import {
 } from "../../../components";
 import invoiceService from "../../../services/invoiceService";
 
-export default function InvoiceCreateScreen({ navigation }) {
+export default function ManagerInvoiceCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     apartmentId: "",

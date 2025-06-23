@@ -9,10 +9,8 @@ import {
 import apartmentService from "../../../services/apartmentService";
 import apartmentTypeService from "../../../services/apartmentTypeService";
 
-export default function ApartmentEditScreen({ route, navigation }) {
-  const { apartment } = route.params || {};
+export default function ManagerApartmentCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
-  const [deleteLoading, setDeleteLoading] = useState(false);
   const [apartmentTypes, setApartmentTypes] = useState([]);
   const [loadingTypes, setLoadingTypes] = useState(true);
   const [formData, setFormData] = useState({
@@ -21,36 +19,7 @@ export default function ApartmentEditScreen({ route, navigation }) {
     status: "available",
   });
   const [errors, setErrors] = useState({});
-  useEffect(() => {
-    loadApartmentTypes();
-    if (apartment) {
-      setFormData({
-        apartmentTypeId: apartment.apartmentTypeId?.toString() || "",
-        floor: apartment.floor?.toString() || "",
-        status: apartment.status || "available",
-      });
-    }
-  }, [apartment]);
 
-  const loadApartmentTypes = async () => {
-    try {
-      setLoadingTypes(true);
-      const response = await apartmentTypeService.getAllApartmentTypes();
-
-      if (response.success) {
-        const types = response.data.apartmentTypes || response.data || [];
-        setApartmentTypes(types);
-      } else {
-        console.log("Error loading apartment types:", response.message);
-        Alert.alert("Lỗi", "Không thể tải danh sách loại căn hộ");
-      }
-    } catch (error) {
-      console.log("Error loading apartment types:", error);
-      Alert.alert("Lỗi", "Không thể tải danh sách loại căn hộ");
-    } finally {
-      setLoadingTypes(false);
-    }
-  };
   const validateForm = () => {
     const newErrors = {};
 
@@ -65,75 +34,68 @@ export default function ApartmentEditScreen({ route, navigation }) {
     if (!formData.status) {
       newErrors.status = "Trạng thái là bắt buộc";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // Load apartment types on component mount
+  useEffect(() => {
+    loadApartmentTypes();
+  }, []);
+
+  const loadApartmentTypes = async () => {
+    try {
+      setLoadingTypes(true);
+      const response = await apartmentTypeService.getAllApartmentTypes({
+        limit: 100,
+        sortBy: "typeName:asc",
+      });
+
+      if (response.success) {
+        const types = response.data.results || response.data || [];
+        setApartmentTypes(types);
+      } else {
+        console.log("Error loading apartment types:", response.message);
+        Alert.alert("Lỗi", "Không thể tải danh sách loại căn hộ");
+      }
+    } catch (error) {
+      console.log("Error loading apartment types:", error);
+      Alert.alert("Lỗi", "Không thể tải danh sách loại căn hộ");
+    } finally {
+      setLoadingTypes(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
+
     try {
       setLoading(true);
-      const updateData = {
+      const apartmentData = {
         apartmentTypeId: parseInt(formData.apartmentTypeId),
         floor: parseInt(formData.floor),
         status: formData.status,
       };
 
-      const response = await apartmentService.updateApartment(
-        apartment.apartmentId,
-        updateData
-      );
+      const response = await apartmentService.createApartment(apartmentData);
       if (response.success) {
-        Alert.alert("Thành công", "Cập nhật căn hộ thành công!", [
+        Alert.alert("Thành công", "Tạo căn hộ thành công!", [
           { text: "OK", onPress: () => navigation.goBack() },
         ]);
       } else {
         Alert.alert(
           "Lỗi",
-          response.message || "Không thể cập nhật căn hộ. Vui lòng thử lại."
+          response.message || "Không thể tạo căn hộ. Vui lòng thử lại."
         );
       }
     } catch (error) {
-      console.log("Error updating apartment:", error);
-      Alert.alert("Lỗi", "Không thể cập nhật căn hộ. Vui lòng thử lại.");
+      console.log("Error creating apartment:", error);
+      Alert.alert("Lỗi", "Không thể tạo căn hộ. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDelete = () => {
-    Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa căn hộ này?", [
-      { text: "Hủy", style: "cancel" },
-      {
-        text: "Xóa",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            setDeleteLoading(true);
-            const response = await apartmentService.deleteApartment(
-              apartment.apartmentId
-            );
-            if (response.success) {
-              Alert.alert("Thành công", "Xóa căn hộ thành công!", [
-                { text: "OK", onPress: () => navigation.goBack() },
-              ]);
-            } else {
-              Alert.alert(
-                "Lỗi",
-                response.message || "Không thể xóa căn hộ. Vui lòng thử lại."
-              );
-            }
-          } catch (error) {
-            console.log("Error deleting apartment:", error);
-            Alert.alert("Lỗi", "Không thể xóa căn hộ. Vui lòng thử lại.");
-          } finally {
-            setDeleteLoading(false);
-          }
-        },
-      },
-    ]);
   };
 
   const updateField = (key, value) => {
@@ -145,8 +107,8 @@ export default function ApartmentEditScreen({ route, navigation }) {
 
   return (
     <ModernScreenWrapper
-      title="Chỉnh sửa căn hộ"
-      subtitle={`Căn hộ ID: ${apartment?.apartmentId || ""}`}
+      title="Tạo căn hộ mới"
+      subtitle="Nhập thông tin căn hộ"
       headerColor="#2C3E50"
     >
       <View style={{ paddingBottom: 20 }}>
@@ -193,19 +155,10 @@ export default function ApartmentEditScreen({ route, navigation }) {
 
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
-            title="Cập nhật căn hộ"
+            title="Tạo căn hộ"
             onPress={handleSubmit}
             loading={loading}
-            icon="save"
-            fullWidth
-          />
-
-          <ModernButton
-            title="Xóa căn hộ"
-            onPress={handleDelete}
-            type="danger"
-            loading={deleteLoading}
-            icon="delete"
+            icon="add"
             fullWidth
           />
 

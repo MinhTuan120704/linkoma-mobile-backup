@@ -8,7 +8,7 @@ import {
 } from "../../../components";
 import announcementService from "../../../services/announcementService";
 
-export default function NotificationViewScreen({ route, navigation }) {
+export default function ManagerNotificationViewScreen({ route, navigation }) {
   const { notificationId, notification: passedNotification } =
     route.params || {};
   const [notification, setNotification] = useState(passedNotification || null);
@@ -18,8 +18,6 @@ export default function NotificationViewScreen({ route, navigation }) {
     if (!notificationId) return;
     setLoading(true);
     try {
-      console.log("Fetching notification with ID:", notificationId);
-
       const response = await announcementService.getAnnouncementById(
         notificationId
       );
@@ -50,8 +48,9 @@ export default function NotificationViewScreen({ route, navigation }) {
       fetchNotification();
     }
   }, [notificationId, passedNotification]);
+
   const handleEdit = () => {
-    navigation.navigate("NotificationEdit", { notification });
+    navigation.navigate("ManagerNotificationEdit", { notification });
   };
   const handleDelete = () => {
     if (!notification) return;
@@ -213,8 +212,7 @@ export default function NotificationViewScreen({ route, navigation }) {
               label="Nội dung"
               value={notification.content}
               icon="description"
-              style={{ innerHeight: "fit-content" }}
-            />
+            />{" "}
             <InfoRow
               label="Loại thông báo"
               value={getTypeText(notification.type)}

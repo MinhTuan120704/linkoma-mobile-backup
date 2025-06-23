@@ -5,7 +5,6 @@ import {
   ModernFormInput,
   ModernButton,
   ModernCard,
-  ModernDateTimePicker,
 } from "../../../components";
 import serviceTypeService from "../../../services/serviceTypeService";
 
@@ -13,36 +12,36 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
   const { serviceFee } = route.params || {};
 
   const [formData, setFormData] = useState({
-    name: serviceFee?.name || "",
-    description: serviceFee?.description || "",
-    amount: serviceFee?.amount?.toString() || "",
-    category: serviceFee?.category || "",
-    billingPeriod: serviceFee?.billingPeriod || "monthly",
-    isActive: serviceFee?.isActive !== false ? "true" : "false",
-    effectiveDate: serviceFee?.effectiveDate || "",
+    serviceName: serviceFee?.serviceName || "",
+    unitPrice: serviceFee?.unitPrice?.toString() || "",
     unit: serviceFee?.unit || "",
   });
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Tên phí dịch vụ không được để trống";
+    if (!formData.serviceName.trim()) {
+      newErrors.serviceName = "Tên dịch vụ không được để trống";
     }
 
-    if (!formData.amount.trim()) {
-      newErrors.amount = "Số tiền không được để trống";
-    } else if (isNaN(formData.amount) || parseFloat(formData.amount) < 0) {
-      newErrors.amount = "Số tiền phải là số hợp lệ và không âm";
+    if (!formData.unitPrice.trim()) {
+      newErrors.unitPrice = "Giá đơn vị không được để trống";
+    } else if (
+      isNaN(formData.unitPrice) ||
+      parseFloat(formData.unitPrice) < 0
+    ) {
+      newErrors.unitPrice = "Giá đơn vị phải là số hợp lệ và không âm";
+    }
+
+    if (!formData.unit.trim()) {
+      newErrors.unit = "Đơn vị tính không được để trống";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleUpdate = async () => {
     if (!validateForm()) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
@@ -52,34 +51,33 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
     setLoading(true);
     try {
       const updateData = {
-        ...formData,
-        amount: parseFloat(formData.amount),
-        isActive: formData.isActive === "true",
+        serviceName: formData.serviceName,
+        unitPrice: parseFloat(formData.unitPrice),
+        unit: formData.unit,
       };
       const response = await serviceTypeService.updateServiceType(
-        serviceFee.id,
+        serviceFee.serviceTypeId,
         updateData
       );
       if (response.success) {
-        Alert.alert("Thành công", "Cập nhật phí dịch vụ thành công", [
+        Alert.alert("Thành công", "Cập nhật loại dịch vụ thành công", [
           { text: "OK", onPress: () => navigation.goBack() },
         ]);
       } else {
         Alert.alert(
           "Lỗi",
-          response.message || "Không thể cập nhật phí dịch vụ"
+          response.message || "Không thể cập nhật loại dịch vụ"
         );
       }
     } catch (error) {
-      console.log("Error updating service fee:", error);
-      Alert.alert("Lỗi", "Không thể cập nhật phí dịch vụ");
+      console.log("Error updating service type:", error);
+      Alert.alert("Lỗi", "Không thể cập nhật loại dịch vụ");
     } finally {
       setLoading(false);
     }
   };
-
   const handleDelete = () => {
-    Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa phí dịch vụ này?", [
+    Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa loại dịch vụ này?", [
       { text: "Hủy", style: "cancel" },
       {
         text: "Xóa",
@@ -88,22 +86,22 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
           setLoading(true);
           try {
             const response = await serviceTypeService.deleteServiceType(
-              serviceFee.id
+              serviceFee.serviceTypeId
             );
             if (response.success) {
-              Alert.alert("Thành công", "Xóa phí dịch vụ thành công", [
+              Alert.alert("Thành công", "Xóa loại dịch vụ thành công", [
                 { text: "OK", onPress: () => navigation.goBack() },
               ]);
             } else {
               Alert.alert(
                 "Lỗi",
-                response.message || "Không thể xóa phí dịch vụ"
+                response.message || "Không thể xóa loại dịch vụ"
               );
               setLoading(false);
             }
           } catch (error) {
-            console.log("Error deleting service fee:", error);
-            Alert.alert("Lỗi", "Không thể xóa phí dịch vụ");
+            console.log("Error deleting service type:", error);
+            Alert.alert("Lỗi", "Không thể xóa loại dịch vụ");
             setLoading(false);
           }
         },
@@ -120,100 +118,67 @@ export default function ServiceFeeEditScreen({ route, navigation }) {
 
   return (
     <ModernScreenWrapper
-      title="Chỉnh sửa phí dịch vụ"
-      subtitle="Cập nhật thông tin phí dịch vụ"
+      title="Chỉnh sửa loại dịch vụ"
+      subtitle="Cập nhật thông tin loại dịch vụ"
       headerColor="#2C3E50"
       loading={loading}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ModernCard title="Thông tin phí dịch vụ">
+        <ModernCard title="Thông tin loại dịch vụ">
           <ModernFormInput
-            label="Tên phí dịch vụ"
-            value={formData.name}
-            onChangeText={(value) => updateField("name", value)}
-            placeholder="Nhập tên phí dịch vụ"
+            label="Tên dịch vụ"
+            value={formData.serviceName}
+            onChangeText={(value) => updateField("serviceName", value)}
+            placeholder="Nhập tên dịch vụ"
             icon="build"
-            error={errors.name}
+            required
+            error={errors.serviceName}
           />
 
           <ModernFormInput
-            label="Mô tả"
-            value={formData.description}
-            onChangeText={(value) => updateField("description", value)}
-            placeholder="Mô tả chi tiết về phí dịch vụ"
-            icon="description"
-            multiline
-            numberOfLines={3}
-          />
-
-          <ModernFormInput
-            label="Số tiền (VNĐ)"
-            value={formData.amount}
-            onChangeText={(value) => updateField("amount", value)}
-            placeholder="Nhập số tiền"
+            label="Giá đơn vị (VNĐ)"
+            value={formData.unitPrice}
+            onChangeText={(value) => updateField("unitPrice", value)}
+            placeholder="Nhập giá đơn vị"
             icon="attach-money"
             keyboardType="numeric"
-            error={errors.amount}
+            required
+            error={errors.unitPrice}
           />
 
           <ModernFormInput
             label="Đơn vị tính"
             value={formData.unit}
             onChangeText={(value) => updateField("unit", value)}
-            placeholder="Ví dụ: /tháng, /kwh, /m3"
+            placeholder="Ví dụ: tháng, kwh, m3, lần"
             icon="straighten"
-          />
-        </ModernCard>
-
-        <ModernCard title="Thông tin khác">
-          <ModernFormInput
-            label="Danh mục"
-            value={formData.category}
-            onChangeText={(value) => updateField("category", value)}
-            placeholder="Ví dụ: Điện, Nước, Internet, Vệ sinh"
-            icon="category"
-          />{" "}
-          <ModernFormInput
-            label="Chu kỳ thanh toán"
-            value={formData.billingPeriod}
-            onChangeText={(value) => updateField("billingPeriod", value)}
-            placeholder="monthly/quarterly/yearly/one-time"
-            icon="schedule"
-          />
-          <ModernDateTimePicker
-            label="Ngày có hiệu lực"
-            value={
-              formData.effectiveDate ? new Date(formData.effectiveDate) : null
-            }
-            onChange={(date) =>
-              updateField("effectiveDate", date.toISOString())
-            }
-            icon="event"
-            minimumDate={new Date()}
             required
-          />
-          <ModernFormInput
-            label="Trạng thái hoạt động"
-            value={formData.isActive}
-            onChangeText={(value) => updateField("isActive", value)}
-            placeholder="true/false"
-            icon="toggle-on"
+            error={errors.unit}
           />
         </ModernCard>
 
         <View style={{ marginTop: 20, gap: 12, paddingBottom: 20 }}>
           <ModernButton
-            title="Cập nhật phí dịch vụ"
+            title="Cập nhật loại dịch vụ"
             onPress={handleUpdate}
             loading={loading}
             icon="save"
+            fullWidth
           />
 
           <ModernButton
-            title="Xóa phí dịch vụ"
+            title="Xóa loại dịch vụ"
             onPress={handleDelete}
-            variant="danger"
+            type="danger"
             icon="delete"
+            fullWidth
+          />
+
+          <ModernButton
+            title="Hủy"
+            onPress={() => navigation.goBack()}
+            type="secondary"
+            fullWidth
           />
         </View>
       </ScrollView>

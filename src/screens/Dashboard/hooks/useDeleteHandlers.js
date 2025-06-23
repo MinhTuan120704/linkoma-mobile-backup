@@ -31,6 +31,13 @@ export const createDeleteHandler = (
                 setItems(
                   refreshResult.data.results || refreshResult.data || []
                 );
+              } else {
+                // If refresh fails, at least set to empty array to prevent undefined
+                console.log(
+                  "Failed to refresh data after deletion:",
+                  refreshResult.message
+                );
+                setItems([]);
               }
               Alert.alert("Thành công", `Đã xóa ${title} thành công!`);
             } else {
@@ -38,6 +45,8 @@ export const createDeleteHandler = (
             }
           } catch (error) {
             console.log(`Error deleting ${title}:`, error);
+            // Ensure data is still an array even if error occurs
+            setItems([]);
             Alert.alert("Lỗi", errorMessage);
           }
         },

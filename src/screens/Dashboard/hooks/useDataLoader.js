@@ -29,33 +29,20 @@ export const useDataLoader = (setters) => {
         notificationsResult,
         invoicesResult,
       ] = await Promise.allSettled([
-        userService.getAllUsers({ limit: 100, sortBy: "createdAt:desc" }),
-        apartmentService.getAllApartments({
-          limit: 100,
-          sortBy: "apartmentId:asc",
-        }),
-        feedbackService.getAllFeedbacks({
-          limit: 100,
-          sortBy: "createdAt:desc",
-        }),
-        serviceTypeService.getAllServiceTypes({
-          limit: 100,
-          sortBy: "serviceName:asc",
-        }),
-        announcementService.getAllAnnouncements({
-          limit: 100,
-          sortBy: "createdAt:desc",
-        }),
-        invoiceService.getAllInvoices({ limit: 100, sortBy: "createdAt:desc" }),
-      ]);
-
-      // Process residents data
+        userService.getAllUsers(),
+        apartmentService.getAllApartments(),
+        feedbackService.getAllFeedbacks(),
+        serviceTypeService.getAllServiceTypes(),
+        announcementService.getAllAnnouncements(),
+        invoiceService.getAllInvoices(),
+      ]);      // Process residents data
       if (
         residentsResult.status === "fulfilled" &&
         residentsResult.value.success
       ) {
+        // Note: getAllUsers API returns data in 'data' field, not 'results'
         setResidents(
-          residentsResult.value.data.results || residentsResult.value.data || []
+          residentsResult.value.data?.data || residentsResult.value.data || []
         );
       } else {
         console.log(
@@ -70,8 +57,10 @@ export const useDataLoader = (setters) => {
         apartmentsResult.status === "fulfilled" &&
         apartmentsResult.value.success
       ) {
+        console.log("Apartments data:", apartmentsResult.value.data);
+        
         setApartments(
-          apartmentsResult.value.data.results ||
+          apartmentsResult.value.data.apartments ||
             apartmentsResult.value.data ||
             []
         );
@@ -133,9 +122,7 @@ export const useDataLoader = (setters) => {
           notificationsResult.reason || notificationsResult.value?.message
         );
         setNotifications([]);
-      }
-
-      // Process invoices data
+      }      // Process invoices data
       if (
         invoicesResult.status === "fulfilled" &&
         invoicesResult.value.success
@@ -148,6 +135,10 @@ export const useDataLoader = (setters) => {
           "Error loading invoices:",
           invoicesResult.reason || invoicesResult.value?.message
         );
+        // Log the full error response for debugging
+        if (invoicesResult.value?.response?.data) {
+          console.log("Invoice error details:", invoicesResult.value.response.data);
+        }
         setInvoices([]);
       }
     } catch (error) {

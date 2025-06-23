@@ -2,12 +2,11 @@ import { useNavigation } from "@react-navigation/native";
 
 export const useNavigationHandlers = () => {
   const navigation = useNavigation();
-
   return {
     // Resident handlers
-    handleCreate: () => navigation.navigate("CreateResident"),
-    handleView: (resident) => navigation.navigate("ViewResident", { resident }),
-    handleEdit: (resident) => navigation.navigate("EditResident", { resident }),
+    handleCreate: () => navigation.navigate("ResidentCreate"),
+    handleView: (resident) => navigation.navigate("ResidentView", { resident }),
+    handleEdit: (resident) => navigation.navigate("ResidentEdit", { resident }),
 
     // Apartment handlers
     handleCreateApartment: () => navigation.navigate("ApartmentCreate"),

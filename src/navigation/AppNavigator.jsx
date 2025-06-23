@@ -16,6 +16,7 @@ import UpdateUserInfoScreen from "../screens/Auth/UpdateUserInfoScreen";
 
 // Dashboard Screens
 import AdminDashboard from "../screens/Dashboard/AdminDashboard";
+import ManagerDashboard from "../screens/Dashboard/ManagerDashboard";
 import ResidentDashboard from "../screens/Dashboard/ResidentDashboard";
 
 // Admin Screens
@@ -42,6 +43,30 @@ import ResidentViewScreen from "../screens/Admin/ResidentManagement/ResidentView
 import ServiceFeeCreateScreen from "../screens/Admin/ServiceFeeManagement/ServiceFeeCreateScreen";
 import ServiceFeeEditScreen from "../screens/Admin/ServiceFeeManagement/ServiceFeeEditScreen";
 import ServiceFeeViewScreen from "../screens/Admin/ServiceFeeManagement/ServiceFeeViewScreen";
+
+// Manager Screens
+import ManagerApartmentCreateScreen from "../screens/Manager/ApartmentManagement/ManagerApartmentCreateScreen";
+import ManagerApartmentEditScreen from "../screens/Manager/ApartmentManagement/ManagerApartmentEditScreen";
+import ManagerApartmentViewScreen from "../screens/Manager/ApartmentManagement/ManagerApartmentViewScreen";
+
+import ManagerFeedbackCreateScreen from "../screens/Manager/FeedbackManagement/ManagerFeedbackCreateScreen";
+import ManagerFeedbackEditScreen from "../screens/Manager/FeedbackManagement/ManagerFeedbackEditScreen";
+import ManagerFeedbackViewScreen from "../screens/Manager/FeedbackManagement/ManagerFeedbackViewScreen";
+
+import ManagerInvoiceCreateScreen from "../screens/Manager/InvoiceManagement/ManagerInvoiceCreateScreen";
+import ManagerInvoiceEditScreen from "../screens/Manager/InvoiceManagement/ManagerInvoiceEditScreen";
+import ManagerInvoiceViewScreen from "../screens/Manager/InvoiceManagement/ManagerInvoiceViewScreen";
+
+import ManagerNotificationCreateScreen from "../screens/Manager/NotificationManagement/ManagerNotificationCreateScreen";
+import ManagerNotificationEditScreen from "../screens/Manager/NotificationManagement/ManagerNotificationEditScreen";
+import ManagerNotificationViewScreen from "../screens/Manager/NotificationManagement/ManagerNotificationViewScreen";
+
+import ManagerResidentEditScreen from "../screens/Manager/ResidentManagement/ManagerResidentEditScreen";
+import ManagerResidentViewScreen from "../screens/Manager/ResidentManagement/ManagerResidentViewScreen";
+
+import ManagerServiceFeeCreateScreen from "../screens/Manager/ServiceFeeManagement/ManagerServiceFeeCreateScreen";
+import ManagerServiceFeeEditScreen from "../screens/Manager/ServiceFeeManagement/ManagerServiceFeeEditScreen";
+import ManagerServiceFeeViewScreen from "../screens/Manager/ServiceFeeManagement/ManagerServiceFeeViewScreen";
 
 // Resident Screens
 import ResidentApartmentInfoScreen from "../screens/Resident/ResidentApartmentInfoScreen/ResidentApartmentInfoScreen";
@@ -123,6 +148,102 @@ const AdminStack = () => (
     <Stack.Screen name="ServiceFeeCreate" component={ServiceFeeCreateScreen} />
     <Stack.Screen name="ServiceFeeEdit" component={ServiceFeeEditScreen} />
     <Stack.Screen name="ServiceFeeView" component={ServiceFeeViewScreen} />
+
+    {/* Shared screens */}
+    <Stack.Screen name="UpdateUserInfo" component={UpdateUserInfoScreen} />
+    <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+  </Stack.Navigator>
+);
+
+// Manager Stack
+const ManagerStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerShown: false,
+      animation: "slide_from_right",
+    }}
+  >
+    <Stack.Screen name="ManagerDashboard" component={ManagerDashboard} />
+
+    {/* Apartment Management */}
+    <Stack.Screen
+      name="ManagerApartmentCreate"
+      component={ManagerApartmentCreateScreen}
+    />
+    <Stack.Screen
+      name="ManagerApartmentEdit"
+      component={ManagerApartmentEditScreen}
+    />
+    <Stack.Screen
+      name="ManagerApartmentView"
+      component={ManagerApartmentViewScreen}
+    />
+
+    {/* Feedback Management */}
+    <Stack.Screen
+      name="ManagerFeedbackCreate"
+      component={ManagerFeedbackCreateScreen}
+    />
+    <Stack.Screen
+      name="ManagerFeedbackEdit"
+      component={ManagerFeedbackEditScreen}
+    />
+    <Stack.Screen
+      name="ManagerFeedbackView"
+      component={ManagerFeedbackViewScreen}
+    />
+
+    {/* Invoice Management */}
+    <Stack.Screen
+      name="ManagerInvoiceCreate"
+      component={ManagerInvoiceCreateScreen}
+    />
+    <Stack.Screen
+      name="ManagerInvoiceEdit"
+      component={ManagerInvoiceEditScreen}
+    />
+    <Stack.Screen
+      name="ManagerInvoiceView"
+      component={ManagerInvoiceViewScreen}
+    />
+
+    {/* Notification Management */}
+    <Stack.Screen
+      name="ManagerNotificationCreate"
+      component={ManagerNotificationCreateScreen}
+    />
+    <Stack.Screen
+      name="ManagerNotificationEdit"
+      component={ManagerNotificationEditScreen}
+    />
+    <Stack.Screen
+      name="ManagerNotificationView"
+      component={ManagerNotificationViewScreen}
+    />
+
+    {/* Resident Management */}
+    <Stack.Screen
+      name="ManagerResidentEdit"
+      component={ManagerResidentEditScreen}
+    />
+    <Stack.Screen
+      name="ManagerResidentView"
+      component={ManagerResidentViewScreen}
+    />
+
+    {/* Service Fee Management */}
+    <Stack.Screen
+      name="ManagerServiceFeeCreate"
+      component={ManagerServiceFeeCreateScreen}
+    />
+    <Stack.Screen
+      name="ManagerServiceFeeEdit"
+      component={ManagerServiceFeeEditScreen}
+    />
+    <Stack.Screen
+      name="ManagerServiceFeeView"
+      component={ManagerServiceFeeViewScreen}
+    />
 
     {/* Shared screens */}
     <Stack.Screen name="UpdateUserInfo" component={UpdateUserInfoScreen} />
@@ -276,6 +397,9 @@ const AppNavigator = () => {
             ) : user?.role === "admin" ? (
               // Admin user with complete info
               <Stack.Screen name="AdminApp" component={AdminStack} />
+            ) : user?.role === "manager" ? (
+              // Manager user with complete info
+              <Stack.Screen name="ManagerApp" component={ManagerStack} />
             ) : (
               // Resident user with complete info
               <Stack.Screen name="ResidentApp" component={ResidentStack} />

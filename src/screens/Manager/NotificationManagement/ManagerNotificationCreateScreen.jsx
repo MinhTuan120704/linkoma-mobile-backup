@@ -23,7 +23,7 @@ const PRIORITY_OPTIONS = [
   { label: "Khẩn cấp", value: "Critical" },
 ];
 
-export default function NotificationCreateScreen({ navigation }) {
+export default function ManagerNotificationCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: "General", // Enum: General, Maintenance, Event, Emergency
@@ -107,13 +107,13 @@ export default function NotificationCreateScreen({ navigation }) {
           numberOfLines={6}
           required
           error={errors.content}
-        />
+        />{" "}
         <ModernPicker
           label="Loại thông báo"
           value={formData.type}
           onValueChange={(value) => updateField("type", value)}
-          placeholder="Chọn loại thông báo"
           items={TYPE_OPTIONS}
+          placeholder="Chọn loại thông báo"
           icon="category"
           error={errors.type}
         />
@@ -121,8 +121,8 @@ export default function NotificationCreateScreen({ navigation }) {
           label="Mức độ ưu tiên"
           value={formData.priority}
           onValueChange={(value) => updateField("priority", value)}
-          placeholder="Chọn mức độ ưu tiên"
           items={PRIORITY_OPTIONS}
+          placeholder="Chọn mức độ ưu tiên"
           icon="priority-high"
           error={errors.priority}
         />
@@ -138,7 +138,7 @@ export default function NotificationCreateScreen({ navigation }) {
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="secondary"
+            type="outline"
             fullWidth
           />
         </View>

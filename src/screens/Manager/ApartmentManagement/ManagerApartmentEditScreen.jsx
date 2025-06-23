@@ -9,7 +9,7 @@ import {
 import apartmentService from "../../../services/apartmentService";
 import apartmentTypeService from "../../../services/apartmentTypeService";
 
-export default function ApartmentEditScreen({ route, navigation }) {
+export default function ManagerApartmentEditScreen({ route, navigation }) {
   const { apartment } = route.params || {};
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -51,6 +51,7 @@ export default function ApartmentEditScreen({ route, navigation }) {
       setLoadingTypes(false);
     }
   };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -69,6 +70,7 @@ export default function ApartmentEditScreen({ route, navigation }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -149,6 +151,7 @@ export default function ApartmentEditScreen({ route, navigation }) {
       subtitle={`Căn hộ ID: ${apartment?.apartmentId || ""}`}
       headerColor="#2C3E50"
     >
+      {" "}
       <View style={{ paddingBottom: 20 }}>
         <ModernPicker
           label="Loại căn hộ"
@@ -196,15 +199,15 @@ export default function ApartmentEditScreen({ route, navigation }) {
             title="Cập nhật căn hộ"
             onPress={handleSubmit}
             loading={loading}
-            icon="save"
+            icon="edit"
             fullWidth
           />
 
           <ModernButton
             title="Xóa căn hộ"
             onPress={handleDelete}
-            type="danger"
             loading={deleteLoading}
+            type="danger"
             icon="delete"
             fullWidth
           />

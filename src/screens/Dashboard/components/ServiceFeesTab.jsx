@@ -12,7 +12,7 @@ import { renderEmptyState, renderStatsCard } from "./AdminSharedComponents";
 import { tabStyles } from "./AdminTabStyles";
 
 export default function ServiceFeesTab({
-  serviceFees,
+  serviceFees = [], // Default to empty array if undefined
   tabs,
   refreshing,
   onRefresh,
@@ -60,7 +60,7 @@ export default function ServiceFeesTab({
           <List>
             {serviceFees.map((fee) => (
               <List.Item
-                key={fee.id}
+                key={fee.serviceTypeId}
                 extra={
                   <View style={tabStyles.actionButtonsContainer}>
                     <TouchableOpacity
@@ -77,7 +77,7 @@ export default function ServiceFeesTab({
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[tabStyles.actionButton, tabStyles.deleteButton]}
-                      onPress={() => handleDeleteServiceFee(fee.id)}
+                      onPress={() => handleDeleteServiceFee(fee.serviceTypeId)}
                     >
                       <MaterialIcons name="delete" size={16} color="#fff" />
                     </TouchableOpacity>
@@ -90,7 +90,9 @@ export default function ServiceFeesTab({
                     size={18}
                     color={tabs[3].color}
                   />
-                  <Text style={tabStyles.listItemText}>{fee.name}</Text>
+                  <Text style={tabStyles.listItemText}>
+                    {fee.serviceName + " (" + fee.unit + ")"}
+                  </Text>
                 </View>
               </List.Item>
             ))}

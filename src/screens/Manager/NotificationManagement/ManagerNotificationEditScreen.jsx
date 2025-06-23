@@ -24,7 +24,7 @@ const PRIORITY_OPTIONS = [
   { label: "Khẩn cấp", value: "Critical" },
 ];
 
-export default function NotificationEditScreen({ route, navigation }) {
+export default function ManagerNotificationEditScreen({ route, navigation }) {
   const { notification } = route.params || {};
   const [formData, setFormData] = useState({
     title: notification?.title || "",
@@ -140,7 +140,7 @@ export default function NotificationEditScreen({ route, navigation }) {
             multiline
             numberOfLines={6}
             error={errors.content}
-          />
+          />{" "}
           <ModernPicker
             label="Loại thông báo"
             value={formData.type}

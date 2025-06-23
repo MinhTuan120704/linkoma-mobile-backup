@@ -9,12 +9,29 @@ import {
 import userService from "../../../services/userService";
 
 export default function ResidentViewScreen({ route, navigation }) {
-  const { residentId } = route.params;
-  const [resident, setResident] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Get resident object from params, or extract residentId from it
+  const { resident: residentFromParams, residentId: directResidentId } =
+    route.params || {};
+  const residentId =
+    directResidentId || residentFromParams?.userId || residentFromParams?.id;
+
+  const [resident, setResident] = useState(residentFromParams || null);
+  const [loading, setLoading] = useState(!residentFromParams);
   const fetchResident = async () => {
+    if (!residentId) {
+      console.log("No residentId provided");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
+      console.log(
+        "typeof residentId, residentId:",
+        typeof residentId,
+        residentId
+      );
+
       const response = await userService.getUserById(residentId);
       if (response.success) {
         setResident(response.data);
@@ -33,11 +50,15 @@ export default function ResidentViewScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    fetchResident();
+    // Only fetch if we don't already have resident data and we have an ID
+    if (!resident && residentId) {
+      fetchResident();
+    } else if (!residentId) {
+      setLoading(false);
+    }
   }, [residentId]);
-
   const handleEdit = () => {
-    navigation.navigate("ResidentEditScreen", { resident });
+    navigation.navigate("ResidentEdit", { resident });
   };
 
   const handleDelete = () => {
@@ -148,20 +169,11 @@ export default function ResidentViewScreen({ route, navigation }) {
               value={resident.address}
               icon="location-on"
             />
-
             <InfoRow
-              label="Căn hộ"
-              value={resident.apartmentName || resident.apartmentId}
+              label="ID Căn hộ"
+              value={resident.apartmentId?.toString()}
               icon="home"
               type="highlight"
-            />
-
-            <InfoRow label="Block" value={resident.block} icon="business" />
-
-            <InfoRow
-              label="Tầng"
-              value={resident.floor?.toString()}
-              icon="layers"
             />
           </ModernCard>
 
@@ -171,24 +183,17 @@ export default function ResidentViewScreen({ route, navigation }) {
               value={resident.licensePlate}
               icon="directions-car"
             />
-
             <InfoRow
-              label="Trạng thái"
-              value={
-                resident.status === "active"
-                  ? "Đang hoạt động"
-                  : "Không hoạt động"
-              }
-              icon="info"
-              type={resident.status === "active" ? "highlight" : "warning"}
+              label="Vai trò"
+              value={resident.role}
+              icon="person"
+              type="highlight"
             />
-
             <InfoRow
-              label="Ngày tham gia"
+              label="Ngày tạo"
               value={formatDate(resident.createdAt)}
               icon="calendar-today"
             />
-
             <InfoRow
               label="Cập nhật lần cuối"
               value={formatDate(resident.updatedAt)}

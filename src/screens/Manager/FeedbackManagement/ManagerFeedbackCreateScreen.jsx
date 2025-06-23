@@ -4,13 +4,14 @@ import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
+  ModernPicker,
 } from "../../../components";
 import feedbackService from "../../../services/feedbackService";
 
-export default function FeedbackCreateScreen({ navigation }) {
+export default function ManagerFeedbackCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    userId: 1, // Should be current user ID or selected user
+    userId: "", // Will need to be selected in UI
     category: "Maintenance", // Enum: Maintenance, Service, Complaint
     description: "",
     status: "Pending", // Enum: Pending, In Progress, Resolved, Rejected
@@ -19,6 +20,11 @@ export default function FeedbackCreateScreen({ navigation }) {
 
   const validateForm = () => {
     const newErrors = {};
+
+    if (!formData.userId) {
+      newErrors.userId = "ID người dùng là bắt buộc";
+    }
+
     if (!formData.description.trim()) {
       newErrors.description = "Mô tả là bắt buộc";
     }
@@ -26,13 +32,22 @@ export default function FeedbackCreateScreen({ navigation }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
+
     try {
       setLoading(true);
-      const response = await feedbackService.createFeedback(formData);
+      const feedbackData = {
+        userId: parseInt(formData.userId),
+        category: formData.category,
+        description: formData.description,
+        status: formData.status,
+      };
+
+      const response = await feedbackService.createFeedback(feedbackData);
       if (response.success) {
         Alert.alert("Thành công", "Tạo phản hồi thành công!", [
           { text: "OK", onPress: () => navigation.goBack() },
@@ -66,51 +81,56 @@ export default function FeedbackCreateScreen({ navigation }) {
     >
       <View style={{ paddingBottom: 20 }}>
         <ModernFormInput
-          label="Tiêu đề"
-          value={formData.title}
-          onChangeText={(value) => updateField("title", value)}
-          placeholder="Nhập tiêu đề phản hồi"
-          icon="title"
+          label="ID Người dùng"
+          value={formData.userId}
+          onChangeText={(value) => updateField("userId", value)}
+          placeholder="Nhập ID người dùng"
+          icon="person"
+          keyboardType="numeric"
           required
-          error={errors.title}
+          error={errors.userId}
         />
 
-        <ModernFormInput
-          label="Nội dung"
-          value={formData.content}
-          onChangeText={(value) => updateField("content", value)}
-          placeholder="Nhập nội dung phản hồi"
-          icon="description"
-          multiline
-          numberOfLines={6}
-          required
-          error={errors.content}
-        />
-
-        <ModernFormInput
+        <ModernPicker
           label="Danh mục"
           value={formData.category}
-          onChangeText={(value) => updateField("category", value)}
-          placeholder="Ví dụ: Khiếu nại, Đề xuất, Báo cáo sự cố"
+          onValueChange={(value) => updateField("category", value)}
+          items={[
+            { label: "Bảo trì", value: "Maintenance" },
+            { label: "Dịch vụ", value: "Service" },
+            { label: "Khiếu nại", value: "Complaint" },
+          ]}
+          placeholder="Chọn danh mục"
           icon="category"
+          required
           error={errors.category}
         />
 
         <ModernFormInput
-          label="Mức độ ưu tiên"
-          value={formData.priority}
-          onChangeText={(value) => updateField("priority", value)}
-          placeholder="Thấp/Trung bình/Cao/Khẩn cấp"
-          icon="priority-high"
-          error={errors.priority}
+          label="Mô tả"
+          value={formData.description}
+          onChangeText={(value) => updateField("description", value)}
+          placeholder="Nhập mô tả phản hồi"
+          icon="description"
+          multiline
+          numberOfLines={4}
+          required
+          error={errors.description}
         />
 
-        <ModernFormInput
+        <ModernPicker
           label="Trạng thái"
           value={formData.status}
-          onChangeText={(value) => updateField("status", value)}
-          placeholder="pending/processing/resolved"
-          icon="assignment"
+          onValueChange={(value) => updateField("status", value)}
+          items={[
+            { label: "Đang chờ", value: "Pending" },
+            { label: "Đang xử lý", value: "In Progress" },
+            { label: "Đã giải quyết", value: "Resolved" },
+            { label: "Từ chối", value: "Rejected" },
+          ]}
+          placeholder="Chọn trạng thái"
+          icon="info"
+          required
           error={errors.status}
         />
 
@@ -119,7 +139,7 @@ export default function FeedbackCreateScreen({ navigation }) {
             title="Tạo phản hồi"
             onPress={handleSubmit}
             loading={loading}
-            icon="add-comment"
+            icon="add"
             fullWidth
           />
 

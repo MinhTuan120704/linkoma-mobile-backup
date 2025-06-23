@@ -77,7 +77,7 @@ export default function AdminDashboard() {
       case 1:
         return (
           <ApartmentsTab
-            apartments={apartments}
+            apartments={apartments || []}
             {...tabHandlers.apartments}
             {...tabProps}
           />

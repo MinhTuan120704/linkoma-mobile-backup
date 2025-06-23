@@ -1,44 +1,70 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Alert, ScrollView } from "react-native";
 import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
   ModernCard,
+  ModernPicker,
 } from "../../../components";
 import feedbackService from "../../../services/feedbackService";
+import userService from "../../../services/userService";
 
 export default function FeedbackEditScreen({ route, navigation }) {
   const { feedback } = route.params || {};
 
   const [formData, setFormData] = useState({
-    title: feedback?.title || "",
-    content: feedback?.content || "",
     category: feedback?.category || "",
-    priority: feedback?.priority || "medium",
-    status: feedback?.status || "pending",
-    adminResponse: feedback?.adminResponse || "",
-    resolution: feedback?.resolution || "",
+    description: feedback?.description || "",
+    status: feedback?.status || "Pending",
+    response: feedback?.response || "",
   });
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [userInfo, setUserInfo] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
+  useEffect(() => {
+    if (feedback?.userId) {
+      loadUserInfo();
+    }
+  }, [feedback]);
+
+  const loadUserInfo = async () => {
+    try {
+      setLoadingUser(true);
+      const response = await userService.getUserById(feedback.userId);
+
+      if (response.success) {
+        setUserInfo(response.data);
+      } else {
+        console.log("Error loading user info:", response.message);
+      }
+    } catch (error) {
+      console.log("Error loading user info:", error);
+    } finally {
+      setLoadingUser(false);
+    }
+  };
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Tiêu đề không được để trống";
+    if (!formData.description.trim()) {
+      newErrors.description = "Mô tả không được để trống";
     }
 
-    if (!formData.content.trim()) {
-      newErrors.content = "Nội dung không được để trống";
+    if (!formData.category.trim()) {
+      newErrors.category = "Danh mục không được để trống";
+    }
+
+    if (!formData.status.trim()) {
+      newErrors.status = "Trạng thái không được để trống";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleUpdate = async () => {
     if (!validateForm()) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
@@ -47,7 +73,7 @@ export default function FeedbackEditScreen({ route, navigation }) {
     setLoading(true);
     try {
       const response = await feedbackService.updateFeedback(
-        feedback.id,
+        feedback.feedbackId,
         formData
       );
       if (response.success) {
@@ -74,7 +100,9 @@ export default function FeedbackEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            const response = await feedbackService.deleteFeedback(feedback.id);
+            const response = await feedbackService.deleteFeedback(
+              feedback.feedbackId
+            );
             if (response.success) {
               Alert.alert("Thành công", "Xóa phản hồi thành công", [
                 { text: "OK", onPress: () => navigation.goBack() },
@@ -99,80 +127,102 @@ export default function FeedbackEditScreen({ route, navigation }) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
-
   return (
     <ModernScreenWrapper
       title="Chỉnh sửa phản hồi"
-      subtitle="Cập nhật thông tin phản hồi"
+      subtitle={`Feedback ID: ${feedback?.feedbackId || ""}`}
       headerColor="#2C3E50"
       loading={loading}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        <ModernCard title="Thông tin phản hồi">
+        <ModernCard title="Thông tin người gửi">
           <ModernFormInput
-            label="Tiêu đề"
-            value={formData.title}
-            onChangeText={(value) => updateField("title", value)}
-            placeholder="Nhập tiêu đề phản hồi"
-            icon="title"
-            error={errors.title}
+            label="Tên người gửi"
+            value={
+              loadingUser ? "Đang tải..." : userInfo?.name || "Không có dữ liệu"
+            }
+            icon="person"
+            editable={false}
+            disabled
           />
 
           <ModernFormInput
-            label="Nội dung"
-            value={formData.content}
-            onChangeText={(value) => updateField("content", value)}
-            placeholder="Nhập nội dung phản hồi"
+            label="Email"
+            value={
+              loadingUser
+                ? "Đang tải..."
+                : userInfo?.email || "Không có dữ liệu"
+            }
+            icon="email"
+            editable={false}
+            disabled
+          />
+
+          <ModernFormInput
+            label="Số điện thoại"
+            value={
+              loadingUser
+                ? "Đang tải..."
+                : userInfo?.phoneNumber || "Không có dữ liệu"
+            }
+            icon="phone"
+            editable={false}
+            disabled
+          />
+        </ModernCard>
+
+        <ModernCard title="Thông tin phản hồi">
+          <ModernPicker
+            label="Danh mục"
+            value={formData.category}
+            onValueChange={(value) => updateField("category", value)}
+            items={[
+              { label: "Bảo trì", value: "Maintenance" },
+              { label: "Dịch vụ", value: "Service" },
+              { label: "Khiếu nại", value: "Complaint" },
+            ]}
+            placeholder="Chọn danh mục"
+            icon="category"
+            required
+            error={errors.category}
+          />
+          <ModernFormInput
+            label="Mô tả"
+            value={formData.description}
+            onChangeText={(value) => updateField("description", value)}
+            placeholder="Nhập mô tả phản hồi"
             icon="description"
             multiline
             numberOfLines={4}
-            error={errors.content}
+            required
+            error={errors.description}
           />
-
-          <ModernFormInput
-            label="Danh mục"
-            value={formData.category}
-            onChangeText={(value) => updateField("category", value)}
-            placeholder="Ví dụ: Khiếu nại, Đề xuất, Báo cáo sự cố"
-            icon="category"
-          />
-
-          <ModernFormInput
-            label="Mức độ ưu tiên"
-            value={formData.priority}
-            onChangeText={(value) => updateField("priority", value)}
-            placeholder="low/medium/high/urgent"
-            icon="priority-high"
-          />
-
-          <ModernFormInput
+          <ModernPicker
             label="Trạng thái"
             value={formData.status}
-            onChangeText={(value) => updateField("status", value)}
-            placeholder="pending/in-progress/resolved/closed"
+            onValueChange={(value) => updateField("status", value)}
+            items={[
+              { label: "Đang chờ", value: "Pending" },
+              { label: "Đang xử lý", value: "In Progress" },
+              { label: "Đã giải quyết", value: "Resolved" },
+              { label: "Đã từ chối", value: "Rejected" },
+            ]}
+            placeholder="Chọn trạng thái"
             icon="info"
+            required
+            error={errors.status}
           />
         </ModernCard>
 
         <ModernCard title="Phản hồi của Admin">
           <ModernFormInput
-            label="Phản hồi Admin"
-            value={formData.adminResponse}
-            onChangeText={(value) => updateField("adminResponse", value)}
+            label="Phản hồi"
+            value={formData.response}
+            onChangeText={(value) => updateField("response", value)}
             placeholder="Nhập phản hồi từ admin"
             icon="admin-panel-settings"
             multiline
             numberOfLines={4}
-          />
-
-          <ModernFormInput
-            label="Giải pháp"
-            value={formData.resolution}
-            onChangeText={(value) => updateField("resolution", value)}
-            placeholder="Mô tả giải pháp đã thực hiện"
-            icon="check-circle"
-            multiline
-            numberOfLines={3}
           />
         </ModernCard>
 
@@ -182,13 +232,22 @@ export default function FeedbackEditScreen({ route, navigation }) {
             onPress={handleUpdate}
             loading={loading}
             icon="save"
+            fullWidth
           />
 
           <ModernButton
             title="Xóa phản hồi"
             onPress={handleDelete}
-            variant="danger"
+            type="danger"
             icon="delete"
+            fullWidth
+          />
+
+          <ModernButton
+            title="Hủy"
+            onPress={() => navigation.goBack()}
+            type="secondary"
+            fullWidth
           />
         </View>
       </ScrollView>

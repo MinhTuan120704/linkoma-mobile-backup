@@ -9,7 +9,12 @@ import {
 import apartmentService from "../../../services/apartmentService";
 import apartmentTypeService from "../../../services/apartmentTypeService";
 
-export default function ApartmentViewScreen({ route, navigation }) {
+const formatDate = (dateString) => {
+  if (!dateString) return "Không có thông tin";
+  return new Date(dateString).toLocaleDateString("vi-VN");
+};
+
+export default function ManagerApartmentViewScreen({ route, navigation }) {
   const { apartment } = route.params || {};
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [apartmentType, setApartmentType] = useState(null);
@@ -41,7 +46,7 @@ export default function ApartmentViewScreen({ route, navigation }) {
   };
 
   const handleEdit = () => {
-    navigation.navigate("ApartmentEdit", { apartment });
+    navigation.navigate("ManagerApartmentEdit", { apartment });
   };
 
   const handleDelete = () => {
@@ -77,15 +82,10 @@ export default function ApartmentViewScreen({ route, navigation }) {
     ]);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Không có dữ liệu";
-    return new Date(dateString).toLocaleDateString("vi-VN");
-  };
-
   return (
     <ModernScreenWrapper
       title="Chi tiết căn hộ"
-      subtitle={`${apartment?.name || "Căn hộ"} - ${apartment?.block || ""}`}
+      subtitle={`Căn hộ ID: ${apartment?.apartmentId || ""}`}
       headerColor="#2C3E50"
       rightHeaderComponent={
         <ModernButton
@@ -103,7 +103,7 @@ export default function ApartmentViewScreen({ route, navigation }) {
             value={apartment?.apartmentId?.toString()}
             icon="home"
             type="highlight"
-          />
+          />{" "}
           <InfoRow
             label="Loại căn hộ"
             value={
@@ -155,7 +155,7 @@ export default function ApartmentViewScreen({ route, navigation }) {
 
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
-            title="Chỉnh sửa"
+            title="Chỉnh sửa căn hộ"
             onPress={handleEdit}
             icon="edit"
             fullWidth
@@ -164,9 +164,16 @@ export default function ApartmentViewScreen({ route, navigation }) {
           <ModernButton
             title="Xóa căn hộ"
             onPress={handleDelete}
-            type="danger"
             loading={deleteLoading}
+            type="danger"
             icon="delete"
+            fullWidth
+          />
+
+          <ModernButton
+            title="Quay lại"
+            onPress={() => navigation.goBack()}
+            type="outline"
             fullWidth
           />
         </View>

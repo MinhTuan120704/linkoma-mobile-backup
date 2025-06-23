@@ -8,44 +8,12 @@ import {
 } from "../../../components";
 import serviceTypeService from "../../../services/serviceTypeService";
 
-export default function ServiceFeeViewScreen({ route, navigation }) {
+export default function ManagerServiceFeeViewScreen({ route, navigation }) {
   const { serviceFee } = route.params || {};
   const [loading, setLoading] = useState(false);
+
   const handleEdit = () => {
-    navigation.navigate("ServiceFeeEdit", { serviceFee });
-  };
-  const handleDelete = () => {
-    Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa loại dịch vụ này?", [
-      { text: "Hủy", style: "cancel" },
-      {
-        text: "Xóa",
-        style: "destructive",
-        onPress: async () => {
-          setLoading(true);
-          try {
-            const response = await serviceTypeService.deleteServiceType(
-              serviceFee.serviceTypeId
-            );
-            if (response.success) {
-              Alert.alert("Thành công", "Xóa loại dịch vụ thành công!", [
-                { text: "OK", onPress: () => navigation.goBack() },
-              ]);
-            } else {
-              Alert.alert(
-                "Lỗi",
-                response.message ||
-                  "Không thể xóa loại dịch vụ. Vui lòng thử lại."
-              );
-            }
-          } catch (error) {
-            console.log("Error deleting service type:", error);
-            Alert.alert("Lỗi", "Không thể xóa loại dịch vụ. Vui lòng thử lại.");
-          } finally {
-            setLoading(false);
-          }
-        },
-      },
-    ]);
+    navigation.navigate("ManagerServiceFeeEdit", { serviceFee });
   };
 
   const formatCurrency = (amount) => {
@@ -56,10 +24,6 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
     }).format(amount);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Không có dữ liệu";
-    return new Date(dateString).toLocaleDateString("vi-VN");
-  };
   if (!serviceFee) {
     return (
       <ModernScreenWrapper
@@ -78,6 +42,7 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
       </ModernScreenWrapper>
     );
   }
+
   return (
     <ModernScreenWrapper
       title="Chi tiết loại dịch vụ"
@@ -95,6 +60,12 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
           />
 
           <InfoRow
+            label="Mô tả"
+            value={serviceFee.description}
+            icon="description"
+          />
+
+          <InfoRow
             label="Giá đơn vị"
             value={formatCurrency(serviceFee.unitPrice)}
             icon="attach-money"
@@ -109,14 +80,6 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
             title="Chỉnh sửa thông tin"
             onPress={handleEdit}
             icon="edit"
-            fullWidth
-          />
-
-          <ModernButton
-            title="Xóa loại dịch vụ"
-            onPress={handleDelete}
-            type="danger"
-            icon="delete"
             fullWidth
           />
 
