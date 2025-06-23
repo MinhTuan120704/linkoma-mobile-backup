@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, Alert } from "react-native";
 import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
 import { useUserSetup } from "../../../hooks/useUserSetup";
-import userService from "../../../services/userService";
 import apartmentService from "../../../services/apartmentService";
 
 export default function ResidentInfoScreen() {
@@ -10,12 +9,30 @@ export default function ResidentInfoScreen() {
   const [residentData, setResidentData] = useState(null);
   const [apartmentData, setApartmentData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const fetchResident = async () => {
-    console.log("Fetching resident data for user at ResidentInfo:", user);
-    console.log("Type of user.userId:", typeof user?.userId);
+  const fetchApartmentData = async () => {
+    if (!user?.apartmentId) {
+      console.log("No apartment ID available");
+      return;
+    }
 
-    if (!user?.userId) {
-      console.log("No user ID available");
+    try {
+      const apartmentResult = await apartmentService.getApartmentById(
+        user.apartmentId
+      );
+      if (apartmentResult.success && apartmentResult.data) {
+        setApartmentData(apartmentResult.data);
+      }
+    } catch (apartmentError) {
+      console.log("Error fetching apartment data:", apartmentError);
+      // Don't show error for apartment as it's secondary data
+    }
+  };
+
+  const loadData = async () => {
+    console.log("Loading data for user at ResidentInfo:", user);
+
+    if (!user) {
+      console.log("No user data available");
       setLoading(false);
       return;
     }
@@ -23,56 +40,28 @@ export default function ResidentInfoScreen() {
     try {
       setLoading(true);
 
-      // Fetch user data from API
-      const userResult = await userService.getUserById(user.userId);
-
-      if (userResult.success && userResult.data) {
-        setResidentData(userResult.data);
-
-        // If user has apartmentId, fetch apartment details
-        if (userResult.data.apartmentId) {
-          try {
-            const apartmentResult = await apartmentService.getApartmentById(
-              userResult.data.apartmentId
-            );
-            if (apartmentResult.success && apartmentResult.data) {
-              setApartmentData(apartmentResult.data);
-            }
-          } catch (apartmentError) {
-            console.log("Error fetching apartment data:", apartmentError);
-            // Don't show error for apartment as it's secondary data
-          }
-        }
-      } else {
-        console.log("Failed to fetch user data:", userResult.message);
-        Alert.alert(
-          "Lỗi",
-          userResult.message || "Không thể tải thông tin cư dân"
-        );
-
-        // Fallback to using cached user data
-        setResidentData({
-          ...user,
-          status: "active",
-        });
-      }
-    } catch (error) {
-      console.log("Error fetching resident:", error);
-      Alert.alert("Lỗi", "Không thể tải thông tin cư dân");
-
-      // Fallback to using cached user data
+      // Use existing user data from login
       setResidentData({
         ...user,
-        status: "active",
+        status: user.status || "active",
+      });
+
+      // Only fetch apartment data if apartmentId exists
+      await fetchApartmentData();
+    } catch (error) {
+      console.log("Error loading data:", error);
+      // Still set user data even if apartment fetch fails
+      setResidentData({
+        ...user,
+        status: user.status || "active",
       });
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     console.log("Current user in effect:", user);
-    fetchResident();
+    loadData();
   }, [user]);
 
   const formatDate = (dateString) => {
@@ -87,7 +76,7 @@ export default function ResidentInfoScreen() {
       }
       headerColor="#1976D2"
       loading={loading}
-      onRefresh={fetchResident}
+      onRefresh={loadData}
     >
       {!loading && !residentData && (
         <ModernCard>

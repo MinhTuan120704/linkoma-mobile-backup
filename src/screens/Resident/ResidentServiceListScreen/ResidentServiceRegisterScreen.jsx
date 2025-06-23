@@ -12,7 +12,6 @@ import { useAuth } from "../../../contexts/AuthContext";
 import serviceRegistrationService from "../../../services/serviceRegistrationService";
 import serviceTypeService from "../../../services/serviceTypeService";
 import apartmentService from "../../../services/apartmentService";
-import userService from "../../../services/userService";
 
 export default function ResidentServiceRegisterScreen() {
   const navigation = useNavigation();
@@ -32,29 +31,25 @@ export default function ResidentServiceRegisterScreen() {
   useEffect(() => {
     fetchInitialData();
   }, [user]);
-
   const fetchInitialData = async () => {
     try {
       setLoading(true);
 
-      // Fetch user's apartment info
-      if (user?.userId) {
-        const userResult = await userService.getUserById(user.userId);
-        console.log("User data API fetched:", userResult.data);
-
-        if (userResult.success && userResult.data.apartmentId) {
-          const apartmentResult = await apartmentService.getApartmentById(
-            userResult.data.apartmentId
-          );
-          console.log("Apartment data API fetched:", apartmentResult.data);
-          if (apartmentResult.success) {
-            setUserApartment(apartmentResult.data);
-            setFormData((prev) => ({
-              ...prev,
-              apartmentId: apartmentResult.data.apartmentId,
-            }));
-          }
+      // Use existing user data instead of fetching from API
+      if (user?.apartmentId) {
+        const apartmentResult = await apartmentService.getApartmentById(
+          user.apartmentId
+        );
+        console.log("Apartment data API fetched:", apartmentResult.data);
+        if (apartmentResult.success) {
+          setUserApartment(apartmentResult.data);
+          setFormData((prev) => ({
+            ...prev,
+            apartmentId: apartmentResult.data.apartmentId,
+          }));
         }
+      } else {
+        console.log("No apartment ID found for user");
       }
       console.log("User's apartment fetched:", userApartment);
 

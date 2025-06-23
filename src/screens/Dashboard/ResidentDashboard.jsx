@@ -29,6 +29,14 @@ export default function ResidentDashboard() {
   const navigation = useNavigation();
   const { logout } = useAuth();
 
+  // Ensure we have valid insets with fallback values
+  const safeInsets = {
+    top: insets?.top || 0,
+    bottom: insets?.bottom || 0,
+    left: insets?.left || 0,
+    right: insets?.right || 0,
+  };
+
   const handleLogout = () => {
     Alert.alert(
       "Đăng xuất",
@@ -131,7 +139,7 @@ export default function ResidentDashboard() {
     }
   };
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: safeInsets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#1976D2" />
 
       {/* Header */}
