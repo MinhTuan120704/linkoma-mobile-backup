@@ -40,7 +40,6 @@ export const AdminHeader = ({
   return (
     <View style={styles.header}>
       <View style={styles.headerContent}>
-        {" "}
         <View style={styles.headerTitleContainer}>
           <Text style={styles.headerTitle}>{title}</Text>
           <Text style={styles.headerSubtitle}>{subtitle}</Text>

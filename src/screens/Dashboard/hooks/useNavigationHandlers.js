@@ -42,5 +42,12 @@ export const useNavigationHandlers = () => {
       navigation.navigate("InvoiceView", { invoice }),
     handleEditInvoice: (invoice) =>
       navigation.navigate("InvoiceEdit", { invoice }),
+
+    // ApartmentType handlers
+    handleCreateApartmentType: () => navigation.navigate("ApartmentTypeCreate"),
+    handleViewApartmentType: (apartmentType) =>
+      navigation.navigate("ApartmentTypeView", { apartmentType }),
+    handleEditApartmentType: (apartmentType) =>
+      navigation.navigate("ApartmentTypeEdit", { apartmentType }),
   };
 };

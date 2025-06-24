@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { Alert } from "react-native";
 import userService from "../../../services/userService";
 import apartmentService from "../../../services/apartmentService";
+import apartmentTypeService from "../../../services/apartmentTypeService";
 import feedbackService from "../../../services/feedbackService";
 import serviceTypeService from "../../../services/serviceTypeService";
 import announcementService from "../../../services/announcementService";
@@ -12,6 +13,7 @@ export const useDataLoader = (setters) => {
   const {
     setResidents,
     setApartments,
+    setApartmentTypes,
     setFeedbacks,
     setServiceFees,
     setNotifications,
@@ -24,6 +26,7 @@ export const useDataLoader = (setters) => {
       const [
         residentsResult,
         apartmentsResult,
+        apartmentTypesResult,
         feedbacksResult,
         serviceFeesResult,
         notificationsResult,
@@ -31,11 +34,12 @@ export const useDataLoader = (setters) => {
       ] = await Promise.allSettled([
         userService.getAllUsers(),
         apartmentService.getAllApartments(),
+        apartmentTypeService.getAllApartmentTypes(),
         feedbackService.getAllFeedbacks(),
         serviceTypeService.getAllServiceTypes(),
         announcementService.getAllAnnouncements(),
         invoiceService.getAllInvoices(),
-      ]);      // Process residents data
+      ]); // Process residents data
       if (
         residentsResult.status === "fulfilled" &&
         residentsResult.value.success
@@ -58,7 +62,7 @@ export const useDataLoader = (setters) => {
         apartmentsResult.value.success
       ) {
         console.log("Apartments data:", apartmentsResult.value.data);
-        
+
         setApartments(
           apartmentsResult.value.data.apartments ||
             apartmentsResult.value.data ||
@@ -70,6 +74,25 @@ export const useDataLoader = (setters) => {
           apartmentsResult.reason || apartmentsResult.value?.message
         );
         setApartments([]);
+      }
+
+      // Process apartment types data
+      if (
+        apartmentTypesResult.status === "fulfilled" &&
+        apartmentTypesResult.value.success
+      ) {
+        console.log("Apartment types data:", apartmentTypesResult.value.data);
+        setApartmentTypes(
+          apartmentTypesResult.value.data.apartmentTypes ||
+            apartmentTypesResult.value.data ||
+            []
+        );
+      } else {
+        console.log(
+          "Error loading apartment types:",
+          apartmentTypesResult.reason || apartmentTypesResult.value?.message
+        );
+        setApartmentTypes([]);
       }
 
       // Process feedbacks data
@@ -122,7 +145,7 @@ export const useDataLoader = (setters) => {
           notificationsResult.reason || notificationsResult.value?.message
         );
         setNotifications([]);
-      }      // Process invoices data
+      } // Process invoices data
       if (
         invoicesResult.status === "fulfilled" &&
         invoicesResult.value.success
@@ -137,7 +160,10 @@ export const useDataLoader = (setters) => {
         );
         // Log the full error response for debugging
         if (invoicesResult.value?.response?.data) {
-          console.log("Invoice error details:", invoicesResult.value.response.data);
+          console.log(
+            "Invoice error details:",
+            invoicesResult.value.response.data
+          );
         }
         setInvoices([]);
       }
@@ -148,6 +174,7 @@ export const useDataLoader = (setters) => {
   }, [
     setResidents,
     setApartments,
+    setApartmentTypes,
     setFeedbacks,
     setServiceFees,
     setNotifications,

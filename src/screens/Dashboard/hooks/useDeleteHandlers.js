@@ -1,6 +1,7 @@
 import { Alert } from "react-native";
 import userService from "../../../services/userService";
 import apartmentService from "../../../services/apartmentService";
+import apartmentTypeService from "../../../services/apartmentTypeService";
 import feedbackService from "../../../services/feedbackService";
 import serviceTypeService from "../../../services/serviceTypeService";
 import announcementService from "../../../services/announcementService";
@@ -59,6 +60,7 @@ export const useDeleteHandlers = (setters) => {
   const {
     setResidents,
     setApartments,
+    setApartmentTypes,
     setFeedbacks,
     setServiceFees,
     setNotifications,
@@ -88,6 +90,17 @@ export const useDeleteHandlers = (setters) => {
       },
       setApartments,
       "Không thể xóa căn hộ"
+    ), // Xử lý xóa loại căn hộ
+    handleDeleteApartmentType: createDeleteHandler(
+      "loại căn hộ",
+      async (id) => {
+        return await apartmentTypeService.deleteApartmentType(id);
+      },
+      async () => {
+        return await apartmentTypeService.getAllApartmentTypes({ limit: 100 });
+      },
+      setApartmentTypes,
+      "Không thể xóa loại căn hộ"
     ), // Xử lý xóa phản hồi
     handleDeleteFeedback: createDeleteHandler(
       "phản hồi",

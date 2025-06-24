@@ -15,6 +15,12 @@ export const useTabHandlers = (navigationHandlers, deleteHandlers) => {
         handleEditApartment: navigationHandlers.handleEditApartment,
         handleDeleteApartment: deleteHandlers.handleDeleteApartment,
       },
+      apartmentTypes: {
+        handleCreateApartmentType: navigationHandlers.handleCreateApartmentType,
+        handleViewApartmentType: navigationHandlers.handleViewApartmentType,
+        handleEditApartmentType: navigationHandlers.handleEditApartmentType,
+        handleDeleteApartmentType: deleteHandlers.handleDeleteApartmentType,
+      },
       feedbacks: {
         handleCreateFeedback: navigationHandlers.handleCreateFeedback,
         handleViewFeedback: navigationHandlers.handleViewFeedback,

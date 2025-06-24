@@ -14,6 +14,12 @@ export const useManagerTabHandlers = (navigationHandlers, deleteHandlers) => {
       handleEditApartment: navigationHandlers.handleEditApartment,
       handleDeleteApartment: deleteHandlers.handleDeleteApartment,
 
+      // Apartment Types
+      handleCreateApartmentType: navigationHandlers.handleCreateApartmentType,
+      handleViewApartmentType: navigationHandlers.handleViewApartmentType,
+      handleEditApartmentType: navigationHandlers.handleEditApartmentType,
+      handleDeleteApartmentType: deleteHandlers.handleDeleteApartmentType,
+
       // Feedbacks
       handleCreateFeedback: navigationHandlers.handleCreateFeedback,
       handleViewFeedback: navigationHandlers.handleViewFeedback,

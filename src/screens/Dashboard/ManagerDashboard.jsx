@@ -5,6 +5,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import {
   ResidentsTab,
   ApartmentsTab,
+  ApartmentTypesTab,
   FeedbacksTab,
   ServiceFeesTab,
   NotificationsTab,
@@ -38,15 +39,16 @@ export default function ManagerDashboard() {
   // State declarations
   const [residents, setResidents] = React.useState([]);
   const [apartments, setApartments] = React.useState([]);
+  const [apartmentTypes, setApartmentTypes] = React.useState([]);
   const [feedbacks, setFeedbacks] = React.useState([]);
   const [serviceFees, setServiceFees] = React.useState([]);
   const [notifications, setNotifications] = React.useState([]);
   const [invoices, setInvoices] = React.useState([]);
-
   // Custom hooks
   const setters = {
     setResidents,
     setApartments,
+    setApartmentTypes,
     setFeedbacks,
     setServiceFees,
     setNotifications,
@@ -100,6 +102,17 @@ export default function ManagerDashboard() {
         );
       case 2:
         return (
+          <ApartmentTypesTab
+            apartmentTypes={apartmentTypes || []}
+            handleCreateApartmentType={tabHandlers.handleCreateApartmentType}
+            handleViewApartmentType={tabHandlers.handleViewApartmentType}
+            handleEditApartmentType={tabHandlers.handleEditApartmentType}
+            handleDeleteApartmentType={tabHandlers.handleDeleteApartmentType}
+            {...tabProps}
+          />
+        );
+      case 3:
+        return (
           <FeedbacksTab
             feedbacks={feedbacks}
             handleCreateFeedback={tabHandlers.handleCreateFeedback}
@@ -109,7 +122,7 @@ export default function ManagerDashboard() {
             {...tabProps}
           />
         );
-      case 3:
+      case 4:
         return (
           <ServiceFeesTab
             serviceFees={serviceFees}
@@ -120,7 +133,7 @@ export default function ManagerDashboard() {
             {...tabProps}
           />
         );
-      case 4:
+      case 5:
         return (
           <NotificationsTab
             notifications={notifications}
@@ -131,7 +144,7 @@ export default function ManagerDashboard() {
             {...tabProps}
           />
         );
-      case 5:
+      case 6:
         return (
           <InvoicesTab
             invoices={invoices}

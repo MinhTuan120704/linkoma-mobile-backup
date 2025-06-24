@@ -29,9 +29,12 @@ export const tabStyles = StyleSheet.create({
     color: "#7F8C8D",
   },
   actionContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
   },
   addButton: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",

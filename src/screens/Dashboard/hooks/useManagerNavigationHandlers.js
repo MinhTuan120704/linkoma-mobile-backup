@@ -46,5 +46,13 @@ export const useManagerNavigationHandlers = () => {
       navigation.navigate("ManagerInvoiceView", { invoice }),
     handleEditInvoice: (invoice) =>
       navigation.navigate("ManagerInvoiceEdit", { invoice }),
+
+    // ApartmentType handlers
+    handleCreateApartmentType: () =>
+      navigation.navigate("ManagerApartmentTypeCreate"),
+    handleViewApartmentType: (apartmentType) =>
+      navigation.navigate("ManagerApartmentTypeView", { apartmentType }),
+    handleEditApartmentType: (apartmentType) =>
+      navigation.navigate("ManagerApartmentTypeEdit", { apartmentType }),
   };
 };

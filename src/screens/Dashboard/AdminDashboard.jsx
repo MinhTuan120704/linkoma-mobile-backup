@@ -5,6 +5,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import {
   ResidentsTab,
   ApartmentsTab,
+  ApartmentTypesTab,
   FeedbacksTab,
   ServiceFeesTab,
   NotificationsTab,
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
   // State declarations
   const [residents, setResidents] = React.useState([]);
   const [apartments, setApartments] = React.useState([]);
+  const [apartmentTypes, setApartmentTypes] = React.useState([]);
   const [feedbacks, setFeedbacks] = React.useState([]);
   const [serviceFees, setServiceFees] = React.useState([]);
   const [notifications, setNotifications] = React.useState([]);
@@ -44,6 +46,7 @@ export default function AdminDashboard() {
   const setters = {
     setResidents,
     setApartments,
+    setApartmentTypes,
     setFeedbacks,
     setServiceFees,
     setNotifications,
@@ -92,13 +95,21 @@ export default function AdminDashboard() {
         );
       case 2:
         return (
+          <ApartmentTypesTab
+            apartmentTypes={apartmentTypes || []}
+            {...tabHandlers.apartmentTypes}
+            {...tabProps}
+          />
+        );
+      case 3:
+        return (
           <FeedbacksTab
             feedbacks={feedbacks}
             {...tabHandlers.feedbacks}
             {...tabProps}
           />
         );
-      case 3:
+      case 4:
         return (
           <ServiceFeesTab
             serviceFees={serviceFees}
@@ -106,7 +117,7 @@ export default function AdminDashboard() {
             {...tabProps}
           />
         );
-      case 4:
+      case 5:
         return (
           <NotificationsTab
             notifications={notifications}
@@ -114,7 +125,7 @@ export default function AdminDashboard() {
             {...tabProps}
           />
         );
-      case 5:
+      case 6:
         return (
           <InvoicesTab
             invoices={invoices}

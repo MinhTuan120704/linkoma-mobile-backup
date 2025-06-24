@@ -44,6 +44,11 @@ import ServiceFeeCreateScreen from "../screens/Admin/ServiceFeeManagement/Servic
 import ServiceFeeEditScreen from "../screens/Admin/ServiceFeeManagement/ServiceFeeEditScreen";
 import ServiceFeeViewScreen from "../screens/Admin/ServiceFeeManagement/ServiceFeeViewScreen";
 
+// Admin ApartmentType Management
+import ApartmentTypeCreateScreen from "../screens/Admin/ApartmentTypeManagement/ApartmentTypeCreateScreen";
+import ApartmentTypeEditScreen from "../screens/Admin/ApartmentTypeManagement/ApartmentTypeEditScreen";
+import ApartmentTypeViewScreen from "../screens/Admin/ApartmentTypeManagement/ApartmentTypeViewScreen";
+
 // Manager Screens
 import ManagerApartmentCreateScreen from "../screens/Manager/ApartmentManagement/ManagerApartmentCreateScreen";
 import ManagerApartmentEditScreen from "../screens/Manager/ApartmentManagement/ManagerApartmentEditScreen";
@@ -67,6 +72,11 @@ import ManagerResidentViewScreen from "../screens/Manager/ResidentManagement/Man
 import ManagerServiceFeeCreateScreen from "../screens/Manager/ServiceFeeManagement/ManagerServiceFeeCreateScreen";
 import ManagerServiceFeeEditScreen from "../screens/Manager/ServiceFeeManagement/ManagerServiceFeeEditScreen";
 import ManagerServiceFeeViewScreen from "../screens/Manager/ServiceFeeManagement/ManagerServiceFeeViewScreen";
+
+// Manager ApartmentType Management
+import ManagerApartmentTypeCreateScreen from "../screens/Manager/ApartmentTypeManagement/ManagerApartmentTypeCreateScreen";
+import ManagerApartmentTypeEditScreen from "../screens/Manager/ApartmentTypeManagement/ManagerApartmentTypeEditScreen";
+import ManagerApartmentTypeViewScreen from "../screens/Manager/ApartmentTypeManagement/ManagerApartmentTypeViewScreen";
 
 // Resident Screens
 import ResidentApartmentInfoScreen from "../screens/Resident/ResidentApartmentInfoScreen/ResidentApartmentInfoScreen";
@@ -148,6 +158,20 @@ const AdminStack = () => (
     <Stack.Screen name="ServiceFeeCreate" component={ServiceFeeCreateScreen} />
     <Stack.Screen name="ServiceFeeEdit" component={ServiceFeeEditScreen} />
     <Stack.Screen name="ServiceFeeView" component={ServiceFeeViewScreen} />
+
+    {/* Apartment Type Management */}
+    <Stack.Screen
+      name="ApartmentTypeCreate"
+      component={ApartmentTypeCreateScreen}
+    />
+    <Stack.Screen
+      name="ApartmentTypeEdit"
+      component={ApartmentTypeEditScreen}
+    />
+    <Stack.Screen
+      name="ApartmentTypeView"
+      component={ApartmentTypeViewScreen}
+    />
 
     {/* Shared screens */}
     <Stack.Screen name="UpdateUserInfo" component={UpdateUserInfoScreen} />
@@ -243,6 +267,20 @@ const ManagerStack = () => (
     <Stack.Screen
       name="ManagerServiceFeeView"
       component={ManagerServiceFeeViewScreen}
+    />
+
+    {/* Apartment Type Management */}
+    <Stack.Screen
+      name="ManagerApartmentTypeCreate"
+      component={ManagerApartmentTypeCreateScreen}
+    />
+    <Stack.Screen
+      name="ManagerApartmentTypeEdit"
+      component={ManagerApartmentTypeEditScreen}
+    />
+    <Stack.Screen
+      name="ManagerApartmentTypeView"
+      component={ManagerApartmentTypeViewScreen}
     />
 
     {/* Shared screens */}

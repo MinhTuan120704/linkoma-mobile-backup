@@ -16,6 +16,12 @@ const tabs = [
     color: "#2196F3",
   },
   {
+    title: "Loại CH",
+    icon: "category",
+    iconLibrary: "MaterialIcons",
+    color: "#9C27B0",
+  },
+  {
     title: "Phản hồi",
     icon: "chat-bubble",
     iconLibrary: "MaterialIcons",
@@ -25,7 +31,7 @@ const tabs = [
     title: "Phí DV",
     icon: "credit-card",
     iconLibrary: "MaterialIcons",
-    color: "#9C27B0",
+    color: "#E91E63",
   },
   {
     title: "Thông báo",
