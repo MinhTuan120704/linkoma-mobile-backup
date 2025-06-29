@@ -212,7 +212,7 @@ export default function ManagerNotificationViewScreen({ route, navigation }) {
               label="Nội dung"
               value={notification.content}
               icon="description"
-            />{" "}
+            />
             <InfoRow
               label="Loại thông báo"
               value={getTypeText(notification.type)}

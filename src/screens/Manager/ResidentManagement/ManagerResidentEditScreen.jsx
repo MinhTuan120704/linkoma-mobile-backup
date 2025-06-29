@@ -136,7 +136,7 @@ export default function ManagerResidentEditScreen({ route, navigation }) {
               keyboardType="phone-pad"
               required
               error={errors.phoneNumber}
-            />{" "}
+            />
             <ModernDateTimePicker
               label="Ngày sinh"
               value={

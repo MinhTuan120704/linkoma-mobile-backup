@@ -103,7 +103,7 @@ export default function ManagerApartmentViewScreen({ route, navigation }) {
             value={apartment?.apartmentId?.toString()}
             icon="home"
             type="highlight"
-          />{" "}
+          />
           <InfoRow
             label="Loại căn hộ"
             value={

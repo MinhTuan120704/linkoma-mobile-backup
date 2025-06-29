@@ -268,7 +268,7 @@ export default function ResidentInvoiceViewScreen() {
 
                 <View style={styles.serviceDetails}>
                   <Text style={styles.serviceDetail}>
-                    Sử dụng: {detail.usage}{" "}
+                    Sử dụng: {detail.usage}
                     {detail.serviceType?.unit || "đơn vị"}
                   </Text>
                   <Text style={styles.serviceDetail}>

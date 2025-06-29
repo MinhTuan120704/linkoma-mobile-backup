@@ -140,7 +140,7 @@ export default function ManagerNotificationEditScreen({ route, navigation }) {
             multiline
             numberOfLines={6}
             error={errors.content}
-          />{" "}
+          />
           <ModernPicker
             label="Loại thông báo"
             value={formData.type}

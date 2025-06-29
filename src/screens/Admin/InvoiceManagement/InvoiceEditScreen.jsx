@@ -195,7 +195,7 @@ export default function InvoiceEditScreen({ route, navigation }) {
             icon="attach-money"
             keyboardType="numeric"
             error={errors.amount}
-          />{" "}
+          />
           <ModernDateTimePicker
             label="Ngày phát hành"
             value={formData.issueDate ? new Date(formData.issueDate) : null}

@@ -107,7 +107,7 @@ export default function ManagerNotificationCreateScreen({ navigation }) {
           numberOfLines={6}
           required
           error={errors.content}
-        />{" "}
+        />
         <ModernPicker
           label="Loại thông báo"
           value={formData.type}
