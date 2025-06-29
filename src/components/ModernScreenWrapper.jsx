@@ -28,6 +28,14 @@ export default function ModernScreenWrapper({
   const [refreshing, setRefreshing] = useState(false);
   const insets = useSafeAreaInsets();
 
+  // Ensure we have valid insets with fallback values
+  const safeInsets = {
+    top: insets?.top || 0,
+    bottom: insets?.bottom || 0,
+    left: insets?.left || 0,
+    right: insets?.right || 0,
+  };
+
   // Automatically hide navigation header when this component mounts
   useEffect(() => {
     navigation.setOptions({
@@ -43,9 +51,8 @@ export default function ModernScreenWrapper({
     }
   };
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: safeInsets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor={headerColor} />
-
       {/* Modern Header */}
       <View style={[styles.header, { backgroundColor: headerColor }]}>
         <View style={styles.headerLeft}>
@@ -66,9 +73,8 @@ export default function ModernScreenWrapper({
 
         <View style={styles.headerRight}>{rightHeaderComponent}</View>
       </View>
-
       {/* Content */}
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingBottom: insets?.bottom || 0 }]}>
         {loading ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={headerColor} />
@@ -77,6 +83,10 @@ export default function ModernScreenWrapper({
         ) : (
           <ScrollView
             style={styles.scrollView}
+            contentContainerStyle={[
+              styles.scrollViewContent,
+              { paddingBottom: Math.max(safeInsets.bottom, 20) },
+            ]}
             showsVerticalScrollIndicator={false}
             refreshControl={
               onRefresh ? (
@@ -110,11 +120,11 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    shadowColor: "#000",
+    /* shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 4, */
   },
   headerLeft: {
     width: 40,
@@ -155,6 +165,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 20,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    minHeight: "100%",
   },
   loadingContainer: {
     flex: 1,

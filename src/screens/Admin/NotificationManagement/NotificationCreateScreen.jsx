@@ -4,19 +4,33 @@ import {
   ModernScreenWrapper,
   ModernFormInput,
   ModernButton,
+  ModernPicker,
 } from "../../../components";
-// Import notificationService để thực hiện chức năng:
-// - Tạo thông báo mới (createNotification)
+import announcementService from "../../../services/announcementService";
+
+// Constants for dropdown options
+const TYPE_OPTIONS = [
+  { label: "Chung", value: "General" },
+  { label: "Khẩn cấp", value: "Urgent" },
+  { label: "Bảo trì", value: "Maintenance" },
+  { label: "Sự kiện", value: "Event" },
+];
+
+const PRIORITY_OPTIONS = [
+  { label: "Thấp", value: "Low" },
+  { label: "Trung bình", value: "Medium" },
+  { label: "Cao", value: "High" },
+  { label: "Khẩn cấp", value: "Critical" },
+];
 
 export default function NotificationCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
+    type: "General", // Enum: General, Maintenance, Event, Emergency
+    priority: "Medium", // Enum: Low, Medium, High, Critical
     title: "",
     content: "",
-    type: "general",
-    priority: "medium",
-    targetApartments: "",
-    scheduledAt: "",
+    author: 1, // Should be current user ID
   });
   const [errors, setErrors] = useState({});
 
@@ -39,13 +53,21 @@ export default function NotificationCreateScreen({ navigation }) {
     if (!validateForm()) {
       return;
     }
-
     try {
-      setLoading(true); // TODO: Call API createNotification(formData) để tạo thông báo mới
-      Alert.alert("Thành công", "Tạo thông báo thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      setLoading(true);
+      const response = await announcementService.createAnnouncement(formData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo thông báo thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo thông báo. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
+      console.log("Error creating notification:", error);
       Alert.alert("Lỗi", "Không thể tạo thông báo. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -75,7 +97,6 @@ export default function NotificationCreateScreen({ navigation }) {
           required
           error={errors.title}
         />
-
         <ModernFormInput
           label="Nội dung"
           value={formData.content}
@@ -87,43 +108,24 @@ export default function NotificationCreateScreen({ navigation }) {
           required
           error={errors.content}
         />
-
-        <ModernFormInput
+        <ModernPicker
           label="Loại thông báo"
           value={formData.type}
-          onChangeText={(value) => updateField("type", value)}
-          placeholder="general/maintenance/emergency/event"
+          onValueChange={(value) => updateField("type", value)}
+          placeholder="Chọn loại thông báo"
+          items={TYPE_OPTIONS}
           icon="category"
           error={errors.type}
         />
-
-        <ModernFormInput
+        <ModernPicker
           label="Mức độ ưu tiên"
           value={formData.priority}
-          onChangeText={(value) => updateField("priority", value)}
-          placeholder="low/medium/high/urgent"
+          onValueChange={(value) => updateField("priority", value)}
+          placeholder="Chọn mức độ ưu tiên"
+          items={PRIORITY_OPTIONS}
           icon="priority-high"
           error={errors.priority}
         />
-
-        <ModernFormInput
-          label="Căn hộ mục tiêu"
-          value={formData.targetApartments}
-          onChangeText={(value) => updateField("targetApartments", value)}
-          placeholder="Để trống để gửi tất cả, hoặc nhập ID căn hộ"
-          icon="home"
-          error={errors.targetApartments}
-        />
-
-        <ModernFormInput
-          label="Thời gian gửi"
-          value={formData.scheduledAt}
-          onChangeText={(value) => updateField("scheduledAt", value)}
-          placeholder="DD/MM/YYYY HH:MM (để trống = gửi ngay)"
-          icon="schedule"
-          error={errors.scheduledAt}
-        />
-
         <View style={{ marginTop: 20, gap: 12 }}>
           <ModernButton
             title="Tạo thông báo"
@@ -136,7 +138,7 @@ export default function NotificationCreateScreen({ navigation }) {
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>

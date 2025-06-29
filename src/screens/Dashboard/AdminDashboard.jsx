@@ -5,6 +5,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import {
   ResidentsTab,
   ApartmentsTab,
+  ApartmentTypesTab,
   FeedbacksTab,
   ServiceFeesTab,
   NotificationsTab,
@@ -24,9 +25,18 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = React.useState(0);
   const [refreshing, setRefreshing] = React.useState(false);
 
+  // Ensure we have valid insets with fallback values
+  const safeInsets = {
+    top: insets?.top || 0,
+    bottom: insets?.bottom || 0,
+    left: insets?.left || 0,
+    right: insets?.right || 0,
+  };
+
   // State declarations
   const [residents, setResidents] = React.useState([]);
   const [apartments, setApartments] = React.useState([]);
+  const [apartmentTypes, setApartmentTypes] = React.useState([]);
   const [feedbacks, setFeedbacks] = React.useState([]);
   const [serviceFees, setServiceFees] = React.useState([]);
   const [notifications, setNotifications] = React.useState([]);
@@ -36,6 +46,7 @@ export default function AdminDashboard() {
   const setters = {
     setResidents,
     setApartments,
+    setApartmentTypes,
     setFeedbacks,
     setServiceFees,
     setNotifications,
@@ -77,12 +88,20 @@ export default function AdminDashboard() {
       case 1:
         return (
           <ApartmentsTab
-            apartments={apartments}
+            apartments={apartments || []}
             {...tabHandlers.apartments}
             {...tabProps}
           />
         );
       case 2:
+        return (
+          <ApartmentTypesTab
+            apartmentTypes={apartmentTypes || []}
+            {...tabHandlers.apartmentTypes}
+            {...tabProps}
+          />
+        );
+      case 3:
         return (
           <FeedbacksTab
             feedbacks={feedbacks}
@@ -90,7 +109,7 @@ export default function AdminDashboard() {
             {...tabProps}
           />
         );
-      case 3:
+      case 4:
         return (
           <ServiceFeesTab
             serviceFees={serviceFees}
@@ -98,7 +117,7 @@ export default function AdminDashboard() {
             {...tabProps}
           />
         );
-      case 4:
+      case 5:
         return (
           <NotificationsTab
             notifications={notifications}
@@ -106,7 +125,7 @@ export default function AdminDashboard() {
             {...tabProps}
           />
         );
-      case 5:
+      case 6:
         return (
           <InvoicesTab
             invoices={invoices}
@@ -125,7 +144,7 @@ export default function AdminDashboard() {
     }
   };
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: safeInsets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#2C3E50" />
 
       <AdminHeader />
@@ -135,7 +154,7 @@ export default function AdminDashboard() {
       <BottomTabs
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        insets={insets}
+        insets={safeInsets}
       />
     </View>
   );

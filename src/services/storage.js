@@ -7,7 +7,7 @@ export const getAccessToken = async () => {
   try {
     return await AsyncStorage.getItem(ACCESS_TOKEN_KEY);
   } catch (error) {
-    console.error("Error getting access token:", error);
+    console.log("Error getting access token:", error);
     return null;
   }
 };
@@ -19,7 +19,7 @@ export const setAccessToken = async (token) => {
 
     await AsyncStorage.setItem(ACCESS_TOKEN_KEY, tokenString);
   } catch (error) {
-    console.error("Error setting access token:", error);
+    console.log("Error setting access token:", error);
   }
 };
 
@@ -28,7 +28,7 @@ export const getUserData = async () => {
     const userData = await AsyncStorage.getItem(USER_DATA_KEY);
     return userData ? JSON.parse(userData) : null;
   } catch (error) {
-    console.error("Error getting user data:", error);
+    console.log("Error getting user data:", error);
     return null;
   }
 };
@@ -37,7 +37,7 @@ export const setUserData = async (userData) => {
   try {
     await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
   } catch (error) {
-    console.error("Error setting user data:", error);
+    console.log("Error setting user data:", error);
   }
 };
 
@@ -45,7 +45,7 @@ export const removeAccessToken = async () => {
   try {
     await AsyncStorage.removeItem(ACCESS_TOKEN_KEY);
   } catch (error) {
-    console.error("Error removing token:", error);
+    console.log("Error removing token:", error);
   }
 };
 
@@ -60,7 +60,7 @@ export const clearAll = async () => {
 
     console.log("All storage cleared successfully");
   } catch (error) {
-    console.error("Error clearing storage:", error);
+    console.log("Error clearing storage:", error);
   }
 };
 
@@ -70,7 +70,7 @@ export const clearAllAppData = async () => {
     await AsyncStorage.clear();
     console.log("All app data cleared successfully");
   } catch (error) {
-    console.error("Error clearing all app data:", error);
+    console.log("Error clearing all app data:", error);
   }
 };
 
@@ -79,7 +79,7 @@ export const isAuthenticated = async () => {
     const accessToken = await getAccessToken();
     return !!accessToken;
   } catch (error) {
-    console.error("Error checking authentication:", error);
+    console.log("Error checking authentication:", error);
     return false;
   }
 };
@@ -90,7 +90,7 @@ export const saveTokens = async (accessToken) => {
       await setAccessToken(accessToken);
     }
   } catch (error) {
-    console.error("Error saving access token:", error);
+    console.log("Error saving access token:", error);
   }
 };
 
@@ -98,7 +98,7 @@ export const removeAllTokens = async () => {
   try {
     await removeAccessToken();
   } catch (error) {
-    console.error("Error removing token:", error);
+    console.log("Error removing token:", error);
   }
 };
 
@@ -108,7 +108,69 @@ export const saveAuthData = async (token, userData) => {
     await Promise.all([setAccessToken(token), setUserData(userData)]);
     return true;
   } catch (error) {
-    console.error("Error saving auth data:", error);
+    console.log("Error saving auth data:", error);
     return false;
+  }
+};
+
+// Cookie helper functions with improved error handling
+export const saveCookie = async (name, value, options = {}) => {
+  if (!name || !value) {
+    console.log("Cookie name and value are required");
+    return;
+  }
+
+  try {
+    const cookieOptions = {
+      path: "/",
+      secure: true,
+      sameSite: "strict",
+      ...options,
+    };
+
+    const cookieString = `${name}=${value}; ${Object.entries(cookieOptions)
+      .map(([key, val]) => `${key}=${val}`)
+      .join("; ")}`;
+
+    await AsyncStorage.setItem(`cookie_${name}`, cookieString);
+    console.debug(`Cookie ${name} saved successfully`);
+  } catch (error) {
+    console.log(`Error saving cookie ${name}:`, error);
+    throw error; // Propagate error for better error handling
+  }
+};
+
+export const getCookie = async (name) => {
+  if (!name) {
+    console.log("Cookie name is required");
+    return null;
+  }
+
+  try {
+    const cookieString = await AsyncStorage.getItem(`cookie_${name}`);
+    if (!cookieString) {
+      return null;
+    }
+
+    const value = cookieString.split(";")[0].split("=")[1];
+    return value;
+  } catch (error) {
+    console.log(`Error getting cookie ${name}:`, error);
+    return null;
+  }
+};
+
+export const removeCookie = async (name) => {
+  if (!name) {
+    console.log("Cookie name is required");
+    return;
+  }
+
+  try {
+    await AsyncStorage.removeItem(`cookie_${name}`);
+    console.debug(`Cookie ${name} removed successfully`);
+  } catch (error) {
+    console.log(`Error removing cookie ${name}:`, error);
+    throw error;
   }
 };

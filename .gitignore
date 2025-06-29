@@ -35,3 +35,9 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Documentation files (auto-generated/internal use)
+docs-*.md
+docs-*.json
+docs-*.txt
+*.txt

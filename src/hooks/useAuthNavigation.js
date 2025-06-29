@@ -19,7 +19,15 @@ export const useAuthNavigation = () => {
     }
   };
 
+  const navigateToLogin = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }],
+    });
+  };
+
   return {
     navigateBasedOnRole,
+    navigateToLogin,
   };
 };

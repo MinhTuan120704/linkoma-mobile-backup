@@ -19,11 +19,11 @@ export default function ResidentFeedbackViewScreen() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "resolved":
+      case "Resolved":
         return "highlight";
-      case "processing":
+      case "In Progress":
         return "warning";
-      case "pending":
+      case "Pending":
         return "danger";
       default:
         return "default";
@@ -32,11 +32,11 @@ export default function ResidentFeedbackViewScreen() {
 
   const getStatusText = (status) => {
     switch (status) {
-      case "resolved":
+      case "Resolved":
         return "Đã giải quyết";
-      case "processing":
+      case "In Progress":
         return "Đang xử lý";
-      case "pending":
+      case "Pending":
         return "Chờ xử lý";
       default:
         return "Không xác định";
@@ -54,37 +54,36 @@ export default function ResidentFeedbackViewScreen() {
       subtitle="Thông tin phản hồi của tôi"
       headerColor="#1976D2"
       rightHeaderComponent={
-        feedback?.status === "pending" && (
+        feedback?.status === "Pending" ? (
           <ModernButton
             title="Sửa"
             onPress={handleEdit}
-            type="outline"
+            type="secondary"
             size="small"
           />
-        )
+        ) : null
       }
     >
       <View style={{ paddingBottom: 20 }}>
         <ModernCard title="Nội dung phản hồi">
-          <InfoRow
+          {/* <InfoRow
             label="Tiêu đề"
             value={feedback?.title}
             icon="title"
             type="highlight"
-          />
-
-          <InfoRow
-            label="Nội dung"
-            value={feedback?.content}
-            icon="description"
-          />
-
+          /> */}
           <InfoRow
             label="Danh mục"
             value={feedback?.category}
             icon="category"
           />
+          <InfoRow
+            label="Nội dung"
+            value={feedback?.description || "Không có mô tả"}
+            icon="description"
+          />
 
+          {/* 
           <InfoRow
             label="Mức độ ưu tiên"
             value={feedback?.priority}
@@ -96,9 +95,8 @@ export default function ResidentFeedbackViewScreen() {
                 ? "warning"
                 : "default"
             }
-          />
+          /> */}
         </ModernCard>
-
         <ModernCard title="Trạng thái xử lý">
           <InfoRow
             label="Trạng thái hiện tại"
@@ -109,17 +107,16 @@ export default function ResidentFeedbackViewScreen() {
 
           <InfoRow
             label="Phản hồi từ admin"
-            value={feedback?.adminResponse || "Chưa có phản hồi"}
+            value={feedback?.response || "Chưa có phản hồi"}
             icon="admin-panel-settings"
           />
-
+          {/* 
           <InfoRow
             label="Người xử lý"
             value={feedback?.assignedTo || "Chưa được phân công"}
             icon="person"
-          />
+          /> */}
         </ModernCard>
-
         <ModernCard title="Thời gian">
           <InfoRow
             label="Ngày gửi"
@@ -127,25 +124,26 @@ export default function ResidentFeedbackViewScreen() {
             icon="send"
           />
 
-          <InfoRow
-            label="Cập nhật lần cuối"
-            value={formatDate(feedback?.updatedAt)}
-            icon="update"
-          />
+          {
+            <InfoRow
+              label="Cập nhật lần cuối"
+              value={formatDate(feedback?.updatedAt)}
+              icon="update"
+            />
+          }
 
           <InfoRow
-            label="Ngày hoàn thành"
+            label="Ngày phản hồi"
             value={
-              feedback?.completedAt
-                ? formatDate(feedback.completedAt)
-                : "Chưa hoàn thành"
+              feedback?.responseDate
+                ? formatDate(feedback.responseDate)
+                : "Chưa có phản hồi"
             }
             icon="check-circle"
             type={feedback?.completedAt ? "highlight" : "default"}
           />
         </ModernCard>
-
-        {feedback?.status === "pending" && (
+        {feedback?.status === "Pending" ? (
           <View style={{ marginTop: 20 }}>
             <ModernButton
               title="Chỉnh sửa phản hồi"
@@ -154,7 +152,7 @@ export default function ResidentFeedbackViewScreen() {
               fullWidth
             />
           </View>
-        )}
+        ) : null}
       </View>
     </ModernScreenWrapper>
   );

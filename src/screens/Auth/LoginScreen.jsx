@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Image, Text } from "react-native";
 import {
   ModernScreenWrapper,
   ModernFormInput,
@@ -13,6 +13,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
   const { navigateBasedOnRole } = useAuthNavigation();
 
@@ -44,7 +45,7 @@ export default function LoginScreen() {
         setPassword("");
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.log("Login error:", error);
       Toast.fail("Đã xảy ra lỗi. Vui lòng thử lại sau.", 2);
       setPassword("");
     } finally {
@@ -61,6 +62,14 @@ export default function LoginScreen() {
       showBackButton={false}
     >
       <View style={styles.container}>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require("../../../assets/LINKOMA_MOBILE.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <Text style={styles.imageText}>Kết nối số với mái ấm của bạn</Text>
+        </View>
         <ModernFormInput
           label="Email "
           value={email}
@@ -75,10 +84,12 @@ export default function LoginScreen() {
           value={password}
           onChangeText={setPassword}
           placeholder="Nhập mật khẩu"
-          secureTextEntry
+          secureTextEntry={!showPassword}
           editable={!loading}
           returnKeyType="done"
           onSubmitEditing={handleLogin}
+          rightIcon={showPassword ? "visibility-off" : "visibility"}
+          onRightIconPress={() => setShowPassword(!showPassword)}
         />
         <View style={styles.buttonContainer}>
           <ModernButton
@@ -100,5 +111,20 @@ const styles = StyleSheet.create({
   buttonContainer: {
     marginTop: 24,
     gap: 12,
+  },
+  imageContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  image: {
+    width: 150,
+    height: 150,
+    marginBottom: 16,
+  },
+  imageText: {
+    fontSize: 16,
+    color: "#2C3E50",
+    textAlign: "center",
+    marginTop: 8,
   },
 });

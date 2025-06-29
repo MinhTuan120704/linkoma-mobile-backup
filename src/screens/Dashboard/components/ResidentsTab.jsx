@@ -12,7 +12,7 @@ import { renderEmptyState, renderStatsCard } from "./AdminSharedComponents";
 import { tabStyles } from "./AdminTabStyles";
 
 export default function ResidentsTab({
-  residents,
+  residents = [], // Default to empty array if undefined
   tabs,
   refreshing,
   onRefresh,
@@ -41,26 +41,28 @@ export default function ResidentsTab({
         )}
       </Card>
       <View style={tabStyles.actionContainer}>
-        <TouchableOpacity
-          style={[tabStyles.addButton, { backgroundColor: tabs[0].color }]}
-          onPress={handleCreate}
-        >
-          <MaterialIcons name="add" size={20} color="#fff" />
-          <Text style={tabStyles.addButtonText}>Thêm cư dân</Text>
-        </TouchableOpacity>
+        {handleCreate && (
+          <TouchableOpacity
+            style={[tabStyles.addButton, { backgroundColor: tabs[0].color }]}
+            onPress={handleCreate}
+          >
+            <MaterialIcons name="add" size={20} color="#fff" />
+            <Text style={tabStyles.addButtonText}>Thêm cư dân</Text>
+          </TouchableOpacity>
+        )}
       </View>
       {residents.length === 0 ? (
         renderEmptyState(
           "Chưa có cư dân nào",
           "Hãy thêm cư dân đầu tiên cho tòa nhà",
-          "person_add"
+          "person-add"
         )
       ) : (
         <Card style={tabStyles.listCard}>
           <List>
             {residents.map((resident) => (
               <List.Item
-                key={resident.id}
+                key={resident.userId || resident.id}
                 extra={
                   <View style={tabStyles.actionButtonsContainer}>
                     <TouchableOpacity
@@ -77,20 +79,31 @@ export default function ResidentsTab({
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[tabStyles.actionButton, tabStyles.deleteButton]}
-                      onPress={() => handleDeleteResident(resident.id)}
+                      onPress={() =>
+                        handleDeleteResident(resident.userId || resident.id)
+                      }
                     >
                       <MaterialIcons name="delete" size={16} color="#fff" />
                     </TouchableOpacity>
                   </View>
                 }
               >
-                <View style={tabStyles.listItemContent}>
+                <View
+                  key={`content-${resident.userId || resident.id}`}
+                  style={tabStyles.listItemContent}
+                >
                   <MaterialIcons
+                    key={`icon-${resident.userId || resident.id}`}
                     name="person"
                     size={20}
                     color={tabs[0].color}
                   />
-                  <Text style={tabStyles.listItemText}>{resident.name}</Text>
+                  <Text
+                    key={`name-${resident.userId || resident.id}`}
+                    style={tabStyles.listItemText}
+                  >
+                    {resident?.name || resident?.email || "Resident"}
+                  </Text>
                 </View>
               </List.Item>
             ))}

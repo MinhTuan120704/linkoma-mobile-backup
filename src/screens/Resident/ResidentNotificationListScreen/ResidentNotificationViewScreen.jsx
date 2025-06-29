@@ -1,22 +1,48 @@
-import React from "react";
-import { View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Alert } from "react-native";
 import { ModernScreenWrapper, ModernCard, InfoRow } from "../../../components";
 import { useRoute } from "@react-navigation/native";
+import announcementService from "../../../services/announcementService";
 
 export default function ResidentNotificationViewScreen() {
   const route = useRoute();
-  const { notification } = route.params;
+  const { notification: passedNotification, announcementId } = route.params;
+  const [notification, setNotification] = useState(passedNotification);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch full notification details if we only have the ID
+  useEffect(() => {
+    const fetchNotificationDetails = async () => {
+      if (announcementId && (!notification || !notification.content)) {
+        setLoading(true);
+        try {
+          const response = await announcementService.getAnnouncementById(
+            announcementId
+          );
+          if (response.success && response.data) {
+            setNotification(response.data);
+          }
+        } catch (error) {
+          console.log("Error fetching notification details:", error);
+          Alert.alert("Lỗi", "Không thể tải chi tiết thông báo");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchNotificationDetails();
+  }, [announcementId, notification]);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Không có dữ liệu";
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
-
   const getTypeText = (type) => {
-    switch (type) {
+    switch (type?.toLowerCase()) {
       case "maintenance":
         return "Bảo trì";
-      case "emergency":
+      case "urgent":
         return "Khẩn cấp";
       case "event":
         return "Sự kiện";
@@ -28,10 +54,10 @@ export default function ResidentNotificationViewScreen() {
   };
 
   const getTypeColor = (type) => {
-    switch (type) {
+    switch (type?.toLowerCase()) {
       case "maintenance":
         return "warning";
-      case "emergency":
+      case "urgent":
         return "danger";
       case "event":
         return "highlight";
@@ -43,9 +69,9 @@ export default function ResidentNotificationViewScreen() {
   };
 
   const getPriorityText = (priority) => {
-    switch (priority) {
-      case "urgent":
-        return "Khẩn cấp";
+    switch (priority?.toLowerCase()) {
+      case "critical":
+        return "Cực kỳ quan trọng";
       case "high":
         return "Cao";
       case "medium":
@@ -58,8 +84,8 @@ export default function ResidentNotificationViewScreen() {
   };
 
   const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "urgent":
+    switch (priority?.toLowerCase()) {
+      case "critical":
         return "danger";
       case "high":
         return "warning";
@@ -90,36 +116,37 @@ export default function ResidentNotificationViewScreen() {
       </ModernScreenWrapper>
     );
   }
-
   return (
     <ModernScreenWrapper
       title="Chi tiết thông báo"
-      subtitle={notification.title}
+      subtitle={notification?.title || "Đang tải..."}
       headerColor="#1976D2"
+      loading={loading}
     >
       <View style={{ paddingBottom: 20 }}>
         <ModernCard title="Nội dung thông báo">
           <InfoRow
             label="Tiêu đề"
-            value={notification.title}
+            value={notification?.title || "Không có tiêu đề"}
             icon="title"
             type="highlight"
           />
 
           <InfoRow
             label="Nội dung"
-            value={notification.content}
+            value={notification?.content || "Không có nội dung"}
             icon="description"
+            style={{ height: "fit-content", flex: 1, textAlignVertical: "top" }}
           />
 
           <InfoRow
             label="Loại thông báo"
-            value={getTypeText(notification.type)}
+            value={getTypeText(notification?.type)}
             icon="notifications"
-            type={getTypeColor(notification.type)}
+            type={getTypeColor(notification?.type)}
           />
 
-          {notification.priority && (
+          {notification?.priority && (
             <InfoRow
               label="Mức độ ưu tiên"
               value={getPriorityText(notification.priority)}
@@ -131,36 +158,42 @@ export default function ResidentNotificationViewScreen() {
 
         <ModernCard title="Thông tin gửi">
           <InfoRow
-            label="Ngày gửi"
-            value={formatDate(notification.createdAt)}
-            icon="send"
+            label="Ngày tạo"
+            value={formatDate(notification?.createdAt)}
+            icon="event"
           />
 
+          {notification?.updatedAt &&
+            notification.updatedAt !== notification.createdAt && (
+              <InfoRow
+                label="Cập nhật lần cuối"
+                value={formatDate(notification.updatedAt)}
+                icon="update"
+              />
+            )}
+
           <InfoRow
-            label="Người gửi"
-            value={notification.sender || "Quản trị viên"}
+            label="Người tạo"
+            value={notification?.author || "Quản trị viên"}
             icon="person"
           />
 
           <InfoRow
-            label="Trạng thái"
-            value={notification.isRead ? "Đã đọc" : "Chưa đọc"}
-            icon={notification.isRead ? "mark-email-read" : "mark-email-unread"}
-            type={notification.isRead ? "highlight" : "warning"}
+            label="ID thông báo"
+            value={notification?.announcementId?.toString() || "N/A"}
+            icon="fingerprint"
+            copyable
           />
         </ModernCard>
 
-        {notification.attachments && notification.attachments.length > 0 && (
-          <ModernCard title="Tệp đính kèm">
-            {notification.attachments.map((attachment, index) => (
-              <InfoRow
-                key={index}
-                label={`Tệp ${index + 1}`}
-                value={attachment.name || `attachment_${index + 1}`}
-                icon="attachment"
-                copyable
-              />
-            ))}
+        {/* Additional details if available */}
+        {(notification?.description || notification?.details) && (
+          <ModernCard title="Chi tiết bổ sung">
+            <InfoRow
+              label="Mô tả chi tiết"
+              value={notification.description || notification.details}
+              icon="info"
+            />
           </ModernCard>
         )}
       </View>

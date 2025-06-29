@@ -6,35 +6,35 @@ import {
   ModernButton,
   ModernDateTimePicker,
 } from "../../../components";
-// Import invoiceService để thực hiện chức năng:
-// - Tạo hóa đơn mới (createInvoice)
+import invoiceService from "../../../services/invoiceService";
 
 export default function InvoiceCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    code: "",
-    title: "",
-    amount: "",
-    dueDate: "",
-    description: "",
     apartmentId: "",
-    status: "pending",
+    rentFee: "",
+    serviceFee: "",
+    dueDate: "",
+    status: "Unpaid", // Enum: Unpaid, Paid, Overdue
   });
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.code.trim()) {
-      newErrors.code = "Mã hóa đơn là bắt buộc";
+    if (!formData.apartmentId.trim()) {
+      newErrors.apartmentId = "ID căn hộ là bắt buộc";
     }
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Tiêu đề là bắt buộc";
+    if (!formData.rentFee.trim()) {
+      newErrors.rentFee = "Phí thuê là bắt buộc";
     }
 
-    if (!formData.amount.trim()) {
-      newErrors.amount = "Số tiền là bắt buộc";
+    if (!formData.serviceFee.trim()) {
+      newErrors.serviceFee = "Phí dịch vụ là bắt buộc";
+    }
+
+    if (!formData.dueDate.trim()) {
+      newErrors.dueDate = "Hạn thanh toán là bắt buộc";
     }
 
     setErrors(newErrors);
@@ -45,14 +45,27 @@ export default function InvoiceCreateScreen({ navigation }) {
     if (!validateForm()) {
       return;
     }
-
     try {
       setLoading(true);
-      await createInvoice(formData);
-      Alert.alert("Thành công", "Tạo hóa đơn thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const invoiceData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        apartmentId: formData.apartmentId || null,
+      };
+
+      const response = await invoiceService.createInvoice(invoiceData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo hóa đơn thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo hóa đơn. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
+      console.log("Error creating invoice:", error);
       Alert.alert("Lỗi", "Không thể tạo hóa đơn. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -100,7 +113,7 @@ export default function InvoiceCreateScreen({ navigation }) {
           keyboardType="numeric"
           required
           error={errors.amount}
-        />{" "}
+        />
         <ModernDateTimePicker
           label="Hạn thanh toán"
           value={formData.dueDate ? new Date(formData.dueDate) : null}

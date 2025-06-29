@@ -5,6 +5,7 @@ export const tabStyles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 100, // Add padding to avoid bottom navigation
   },
   headerCard: {
     marginBottom: 16,
@@ -28,9 +29,12 @@ export const tabStyles = StyleSheet.create({
     color: "#7F8C8D",
   },
   actionContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
   },
   addButton: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -93,5 +97,10 @@ export const tabStyles = StyleSheet.create({
     fontSize: 16,
     color: "#2C3E50",
     fontWeight: "500",
+  },
+  listItemSubText: {
+    fontSize: 14,
+    color: "#2C3E50",
+    fontWeight: "200",
   },
 });

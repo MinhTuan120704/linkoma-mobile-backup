@@ -7,9 +7,7 @@ import {
   ModernCard,
   ModernDateTimePicker,
 } from "../../../components";
-// Import invoiceService để thực hiện các chức năng:
-// - Cập nhật hóa đơn (updateInvoice)
-// - Xóa hóa đơn (deleteInvoice)
+import invoiceService from "../../../services/invoiceService";
 
 export default function InvoiceEditScreen({ route, navigation }) {
   const { invoice } = route.params || {};
@@ -71,13 +69,19 @@ export default function InvoiceEditScreen({ route, navigation }) {
         ...formData,
         amount: parseFloat(formData.amount),
       };
-
-      // TODO: Call API updateInvoice(id, data) để cập nhật hóa đơn
-      Alert.alert("Thành công", "Cập nhật hóa đơn thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await invoiceService.updateInvoice(
+        invoice.id,
+        updateData
+      );
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật hóa đơn thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert("Lỗi", response.message || "Không thể cập nhật hóa đơn");
+      }
     } catch (error) {
-      console.error("Error updating invoice:", error);
+      console.log("Error updating invoice:", error);
       Alert.alert("Lỗi", "Không thể cập nhật hóa đơn");
     } finally {
       setLoading(false);
@@ -93,14 +97,18 @@ export default function InvoiceEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            // TODO: Call API deleteInvoice(id) để xóa hóa đơn
-            Alert.alert("Thành công", "Xóa hóa đơn thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await invoiceService.deleteInvoice(invoice.id);
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa hóa đơn thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", response.message || "Không thể xóa hóa đơn");
+              setLoading(false);
+            }
           } catch (error) {
-            console.error("Error deleting invoice:", error);
+            console.log("Error deleting invoice:", error);
             Alert.alert("Lỗi", "Không thể xóa hóa đơn");
-          } finally {
             setLoading(false);
           }
         },

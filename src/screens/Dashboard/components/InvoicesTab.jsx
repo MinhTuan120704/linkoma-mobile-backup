@@ -12,7 +12,7 @@ import { renderEmptyState, renderStatsCard } from "./AdminSharedComponents";
 import { tabStyles } from "./AdminTabStyles";
 
 export default function InvoicesTab({
-  invoices,
+  invoices = [], // Default to empty array if undefined
   tabs,
   refreshing,
   onRefresh,
@@ -53,7 +53,7 @@ export default function InvoicesTab({
         renderEmptyState(
           "Chưa có hóa đơn nào",
           "Hãy tạo hóa đơn đầu tiên",
-          "receipt_long"
+          "receipt"
         )
       ) : (
         <Card style={tabStyles.listCard}>
@@ -84,13 +84,22 @@ export default function InvoicesTab({
                   </View>
                 }
               >
-                <View style={tabStyles.listItemContent}>
+                <View
+                  key={`content-${invoice.id}`}
+                  style={tabStyles.listItemContent}
+                >
                   <MaterialIcons
+                    key={`icon-${invoice.id}`}
                     name="receipt"
                     size={18}
                     color={tabs[5].color}
                   />
-                  <Text style={tabStyles.listItemText}>{invoice.code}</Text>
+                  <Text
+                    key={`code-${invoice.id}`}
+                    style={tabStyles.listItemText}
+                  >
+                    {invoice.code}
+                  </Text>
                 </View>
               </List.Item>
             ))}

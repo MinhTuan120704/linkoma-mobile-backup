@@ -5,22 +5,23 @@ import {
   ModernFormInput,
   ModernButton,
   ModernDateTimePicker,
+  ModernPicker,
 } from "../../../components";
-// Import residentService để thực hiện chức năng:
-// - Tạo cư dân mới (createResident)
+import userService from "../../../services/userService";
 
 export default function ResidentCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
-    dob: "",
-    gender: "",
-    idCard: "",
+    phoneNumber: "",
+    dateOfBirth: "",
+    citizenId: "",
     address: "",
-    emergencyContact: "",
-    emergencyPhone: "",
+    licensePlate: "",
+    apartmentId: "",
+    password: "",
+    role: "resident",
   });
   const [errors, setErrors] = useState({});
 
@@ -37,25 +38,55 @@ export default function ResidentCreateScreen({ navigation }) {
       newErrors.email = "Email không hợp lệ";
     }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = "Số điện thoại là bắt buộc";
+    if (!formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = "Số điện thoại là bắt buộc";
+    }
+
+    if (!formData.password.trim()) {
+      newErrors.password = "Mật khẩu là bắt buộc";
+    }
+
+    if (!formData.role) {
+      newErrors.role = "Vai trò là bắt buộc";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
     try {
       setLoading(true);
-      // TODO: Call API createResident(formData) để tạo cư dân mới
-      Alert.alert("Thành công", "Tạo cư dân thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const userData = {
+        name: formData.name,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        dateOfBirth: formData.dateOfBirth,
+        citizenId: formData.citizenId || undefined,
+        address: formData.address || undefined,
+        licensePlate: formData.licensePlate || undefined,
+        apartmentId: formData.apartmentId
+          ? parseInt(formData.apartmentId)
+          : undefined,
+        password: formData.password,
+        role: formData.role,
+      };
+
+      const response = await userService.createUser(userData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo cư dân thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo cư dân. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
+      console.log("Error creating resident:", error);
       Alert.alert("Lỗi", "Không thể tạo cư dân. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -97,38 +128,37 @@ export default function ResidentCreateScreen({ navigation }) {
         />
         <ModernFormInput
           label="Số điện thoại"
-          value={formData.phone}
-          onChangeText={(value) => updateField("phone", value)}
+          value={formData.phoneNumber}
+          onChangeText={(value) => updateField("phoneNumber", value)}
           placeholder="Nhập số điện thoại"
           icon="phone"
           keyboardType="phone-pad"
           required
-          error={errors.phone}
-        />{" "}
+          error={errors.phoneNumber}
+        />
         <ModernDateTimePicker
           label="Ngày sinh"
-          value={formData.dob ? new Date(formData.dob) : null}
-          onChange={(date) => updateField("dob", date.toISOString())}
+          value={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
+          onChange={(date) => {
+            // Format date as YYYY-MM-DD without timezone conversion
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const day = String(date.getDate()).padStart(2, "0");
+            const formattedDate = `${year}-${month}-${day}`;
+            updateField("dateOfBirth", formattedDate);
+          }}
           icon="cake"
-          error={errors.dob}
+          error={errors.dateOfBirth}
           maximumDate={new Date()}
         />
         <ModernFormInput
-          label="Giới tính"
-          value={formData.gender}
-          onChangeText={(value) => updateField("gender", value)}
-          placeholder="Nam/Nữ"
-          icon="person-outline"
-          error={errors.gender}
-        />
-        <ModernFormInput
           label="CCCD/CMND"
-          value={formData.idCard}
-          onChangeText={(value) => updateField("idCard", value)}
+          value={formData.citizenId}
+          onChangeText={(value) => updateField("citizenId", value)}
           placeholder="Nhập số CCCD/CMND"
           icon="badge"
           keyboardType="numeric"
-          error={errors.idCard}
+          error={errors.citizenId}
         />
         <ModernFormInput
           label="Địa chỉ"
@@ -141,23 +171,48 @@ export default function ResidentCreateScreen({ navigation }) {
           error={errors.address}
         />
         <ModernFormInput
-          label="Người liên hệ khẩn cấp"
-          value={formData.emergencyContact}
-          onChangeText={(value) => updateField("emergencyContact", value)}
-          placeholder="Nhập tên người liên hệ"
-          icon="contact-emergency"
-          error={errors.emergencyContact}
+          label="Biển số xe"
+          value={formData.licensePlate}
+          onChangeText={(value) => updateField("licensePlate", value)}
+          placeholder="Nhập biển số xe"
+          icon="directions-car"
+          error={errors.licensePlate}
         />
         <ModernFormInput
-          label="SĐT liên hệ khẩn cấp"
-          value={formData.emergencyPhone}
-          onChangeText={(value) => updateField("emergencyPhone", value)}
-          placeholder="Nhập số điện thoại"
-          icon="phone-in-talk"
-          keyboardType="phone-pad"
-          error={errors.emergencyPhone}
+          label="ID Căn hộ"
+          value={formData.apartmentId}
+          onChangeText={(value) => updateField("apartmentId", value)}
+          placeholder="Nhập ID căn hộ"
+          icon="home"
+          keyboardType="numeric"
+          error={errors.apartmentId}
+        />
+        <ModernFormInput
+          label="Mật khẩu"
+          value={formData.password}
+          onChangeText={(value) => updateField("password", value)}
+          placeholder="Nhập mật khẩu"
+          icon="lock"
+          secureTextEntry
+          required
+          error={errors.password}
+        />
+        <ModernPicker
+          label="Vai trò"
+          value={formData.role}
+          onValueChange={(value) => updateField("role", value)}
+          items={[
+            { label: "Cư dân", value: "resident" },
+            { label: "Quản trị viên", value: "admin" },
+            { label: "Nhân viên", value: "manager" },
+          ]}
+          placeholder="Chọn vai trò"
+          icon="person"
+          required
+          error={errors.role}
         />
         <View style={{ marginTop: 20, gap: 12 }}>
+          {" "}
           <ModernButton
             title="Tạo cư dân"
             onPress={handleSubmit}
@@ -165,11 +220,10 @@ export default function ResidentCreateScreen({ navigation }) {
             icon="person-add"
             fullWidth
           />
-
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>

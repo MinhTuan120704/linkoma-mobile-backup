@@ -4,7 +4,10 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../contexts/AuthContext";
 
-export const AdminHeader = () => {
+export const AdminHeader = ({
+  title = "Admin Dashboard",
+  subtitle = "Quản lý tòa nhà Linkoma",
+}) => {
   const navigation = useNavigation();
   const { logout } = useAuth();
 
@@ -22,10 +25,9 @@ export const AdminHeader = () => {
           style: "destructive",
           onPress: async () => {
             try {
-              await logout();
-              navigation.replace("Auth");
+              await logout(navigation);
             } catch (error) {
-              console.error("Logout error:", error);
+              console.log("Logout error:", error);
               Alert.alert("Lỗi", "Không thể đăng xuất. Vui lòng thử lại sau.");
             }
           },
@@ -39,8 +41,8 @@ export const AdminHeader = () => {
     <View style={styles.header}>
       <View style={styles.headerContent}>
         <View style={styles.headerTitleContainer}>
-          <Text style={styles.headerTitle}>Admin Dashboard</Text>
-          <Text style={styles.headerSubtitle}>Quản lý tòa nhà Linkoma</Text>
+          <Text style={styles.headerTitle}>{title}</Text>
+          <Text style={styles.headerSubtitle}>{subtitle}</Text>
         </View>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <MaterialIcons name="logout" size={24} color="#FFF" />
@@ -67,10 +69,11 @@ const styles = StyleSheet.create({
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    position: "relative",
+    justifyContent: "center",
   },
   headerTitleContainer: {
-    flex: 1,
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 28,
@@ -86,6 +89,7 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     padding: 8,
-    marginLeft: 16,
+    position: "absolute",
+    right: 0,
   },
 });

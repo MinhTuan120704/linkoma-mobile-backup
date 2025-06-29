@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Alert, View } from "react-native";
 import {
   ModernScreenWrapper,
@@ -6,15 +6,42 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import apartmentService để thực hiện chức năng:
-// - Xóa căn hộ (removeApartment)
+import apartmentService from "../../../services/apartmentService";
+import apartmentTypeService from "../../../services/apartmentTypeService";
 
 export default function ApartmentViewScreen({ route, navigation }) {
   const { apartment } = route.params || {};
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [apartmentType, setApartmentType] = useState(null);
+  const [loadingType, setLoadingType] = useState(true);
+
+  useEffect(() => {
+    if (apartment?.apartmentTypeId) {
+      loadApartmentType();
+    }
+  }, [apartment]);
+
+  const loadApartmentType = async () => {
+    try {
+      setLoadingType(true);
+      const response = await apartmentTypeService.getApartmentTypeById(
+        apartment.apartmentTypeId
+      );
+
+      if (response.success) {
+        setApartmentType(response.data);
+      } else {
+        console.log("Error loading apartment type:", response.message);
+      }
+    } catch (error) {
+      console.log("Error loading apartment type:", error);
+    } finally {
+      setLoadingType(false);
+    }
+  };
 
   const handleEdit = () => {
-    navigation.navigate("ApartmentEditScreen", { apartment });
+    navigation.navigate("ApartmentEdit", { apartment });
   };
 
   const handleDelete = () => {
@@ -26,11 +53,21 @@ export default function ApartmentViewScreen({ route, navigation }) {
         onPress: async () => {
           try {
             setDeleteLoading(true);
-            // TODO: Call API removeApartment(id) để xóa căn hộ
-            Alert.alert("Thành công", "Xóa căn hộ thành công!", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await apartmentService.deleteApartment(
+              apartment.apartmentId
+            );
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa căn hộ thành công!", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert(
+                "Lỗi",
+                response.message || "Không thể xóa căn hộ. Vui lòng thử lại."
+              );
+            }
           } catch (error) {
+            console.log("Error deleting apartment:", error);
             Alert.alert("Lỗi", "Không thể xóa căn hộ. Vui lòng thử lại.");
           } finally {
             setDeleteLoading(false);
@@ -48,13 +85,13 @@ export default function ApartmentViewScreen({ route, navigation }) {
   return (
     <ModernScreenWrapper
       title="Chi tiết căn hộ"
-      subtitle={`${apartment?.name || "Căn hộ"} - ${apartment?.block || ""}`}
+      subtitle={`Căn hộ số ${apartment?.apartmentId}`}
       headerColor="#2C3E50"
       rightHeaderComponent={
         <ModernButton
           title="Sửa"
           onPress={handleEdit}
-          type="outline"
+          type="secondary"
           size="small"
         />
       }
@@ -62,51 +99,43 @@ export default function ApartmentViewScreen({ route, navigation }) {
       <View style={{ paddingBottom: 20 }}>
         <ModernCard title="Thông tin cơ bản">
           <InfoRow
-            label="Tên căn hộ"
-            value={apartment?.name}
+            label="ID Căn hộ"
+            value={apartment?.apartmentId?.toString()}
             icon="home"
             type="highlight"
           />
-
-          <InfoRow label="Block" value={apartment?.block} icon="business" />
-
+          <InfoRow
+            label="Loại căn hộ"
+            value={
+              loadingType
+                ? "Đang tải..."
+                : apartmentType
+                ? `${apartmentType.typeName} (${apartmentType.area}m²)`
+                : `ID: ${apartment?.apartmentTypeId}`
+            }
+            icon="business"
+          />
+          <InfoRow
+            label="Chi tiết loại căn hộ"
+            value={
+              loadingType
+                ? "Đang tải..."
+                : apartmentType
+                ? `${apartmentType.numBedrooms} phòng ngủ, ${apartmentType.numBathrooms} phòng tắm`
+                : "Không có dữ liệu"
+            }
+            icon="info"
+          />
           <InfoRow
             label="Tầng"
             value={apartment?.floor?.toString()}
             icon="layers"
           />
-
-          <InfoRow
-            label="Diện tích"
-            value={apartment?.area ? `${apartment.area} m²` : null}
-            icon="square-foot"
-          />
-        </ModernCard>
-
-        <ModernCard title="Chi tiết căn hộ">
-          <InfoRow
-            label="Số phòng ngủ"
-            value={apartment?.bedrooms?.toString()}
-            icon="bed"
-          />
-
-          <InfoRow
-            label="Số phòng tắm"
-            value={apartment?.bathrooms?.toString()}
-            icon="bathtub"
-          />
-
           <InfoRow
             label="Trạng thái"
-            value={apartment?.status || "Không xác định"}
+            value={apartment?.status}
             icon="info"
-            type={apartment?.status === "occupied" ? "warning" : "highlight"}
-          />
-
-          <InfoRow
-            label="Mô tả"
-            value={apartment?.description}
-            icon="description"
+            type={apartment?.status === "rented" ? "warning" : "highlight"}
           />
         </ModernCard>
 
@@ -121,13 +150,6 @@ export default function ApartmentViewScreen({ route, navigation }) {
             label="Cập nhật lần cuối"
             value={formatDate(apartment?.updatedAt)}
             icon="update"
-          />
-
-          <InfoRow
-            label="ID căn hộ"
-            value={apartment?.id?.toString()}
-            icon="tag"
-            copyable
           />
         </ModernCard>
 

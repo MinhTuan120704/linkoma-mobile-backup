@@ -29,6 +29,14 @@ export default function ResidentDashboard() {
   const navigation = useNavigation();
   const { logout } = useAuth();
 
+  // Ensure we have valid insets with fallback values
+  const safeInsets = {
+    top: insets?.top || 0,
+    bottom: insets?.bottom || 0,
+    left: insets?.left || 0,
+    right: insets?.right || 0,
+  };
+
   const handleLogout = () => {
     Alert.alert(
       "Đăng xuất",
@@ -43,8 +51,7 @@ export default function ResidentDashboard() {
           style: "destructive",
           onPress: async () => {
             try {
-              await logout();
-              navigation.replace("Auth");
+              await logout(navigation);
             } catch (error) {
               console.error("Logout error:", error);
               Alert.alert("Lỗi", "Không thể đăng xuất. Vui lòng thử lại sau.");
@@ -132,7 +139,7 @@ export default function ResidentDashboard() {
     }
   };
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, { paddingTop: safeInsets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#1976D2" />
 
       {/* Header */}
@@ -209,10 +216,11 @@ const styles = StyleSheet.create({
   headerContent: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    position: "relative",
+    justifyContent: "center",
   },
   headerTitleContainer: {
-    flex: 1,
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 28,
@@ -228,7 +236,8 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     padding: 8,
-    marginLeft: 16,
+    position: "absolute",
+    right: 0,
   },
   content: {
     flex: 1,

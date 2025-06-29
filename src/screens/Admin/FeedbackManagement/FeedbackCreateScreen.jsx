@@ -5,46 +5,46 @@ import {
   ModernFormInput,
   ModernButton,
 } from "../../../components";
-// Import feedbackService để thực hiện chức năng:
-// - Tạo phản hồi mới (createFeedback)
+import feedbackService from "../../../services/feedbackService";
 
 export default function FeedbackCreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    category: "",
-    priority: "",
-    status: "pending",
+    userId: 1, // Should be current user ID or selected user
+    category: "Maintenance", // Enum: Maintenance, Service, Complaint
+    description: "",
+    status: "Pending", // Enum: Pending, In Progress, Resolved, Rejected
   });
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Tiêu đề là bắt buộc";
-    }
-
-    if (!formData.content.trim()) {
-      newErrors.content = "Nội dung là bắt buộc";
+    if (!formData.description.trim()) {
+      newErrors.description = "Mô tả là bắt buộc";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
     }
     try {
       setLoading(true);
-      // TODO: Call API createFeedback(formData) để tạo phản hồi mới
-      Alert.alert("Thành công", "Tạo phản hồi thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await feedbackService.createFeedback(formData);
+      if (response.success) {
+        Alert.alert("Thành công", "Tạo phản hồi thành công!", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tạo phản hồi. Vui lòng thử lại."
+        );
+      }
     } catch (error) {
+      console.log("Error creating feedback:", error);
       Alert.alert("Lỗi", "Không thể tạo phản hồi. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -126,7 +126,7 @@ export default function FeedbackCreateScreen({ navigation }) {
           <ModernButton
             title="Hủy"
             onPress={() => navigation.goBack()}
-            type="outline"
+            type="secondary"
             fullWidth
           />
         </View>

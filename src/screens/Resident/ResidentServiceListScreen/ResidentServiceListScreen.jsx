@@ -1,43 +1,188 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import {
   ModernScreenWrapper,
   ModernCard,
   ModernButton,
+  ModernPicker,
 } from "../../../components";
 import { MaterialIcons } from "@expo/vector-icons";
 import serviceRegistrationService from "../../../services/serviceRegistrationService";
-// Import serviceRegistrationService để thực hiện các chức năng:
-// - Lấy danh sách dịch vụ đã đăng ký của cư dân
-// - Xem chi tiết dịch vụ
-// - Đăng ký dịch vụ mới
+import serviceTypeService from "../../../services/serviceTypeService";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ResidentServiceListScreen() {
   const [services, setServices] = useState([]);
+  const [serviceTypes, setServiceTypes] = useState([]);
+  const [serviceTypeParams, setServiceTypeParams] = useState({
+    serviceName: "",
+    unit: "",
+    minUnitPrice: null,
+    maxUnitPrice: null,
+    sortBy: "serviceName:asc",
+    limit: 50,
+    page: 1,
+  });
+  const [serviceTypePagination, setServiceTypePagination] = useState({
+    page: 1,
+    totalPages: 1,
+    totalResults: 0,
+    limit: 50,
+  });
   const [loading, setLoading] = useState(true);
+  const [loadingServiceTypes, setLoadingServiceTypes] = useState(true);
   const navigation = useNavigation();
   const { user } = useAuth();
+  const [pagination, setPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    totalResults: 0,
+    limit: 10,
+  });
+
+  const [params, setParams] = useState({
+    apartmentId: user?.apartmentId || null,
+    serviceTypeId: null,
+    status: "Active",
+    startDate: null,
+    endDate: null,
+    sortBy: "startDate:desc",
+    limit: 10,
+    page: 1,
+  });
+
+  // Xử lý khi thay đổi trạng thái filter
+  const handleFilterChange = (filterName, value) => {
+    setParams((prev) => ({ ...prev, [filterName]: value, page: 1 }));
+  };
+
+  // Xử lý khi chuyển trang
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setParams((prev) => ({ ...prev, page: newPage }));
+    }
+  };
+
+  // Xử lý khi thay đổi số lượng item mỗi trang
+  const handleLimitChange = (newLimit) => {
+    setParams((prev) => ({ ...prev, limit: newLimit, page: 1 }));
+  };
+
+  // Xử lý khi thay đổi sắp xếp
+  const handleSortChange = (sortField, sortDirection) => {
+    setParams((prev) => ({
+      ...prev,
+      sortBy: `${sortField}:${sortDirection}`,
+      page: 1,
+    }));
+  };
+  const fetchServiceTypes = async () => {
+    setLoadingServiceTypes(true);
+    try {
+      // Build query params for service types
+      const queryParams = new URLSearchParams();
+      if (serviceTypeParams.serviceName)
+        queryParams.append("serviceName", serviceTypeParams.serviceName);
+      if (serviceTypeParams.unit)
+        queryParams.append("unit", serviceTypeParams.unit);
+      if (serviceTypeParams.minUnitPrice)
+        queryParams.append("minUnitPrice", serviceTypeParams.minUnitPrice);
+      if (serviceTypeParams.maxUnitPrice)
+        queryParams.append("maxUnitPrice", serviceTypeParams.maxUnitPrice);
+      if (serviceTypeParams.sortBy)
+        queryParams.append("sortBy", serviceTypeParams.sortBy);
+      if (serviceTypeParams.limit)
+        queryParams.append("limit", serviceTypeParams.limit);
+      if (serviceTypeParams.page)
+        queryParams.append("page", serviceTypeParams.page);
+
+      const response = await serviceTypeService.getAllServiceTypes(queryParams);
+
+      if (response.success && response.data) {
+        console.log("Service Types response:", response.data.results);
+        setServiceTypes(response.data.results || []);
+        setServiceTypePagination({
+          page: response.data.page || 1,
+          totalPages: response.data.totalPages || 1,
+          totalResults: response.data.totalResults || 0,
+          limit: response.data.limit || serviceTypeParams.limit,
+        });
+      } else {
+        setServiceTypes([]);
+      }
+    } catch (e) {
+      console.log("Error fetching service types:", e);
+      Alert.alert("Lỗi", "Không thể tải danh sách loại dịch vụ");
+      setServiceTypes([]);
+    } finally {
+      setLoadingServiceTypes(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchServiceTypes();
+  }, [serviceTypeParams]); // Re-fetch when params change
+
+  // Effect để cập nhật apartmentId khi user thay đổi
+  useEffect(() => {
+    if (user?.apartmentId) {
+      setParams((prev) => ({ ...prev, apartmentId: user.apartmentId }));
+    }
+  }, [user]);
 
   const fetchServices = async () => {
     if (!user) return setLoading(false);
     setLoading(true);
     try {
-      // TODO: Call API getServicesByResident(userId) để lấy danh sách dịch vụ đã đăng ký
-      // Hiện tại trả về mảng rỗng để test giao diện
-      setServices([]);
+      // Xây dựng query params
+      const queryParams = new URLSearchParams();
+
+      // Chỉ thêm các params có giá trị
+      if (params.apartmentId)
+        queryParams.append("apartmentId", params.apartmentId);
+      if (params.serviceTypeId)
+        queryParams.append("serviceTypeId", params.serviceTypeId);
+      if (params.status) queryParams.append("status", params.status);
+      if (params.startDate) queryParams.append("startDate", params.startDate);
+      if (params.endDate) queryParams.append("endDate", params.endDate);
+      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      if (params.limit) queryParams.append("limit", params.limit);
+      if (params.page) queryParams.append("page", params.page);
+      const response =
+        await serviceRegistrationService.getAllServiceRegistrations(
+          queryParams
+        );
+      console.log("Service Registrations response:", response.data.results);
+
+      if (response.data) {
+        setServices(response.data.results || []);
+        setPagination({
+          page: response.data.page || 1,
+          totalPages: response.data.totalPages || 1,
+          totalResults: response.data.totalResults || 0,
+          limit: response.data.limit || 10,
+        });
+      } else {
+        setServices([]);
+        setPagination({
+          page: 1,
+          totalPages: 1,
+          totalResults: 0,
+          limit: 10,
+        });
+      }
     } catch (e) {
-      console.error("Error fetching services:", e);
+      console.log("Error fetching services:", e);
+      Alert.alert("Lỗi", "Không thể tải danh sách dịch vụ");
       setServices([]);
     } finally {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchServices();
-  }, [user]);
+  }, [user, params]); // Re-fetch khi params thay đổi
 
   const handleRegister = () => navigation.navigate("ResidentServiceRegister");
 
@@ -59,17 +204,16 @@ export default function ResidentServiceListScreen() {
         return "room-service";
     }
   };
-
   const getServiceColor = (status) => {
     switch (status) {
-      case "active":
+      case "Active":
         return "#27AE60";
-      case "pending":
-        return "#F39C12";
-      case "suspended":
+      case "Inactive":
         return "#E74C3C";
-      case "expired":
+      case "Cancelled":
         return "#95A5A6";
+      case "Rejected":
+        return "#F39C12";
       default:
         return "#7F8C8D";
     }
@@ -77,14 +221,12 @@ export default function ResidentServiceListScreen() {
 
   const getStatusText = (status) => {
     switch (status) {
-      case "active":
+      case "Active":
         return "Đang sử dụng";
-      case "pending":
-        return "Chờ kích hoạt";
-      case "suspended":
-        return "Tạm dừng";
-      case "expired":
-        return "Đã hết hạn";
+      case "Inactive":
+        return "Không hoạt động";
+      case "Cancelled":
+        return "Đã hủy";
       default:
         return "Không xác định";
     }
@@ -121,89 +263,101 @@ export default function ResidentServiceListScreen() {
       </View>
     </ModernCard>
   );
+  const renderServiceItem = (service) => {
+    const serviceType = serviceTypes.find(
+      (type) => type.serviceTypeId === service.serviceTypeId
+    );
 
-  const renderServiceItem = (service) => (
-    <ModernCard key={service.id} style={{ marginBottom: 12 }}>
-      <View style={styles.serviceHeader}>
-        <View style={styles.serviceIcon}>
-          <MaterialIcons
-            name={getServiceIcon(service.category)}
-            size={24}
-            color="#1976D2"
-          />
-        </View>
+    return (
+      <ModernCard
+        key={service.serviceRegistrationId}
+        style={{ marginBottom: 12 }}
+      >
+        <View style={styles.serviceHeader}>
+          <View style={styles.serviceIcon}>
+            <MaterialIcons
+              name={getServiceIcon(serviceType?.category || "default")}
+              size={24}
+              color="#1976D2"
+            />
+          </View>
 
-        <View style={styles.serviceContent}>
-          <Text style={styles.serviceName} numberOfLines={2}>
-            {service.name}
-          </Text>
-          <Text style={styles.serviceDescription} numberOfLines={2}>
-            {service.description || "Không có mô tả"}
-          </Text>
-        </View>
-
-        <View style={styles.statusContainer}>
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getServiceColor(service.status) },
-            ]}
-          >
-            <Text style={styles.statusText}>
-              {getStatusText(service.status)}
+          <View style={styles.serviceContent}>
+            <Text style={styles.serviceName} numberOfLines={2}>
+              {serviceType?.serviceName || "Dịch vụ không xác định"}
+            </Text>
+            <Text style={styles.serviceDescription} numberOfLines={2}>
+              {service.note || "Không có ghi chú"}
             </Text>
           </View>
-        </View>
-      </View>
 
-      <View style={styles.serviceDetails}>
-        <View style={styles.detailRow}>
-          <MaterialIcons name="attach-money" size={16} color="#27AE60" />
-          <Text style={styles.priceText}>
-            {formatCurrency(service.amount)}
-            {service.billingPeriod &&
-              ` /${
-                service.billingPeriod === "monthly"
-                  ? "tháng"
-                  : service.billingPeriod === "yearly"
-                  ? "năm"
-                  : service.billingPeriod
-              }`}
-          </Text>
+          <View style={styles.statusContainer}>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: getServiceColor(service.status) },
+              ]}
+            >
+              <Text style={styles.statusText}>
+                {getStatusText(service.status)}
+              </Text>
+            </View>
+          </View>
         </View>
 
-        {service.registeredAt && (
+        <View style={styles.serviceDetails}>
           <View style={styles.detailRow}>
-            <MaterialIcons name="event" size={16} color="#7F8C8D" />
-            <Text style={styles.dateText}>
-              Đăng ký: {formatDate(service.registeredAt)}
+            <MaterialIcons name="attach-money" size={16} color="#27AE60" />
+            <Text style={styles.priceText}>
+              {formatCurrency(serviceType?.unitPrice || 0)}
+              {serviceType?.unit ? ` /${serviceType.unit}` : ""}
             </Text>
           </View>
-        )}
 
-        {service.expiresAt && (
-          <View style={styles.detailRow}>
-            <MaterialIcons name="event-available" size={16} color="#7F8C8D" />
-            <Text style={styles.dateText}>
-              Hết hạn: {formatDate(service.expiresAt)}
-            </Text>
-          </View>
-        )}
+          {service.startDate && (
+            <View style={styles.detailRow}>
+              <MaterialIcons name="event" size={16} color="#7F8C8D" />
+              <Text style={styles.dateText}>
+                Bắt đầu: {formatDate(service.startDate)}
+              </Text>
+            </View>
+          )}
 
-        {service.category && (
-          <View style={styles.detailRow}>
-            <MaterialIcons name="category" size={16} color="#7F8C8D" />
-            <Text style={styles.categoryText}>{service.category}</Text>
-          </View>
-        )}
-      </View>
-    </ModernCard>
-  );
+          {service.endDate && (
+            <View style={styles.detailRow}>
+              <MaterialIcons name="event-available" size={16} color="#7F8C8D" />
+              <Text style={styles.dateText}>
+                Kết thúc: {formatDate(service.endDate)}
+              </Text>
+            </View>
+          )}
+
+          {serviceType?.unit && (
+            <View style={styles.detailRow}>
+              <MaterialIcons name="straighten" size={16} color="#7F8C8D" />
+              <Text style={styles.categoryText}>
+                Đơn vị: {serviceType.unit}
+              </Text>
+            </View>
+          )}
+
+          {serviceType?.category && (
+            <View style={styles.detailRow}>
+              <MaterialIcons name="category" size={16} color="#7F8C8D" />
+              <Text style={styles.categoryText}>
+                Loại: {serviceType.category}
+              </Text>
+            </View>
+          )}
+        </View>
+      </ModernCard>
+    );
+  };
 
   return (
     <ModernScreenWrapper
       title="Dịch vụ đã đăng ký"
-      subtitle={`${services.length} dịch vụ`}
+      subtitle={`${pagination.totalResults} dịch vụ`}
       headerColor="#1976D2"
       loading={loading}
       onRefresh={fetchServices}
@@ -217,6 +371,62 @@ export default function ResidentServiceListScreen() {
       }
     >
       <View style={styles.container}>
+        {/* Filter Controls */}
+        <ModernCard style={styles.filterCard}>
+          <View style={styles.filterRow}>
+            <ModernPicker
+              label="Trạng thái"
+              value={params.status}
+              onValueChange={(value) => handleFilterChange("status", value)}
+              items={[
+                { label: "Đang hoạt động", value: "Active" },
+                { label: "Không hoạt động", value: "Inactive" },
+                { label: "Đã hủy", value: "Cancelled" },
+              ]}
+              placeholder="Chọn trạng thái"
+              icon="filter-list"
+            />
+          </View>
+
+          <View style={styles.filterRow}>
+            <ModernPicker
+              label="Loại dịch vụ"
+              value={params.serviceTypeId}
+              onValueChange={(value) =>
+                handleFilterChange("serviceTypeId", value)
+              }
+              items={[
+                { label: "Tất cả", value: null },
+                ...(serviceTypes?.map((type) => ({
+                  label: `${type.serviceName} (${type.unit} - ${formatCurrency(
+                    type.unitPrice
+                  )})`,
+                  value: type.serviceTypeId,
+                })) || []),
+              ]}
+              placeholder="Chọn loại dịch vụ"
+              icon="category"
+              disabled={loadingServiceTypes}
+            />
+          </View>
+
+          <View style={styles.filterRow}>
+            <ModernPicker
+              label="Sắp xếp theo"
+              value={params.sortBy}
+              onValueChange={(value) => handleFilterChange("sortBy", value)}
+              items={[
+                { label: "Ngày bắt đầu (Mới nhất)", value: "startDate:desc" },
+                { label: "Ngày bắt đầu (Cũ nhất)", value: "startDate:asc" },
+                { label: "Ngày kết thúc (Mới nhất)", value: "endDate:desc" },
+                { label: "Ngày kết thúc (Cũ nhất)", value: "endDate:asc" },
+              ]}
+              placeholder="Chọn cách sắp xếp"
+              icon="sort"
+            />
+          </View>
+        </ModernCard>
+
         {services.length === 0 ? (
           renderEmptyState()
         ) : (
@@ -228,8 +438,43 @@ export default function ResidentServiceListScreen() {
               fullWidth
               style={{ marginBottom: 20 }}
             />
-
             {services.map(renderServiceItem)}
+            {/* Pagination Controls */}
+            <View style={styles.paginationContainer}>
+              <ModernButton
+                title="Trước"
+                onPress={() => handlePageChange(params.page - 1)}
+                disabled={params.page <= 1}
+                type="secondary"
+                size="small"
+              />
+              <Text style={styles.paginationText}>
+                Trang {params.page} / {pagination.totalPages}
+              </Text>
+              <ModernButton
+                title="Sau"
+                onPress={() => handlePageChange(params.page + 1)}
+                disabled={params.page >= pagination.totalPages}
+                type="secondary"
+                size="small"
+              />
+            </View>
+            {/* Items per page selector */}
+            <View style={styles.limitContainer}>
+              <Text style={styles.limitText}>Số lượng mỗi trang:</Text>
+              <ModernPicker
+                value={params.limit.toString()}
+                onValueChange={(value) => handleLimitChange(parseInt(value))}
+                items={[
+                  { label: "10 dịch vụ", value: "10" },
+                  { label: "20 dịch vụ", value: "20" },
+                  { label: "50 dịch vụ", value: "50" },
+                ]}
+                placeholder="Số lượng hiển thị"
+                icon="format-list-numbered"
+                style={styles.limitPicker}
+              />
+            </View>
           </>
         )}
       </View>
@@ -240,6 +485,38 @@ export default function ResidentServiceListScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingBottom: 20,
+  },
+  filterCard: {
+    marginBottom: 16,
+  },
+  filterRow: {
+    marginBottom: 12,
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    gap: 12,
+  },
+  paginationText: {
+    fontSize: 14,
+    color: "#2C3E50",
+  },
+  limitContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
+    marginTop: 12,
+    gap: 8,
+  },
+  limitText: {
+    fontSize: 14,
+    color: "#2C3E50",
+  },
+  limitPicker: {
+    width: 80,
+    height: 80,
   },
   emptyState: {
     alignItems: "center",

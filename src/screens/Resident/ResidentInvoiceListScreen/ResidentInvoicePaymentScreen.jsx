@@ -7,28 +7,64 @@ import {
   ModernButton,
 } from "../../../components";
 import { useRoute, useNavigation } from "@react-navigation/native";
-// Import invoiceService để thực hiện chức năng:
-// - Thanh toán hóa đơn (payInvoice)
+import invoiceService from "../../../services/invoiceService";
 
 export default function ResidentInvoicePaymentScreen() {
   const route = useRoute();
   const navigation = useNavigation();
-  const { invoice } = route.params;
+  const { invoiceId, invoice } = route.params;
   const [loading, setLoading] = useState(false);
-
   const handlePay = async () => {
-    setLoading(true);
-    try {
-      // TODO: Call API payInvoice(invoiceId) để thực hiện thanh toán hóa đơn
-      Alert.alert("Thành công", "Thanh toán thành công!", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
-    } catch (e) {
-      console.error("Payment error:", e);
-      Alert.alert("Lỗi", "Thanh toán thất bại. Vui lòng thử lại.");
-    } finally {
-      setLoading(false);
+    if (!invoiceId && !invoice?.id) {
+      Alert.alert("Lỗi", "Không tìm thấy thông tin hóa đơn");
+      return;
     }
+
+    Alert.alert(
+      "Xác nhận thanh toán",
+      `Bạn có chắc chắn muốn thanh toán hóa đơn này với số tiền ${formatCurrency(
+        invoice?.totalAmount || invoice?.amount
+      )}?`,
+      [
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+        {
+          text: "Xác nhận",
+          onPress: async () => {
+            setLoading(true);
+            try {
+              const result = await invoiceService.payInvoice(
+                invoiceId || invoice.id
+              );
+
+              if (result.success) {
+                Alert.alert("Thành công", "Thanh toán hóa đơn thành công!", [
+                  {
+                    text: "OK",
+                    onPress: () => {
+                      // Go back to list screen and refresh
+                      navigation.navigate("ResidentInvoiceListScreen");
+                    },
+                  },
+                ]);
+              } else {
+                Alert.alert(
+                  "Lỗi",
+                  result.message || "Thanh toán thất bại. Vui lòng thử lại."
+                );
+              }
+            } catch (error) {
+              console.log("Payment error:", error);
+              Alert.alert("Lỗi", "Thanh toán thất bại. Vui lòng thử lại.");
+            } finally {
+              setLoading(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const formatCurrency = (amount) => {
@@ -79,32 +115,32 @@ export default function ResidentInvoicePaymentScreen() {
         <ModernCard title="Thông tin hóa đơn">
           <InfoRow
             label="Hóa đơn"
-            value={invoice.title || `Hóa đơn #${invoice.id}`}
+            value={invoice?.invoiceCode || `Hóa đơn #${invoice?.id}`}
             icon="receipt"
             type="highlight"
           />
 
           <InfoRow
             label="Mô tả"
-            value={invoice.description || "Không có mô tả"}
+            value={invoice?.description || "Không có mô tả"}
             icon="description"
           />
 
           <InfoRow
             label="Số tiền"
-            value={formatCurrency(invoice.amount)}
+            value={formatCurrency(invoice?.totalAmount || invoice?.amount)}
             icon="attach-money"
             type="highlight"
           />
 
           <InfoRow
             label="Hạn thanh toán"
-            value={formatDate(invoice.dueDate)}
+            value={formatDate(invoice?.dueDate)}
             icon="schedule"
-            type={isOverdue(invoice.dueDate) ? "danger" : "default"}
+            type={isOverdue(invoice?.dueDate) ? "danger" : "default"}
           />
 
-          {isOverdue(invoice.dueDate) && (
+          {isOverdue(invoice?.dueDate) && (
             <InfoRow
               label="Trạng thái"
               value="Đã quá hạn thanh toán"
@@ -113,31 +149,33 @@ export default function ResidentInvoicePaymentScreen() {
             />
           )}
         </ModernCard>
+        <ModernCard title="Chi tiết dịch vụ">
+          <InfoRow
+            label="Loại dịch vụ"
+            value={
+              invoice?.serviceType?.name ||
+              invoice?.serviceTypeName ||
+              "Dịch vụ chung"
+            }
+            icon="build"
+          />
 
-        {invoice.serviceFee && (
-          <ModernCard title="Chi tiết dịch vụ">
+          {invoice?.serviceType?.description && (
             <InfoRow
-              label="Loại dịch vụ"
-              value={invoice.serviceFee.name}
-              icon="build"
+              label="Mô tả dịch vụ"
+              value={invoice.serviceType.description}
+              icon="info"
             />
+          )}
 
-            <InfoRow
-              label="Đơn giá"
-              value={formatCurrency(invoice.serviceFee.amount)}
-              icon="money"
-            />
-
-            {invoice.quantity && (
-              <InfoRow
-                label="Số lượng/Số lần sử dụng"
-                value={`${invoice.quantity} ${invoice.serviceFee.unit || ""}`}
-                icon="format-list-numbered"
-              />
-            )}
-          </ModernCard>
-        )}
-
+          <InfoRow
+            label="Kỳ thanh toán"
+            value={
+              invoice?.period || invoice?.servicePeriod || "Không xác định"
+            }
+            icon="date-range"
+          />
+        </ModernCard>
         <ModernCard title="Phương thức thanh toán">
           <InfoRow
             label="Phương thức"
@@ -152,16 +190,16 @@ export default function ResidentInvoicePaymentScreen() {
             type="highlight"
           />
         </ModernCard>
-
-        {invoice.notes && (
+        {invoice?.notes && (
           <ModernCard title="Ghi chú">
             <InfoRow label="Ghi chú" value={invoice.notes} icon="note" />
           </ModernCard>
         )}
-
         <View style={{ marginTop: 20, gap: 12, paddingBottom: 20 }}>
           <ModernButton
-            title={`Xác nhận thanh toán ${formatCurrency(invoice.amount)}`}
+            title={`Xác nhận thanh toán ${formatCurrency(
+              invoice?.totalAmount || invoice?.amount
+            )}`}
             onPress={handlePay}
             loading={loading}
             icon="payment"

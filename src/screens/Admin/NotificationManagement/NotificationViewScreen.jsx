@@ -6,24 +6,33 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import notificationService để thực hiện các chức năng:
-// - Lấy thông tin chi tiết thông báo (getNotificationById)
-// - Xóa thông báo (deleteNotification)
+import announcementService from "../../../services/announcementService";
 
 export default function NotificationViewScreen({ route, navigation }) {
-  const { notificationId } = route.params || {};
-  const [notification, setNotification] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { notificationId, notification: passedNotification } =
+    route.params || {};
+  const [notification, setNotification] = useState(passedNotification || null);
+  const [loading, setLoading] = useState(!passedNotification);
 
   const fetchNotification = async () => {
     if (!notificationId) return;
     setLoading(true);
     try {
-      // TODO: Call API getNotificationById(id) để lấy thông tin chi tiết thông báo
-      const data = null;
-      setNotification(data);
+      console.log("Fetching notification with ID:", notificationId);
+
+      const response = await announcementService.getAnnouncementById(
+        notificationId
+      );
+      if (response.success) {
+        setNotification(response.data);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể tải thông tin thông báo"
+        );
+      }
     } catch (error) {
-      console.error("Error fetching notification:", error);
+      console.log("Error fetching notification:", error);
       Alert.alert("Lỗi", "Không thể tải thông tin thông báo");
     } finally {
       setLoading(false);
@@ -31,14 +40,22 @@ export default function NotificationViewScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    fetchNotification();
-  }, [notificationId]);
-
+    // If we have notification data passed in, use it
+    if (passedNotification) {
+      setNotification(passedNotification);
+      setLoading(false);
+    }
+    // Otherwise, fetch it if we have an ID
+    else if (notificationId) {
+      fetchNotification();
+    }
+  }, [notificationId, passedNotification]);
   const handleEdit = () => {
-    navigation.navigate("NotificationEditScreen", { notification });
+    navigation.navigate("NotificationEdit", { notification });
   };
-
   const handleDelete = () => {
+    if (!notification) return;
+
     Alert.alert(
       "Xác nhận xóa",
       "Bạn có chắc chắn muốn xóa thông báo này? Hành động này không thể hoàn tác.",
@@ -50,12 +67,22 @@ export default function NotificationViewScreen({ route, navigation }) {
           onPress: async () => {
             setLoading(true);
             try {
-              await notificationService.deleteNotification(notificationId);
-              Alert.alert("Thành công", "Xóa thông báo thành công", [
-                { text: "OK", onPress: () => navigation.goBack() },
-              ]);
+              const response = await announcementService.deleteAnnouncement(
+                notification.announcementId
+              );
+              if (response.success) {
+                Alert.alert("Thành công", "Xóa thông báo thành công", [
+                  { text: "OK", onPress: () => navigation.goBack() },
+                ]);
+              } else {
+                Alert.alert(
+                  "Lỗi",
+                  response.message || "Không thể xóa thông báo"
+                );
+                setLoading(false);
+              }
             } catch (error) {
-              console.error("Error deleting notification:", error);
+              console.log("Error deleting notification:", error);
               Alert.alert("Lỗi", "Không thể xóa thông báo");
               setLoading(false);
             }
@@ -101,16 +128,15 @@ export default function NotificationViewScreen({ route, navigation }) {
         return "Không xác định";
     }
   };
-
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case "urgent":
+      case "Critical":
         return "danger";
-      case "high":
+      case "High":
         return "warning";
-      case "normal":
-        return "default";
-      case "low":
+      case "Medium":
+        return "info";
+      case "Low":
         return "default";
       default:
         return "default";
@@ -119,14 +145,29 @@ export default function NotificationViewScreen({ route, navigation }) {
 
   const getPriorityText = (priority) => {
     switch (priority) {
-      case "urgent":
+      case "Critical":
         return "Khẩn cấp";
-      case "high":
+      case "High":
         return "Cao";
-      case "normal":
-        return "Bình thường";
-      case "low":
+      case "Medium":
+        return "Trung bình";
+      case "Low":
         return "Thấp";
+      default:
+        return "Không xác định";
+    }
+  };
+
+  const getTypeText = (type) => {
+    switch (type) {
+      case "General":
+        return "Chung";
+      case "Urgent":
+        return "Khẩn cấp";
+      case "Maintenance":
+        return "Bảo trì";
+      case "Event":
+        return "Sự kiện";
       default:
         return "Không xác định";
     }
@@ -168,19 +209,17 @@ export default function NotificationViewScreen({ route, navigation }) {
               icon="title"
               type="highlight"
             />
-
             <InfoRow
               label="Nội dung"
               value={notification.content}
               icon="description"
+              style={{ innerHeight: "fit-content" }}
             />
-
             <InfoRow
               label="Loại thông báo"
-              value={notification.type || "Chung"}
+              value={getTypeText(notification.type)}
               icon="category"
             />
-
             <InfoRow
               label="Mức độ ưu tiên"
               value={getPriorityText(notification.priority)}
@@ -189,57 +228,17 @@ export default function NotificationViewScreen({ route, navigation }) {
             />
           </ModernCard>
 
-          <ModernCard title="Trạng thái và lịch trình">
+          <ModernCard title="Thông tin hệ thống">
             <InfoRow
-              label="Trạng thái"
-              value={getStatusText(notification.status)}
-              icon="info"
-              type={getStatusColor(notification.status)}
-            />
-
-            <InfoRow
-              label="Đối tượng nhận"
-              value={
-                notification.targetAudience === "all"
-                  ? "Tất cả"
-                  : notification.targetAudience === "residents"
-                  ? "Cư dân"
-                  : notification.targetAudience === "staff"
-                  ? "Nhân viên"
-                  : "Không xác định"
-              }
-              icon="people"
+              label="Người tạo (ID)"
+              value={notification.author?.toString() || "Không xác định"}
+              icon="person-add"
             />
 
             <InfoRow
               label="Thời gian tạo"
               value={formatDate(notification.createdAt)}
               icon="calendar-today"
-            />
-
-            {notification.scheduledTime && (
-              <InfoRow
-                label="Thời gian lên lịch"
-                value={formatDate(notification.scheduledTime)}
-                icon="schedule"
-              />
-            )}
-
-            {notification.sentAt && (
-              <InfoRow
-                label="Thời gian gửi"
-                value={formatDate(notification.sentAt)}
-                icon="send"
-                type="highlight"
-              />
-            )}
-          </ModernCard>
-
-          <ModernCard title="Thông tin hệ thống">
-            <InfoRow
-              label="Người tạo"
-              value={notification.createdBy || "Hệ thống"}
-              icon="person-add"
             />
 
             <InfoRow
@@ -250,7 +249,7 @@ export default function NotificationViewScreen({ route, navigation }) {
 
             <InfoRow
               label="ID thông báo"
-              value={notification.id?.toString()}
+              value={notification.announcementId?.toString()}
               icon="fingerprint"
               copyable
             />

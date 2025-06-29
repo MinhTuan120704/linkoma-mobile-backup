@@ -5,10 +5,9 @@ import {
   ModernFormInput,
   ModernButton,
   ModernCard,
+  ModernDateTimePicker,
 } from "../../../components";
-// Import residentService để thực hiện các chức năng:
-// - Cập nhật thông tin cư dân (updateResident)
-// - Xóa cư dân (deleteResident)
+import userService from "../../../services/userService";
 
 export default function ResidentEditScreen({ route, navigation }) {
   const { resident } = route.params;
@@ -57,7 +56,6 @@ export default function ResidentEditScreen({ route, navigation }) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleUpdate = async () => {
     if (!validateForm()) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
@@ -66,18 +64,25 @@ export default function ResidentEditScreen({ route, navigation }) {
 
     setLoading(true);
     try {
-      // TODO: Call API updateResident(id, data) để cập nhật thông tin cư dân
-      Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const userId = resident.userId || resident.id;
+      const response = await userService.updateUser(userId, formData);
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật thông tin cư dân thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert(
+          "Lỗi",
+          response.message || "Không thể cập nhật thông tin cư dân"
+        );
+      }
     } catch (error) {
-      console.error("Error updating resident:", error);
+      console.log("Error updating resident:", error);
       Alert.alert("Lỗi", "Không thể cập nhật thông tin cư dân");
     } finally {
       setLoading(false);
     }
   };
-
   const handleDelete = () => {
     Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa cư dân này?", [
       { text: "Hủy", style: "cancel" },
@@ -87,14 +92,19 @@ export default function ResidentEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await residentService.deleteResident(resident.id);
-            Alert.alert("Thành công", "Xóa cư dân thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const userId = resident.userId || resident.id;
+            const response = await userService.deleteUser(userId);
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa cư dân thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", response.message || "Không thể xóa cư dân");
+              setLoading(false);
+            }
           } catch (error) {
-            console.error("Error deleting resident:", error);
+            console.log("Error deleting resident:", error);
             Alert.alert("Lỗi", "Không thể xóa cư dân");
-          } finally {
             setLoading(false);
           }
         },
@@ -143,11 +153,18 @@ export default function ResidentEditScreen({ route, navigation }) {
             icon="phone"
             keyboardType="phone-pad"
             error={errors.phoneNumber}
-          />{" "}
+          />
           <ModernDateTimePicker
             label="Ngày sinh"
             value={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
-            onChange={(date) => updateField("dateOfBirth", date.toISOString())}
+            onChange={(date) => {
+              // Format date as YYYY-MM-DD without timezone conversion
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+              const formattedDate = `${year}-${month}-${day}`;
+              updateField("dateOfBirth", formattedDate);
+            }}
             icon="cake"
             maximumDate={new Date()}
           />

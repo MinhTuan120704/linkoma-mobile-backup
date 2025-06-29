@@ -6,20 +6,16 @@ import {
   InfoRow,
   ModernButton,
 } from "../../../components";
-// Import serviceFeeService để thực hiện các chức năng:
-// - Lấy chi tiết phí dịch vụ (getServiceFeeById)
-// - Xóa phí dịch vụ (removeServiceFee)
+import serviceTypeService from "../../../services/serviceTypeService";
 
 export default function ServiceFeeViewScreen({ route, navigation }) {
   const { serviceFee } = route.params || {};
   const [loading, setLoading] = useState(false);
-
   const handleEdit = () => {
     navigation.navigate("ServiceFeeEdit", { serviceFee });
   };
-
   const handleDelete = () => {
-    Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa phí dịch vụ này?", [
+    Alert.alert("Xác nhận xóa", "Bạn có chắc chắn muốn xóa loại dịch vụ này?", [
       { text: "Hủy", style: "cancel" },
       {
         text: "Xóa",
@@ -27,13 +23,23 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            // TODO: Call API removeServiceFee(id) để xóa phí dịch vụ
-            Alert.alert("Thành công", "Xóa phí dịch vụ thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await serviceTypeService.deleteServiceType(
+              serviceFee.serviceTypeId
+            );
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa loại dịch vụ thành công!", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert(
+                "Lỗi",
+                response.message ||
+                  "Không thể xóa loại dịch vụ. Vui lòng thử lại."
+              );
+            }
           } catch (error) {
-            console.error("Error deleting service fee:", error);
-            Alert.alert("Lỗi", "Không thể xóa phí dịch vụ");
+            console.log("Error deleting service type:", error);
+            Alert.alert("Lỗi", "Không thể xóa loại dịch vụ. Vui lòng thử lại.");
           } finally {
             setLoading(false);
           }
@@ -54,33 +60,17 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
     if (!dateString) return "Không có dữ liệu";
     return new Date(dateString).toLocaleDateString("vi-VN");
   };
-
-  const getBillingPeriodText = (period) => {
-    switch (period) {
-      case "monthly":
-        return "Hàng tháng";
-      case "quarterly":
-        return "Hàng quý";
-      case "yearly":
-        return "Hàng năm";
-      case "one-time":
-        return "Một lần";
-      default:
-        return period || "Không xác định";
-    }
-  };
-
   if (!serviceFee) {
     return (
       <ModernScreenWrapper
-        title="Chi tiết phí dịch vụ"
+        title="Chi tiết loại dịch vụ"
         subtitle="Thông tin không tồn tại"
         headerColor="#2C3E50"
       >
         <ModernCard>
           <InfoRow
             label="Thông báo"
-            value="Phí dịch vụ không tồn tại hoặc đã bị xóa"
+            value="Loại dịch vụ không tồn tại hoặc đã bị xóa"
             icon="error"
             type="warning"
           />
@@ -88,88 +78,53 @@ export default function ServiceFeeViewScreen({ route, navigation }) {
       </ModernScreenWrapper>
     );
   }
-
   return (
     <ModernScreenWrapper
-      title="Chi tiết phí dịch vụ"
-      subtitle={serviceFee.name}
+      title="Chi tiết loại dịch vụ"
+      subtitle="Thông tin chi tiết loại dịch vụ"
       headerColor="#2C3E50"
       loading={loading}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <ModernCard title="Thông tin cơ bản">
           <InfoRow
-            label="Tên phí dịch vụ"
-            value={serviceFee.name}
-            icon="build"
+            label="Tên dịch vụ"
+            value={serviceFee.serviceName}
+            icon="label"
             type="highlight"
           />
 
           <InfoRow
-            label="Mô tả"
-            value={serviceFee.description || "Không có mô tả"}
-            icon="description"
-          />
-
-          <InfoRow
-            label="Số tiền"
-            value={formatCurrency(serviceFee.amount)}
+            label="Giá đơn vị"
+            value={formatCurrency(serviceFee.unitPrice)}
             icon="attach-money"
             type="highlight"
           />
 
-          <InfoRow
-            label="Danh mục"
-            value={serviceFee.category || "Không xác định"}
-            icon="category"
-          />
-
-          <InfoRow
-            label="Đơn vị tính"
-            value={serviceFee.unit || "Không xác định"}
-            icon="straighten"
-          />
+          <InfoRow label="Đơn vị" value={serviceFee.unit} icon="straighten" />
         </ModernCard>
-
-        <ModernCard title="Thông tin thanh toán">
-          <InfoRow
-            label="Chu kỳ thanh toán"
-            value={getBillingPeriodText(serviceFee.billingPeriod)}
-            icon="schedule"
-          />
-
-          <InfoRow
-            label="Ngày có hiệu lực"
-            value={formatDate(serviceFee.effectiveDate)}
-            icon="event"
-          />
-
-          <InfoRow
-            label="Trạng thái"
-            value={serviceFee.isActive ? "Đang hoạt động" : "Tạm dừng"}
-            icon={serviceFee.isActive ? "check-circle" : "pause-circle"}
-            type={serviceFee.isActive ? "highlight" : "warning"}
-          />
-        </ModernCard>
-
-        {serviceFee.notes && (
-          <ModernCard title="Ghi chú">
-            <InfoRow label="Ghi chú" value={serviceFee.notes} icon="note" />
-          </ModernCard>
-        )}
 
         <View style={{ marginTop: 20, gap: 12, paddingBottom: 20 }}>
           <ModernButton
-            title="Chỉnh sửa phí dịch vụ"
+            title="Chỉnh sửa thông tin"
             onPress={handleEdit}
             icon="edit"
+            fullWidth
           />
 
           <ModernButton
-            title="Xóa phí dịch vụ"
+            title="Xóa loại dịch vụ"
             onPress={handleDelete}
-            variant="danger"
+            type="danger"
             icon="delete"
+            fullWidth
+          />
+
+          <ModernButton
+            title="Quay lại"
+            onPress={() => navigation.goBack()}
+            type="secondary"
+            fullWidth
           />
         </View>
       </ScrollView>

@@ -7,11 +7,6 @@ import {
 } from "../../../components";
 import { MaterialIcons } from "@expo/vector-icons";
 import feedbackService from "../../../services/feedbackService";
-// Import feedbackService để thực hiện các chức năng:
-// - Lấy danh sách phản hồi theo resident (getFeedbacksByResident)
-// - Tạo phản hồi mới (createFeedback)
-// - Cập nhật phản hồi (updateFeedback)
-// - Xóa phản hồi (removeFeedback)
 import { useAuth } from "../../../contexts/AuthContext";
 import { useNavigation } from "@react-navigation/native";
 
@@ -24,10 +19,11 @@ export default function ResidentFeedbackListScreen() {
   const fetchFeedbacks = async () => {
     if (!user) return setLoading(false);
     setLoading(true);
-    console.log("Fetching feedbacks for user:", user.userId);
     try {
-      const data = await feedbackService.getFeedbacksByResident(user.userId);
-      setFeedbacks(data || []);
+      const response = await feedbackService.getFeedbacksByUserId(user.userId);
+       console.log("Feedbacks response:", response.data.results);
+
+      setFeedbacks(response.data.results || []);
     } catch (e) {
       setFeedbacks([]);
     } finally {
@@ -47,42 +43,27 @@ export default function ResidentFeedbackListScreen() {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "resolved":
-        return "#27AE60";
-      case "processing":
-        return "#F39C12";
-      case "pending":
-        return "#E74C3C";
+      case "Resolved":
+        return "green";
+      case "In Progress":
+        return "blue";
+      case "Pending":
+        return "orange";
       default:
-        return "#7F8C8D";
+        return "gray";
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case "resolved":
+      case "Resolved":
         return "Đã giải quyết";
-      case "processing":
+      case "In Progress":
         return "Đang xử lý";
-      case "pending":
+      case "Pending":
         return "Chờ xử lý";
       default:
         return "Không xác định";
-    }
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "urgent":
-        return "#E74C3C";
-      case "high":
-        return "#F39C12";
-      case "medium":
-        return "#3498DB";
-      case "low":
-        return "#95A5A6";
-      default:
-        return "#7F8C8D";
     }
   };
 
@@ -109,82 +90,6 @@ export default function ResidentFeedbackListScreen() {
     </ModernCard>
   );
 
-  const renderFeedbackItem = (feedback) => (
-    <TouchableOpacity
-      key={feedback.id}
-      onPress={() => handleView(feedback)}
-      activeOpacity={0.8}
-    >
-      <ModernCard style={{ marginBottom: 12 }}>
-        <View style={styles.feedbackHeader}>
-          <Text style={styles.feedbackTitle} numberOfLines={2}>
-            {feedback.title}
-          </Text>
-          <View style={styles.statusContainer}>
-            <View
-              style={[
-                styles.statusBadge,
-                { backgroundColor: getStatusColor(feedback.status) },
-              ]}
-            >
-              <Text style={styles.statusText}>
-                {getStatusText(feedback.status)}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <Text style={styles.feedbackContent} numberOfLines={3}>
-          {feedback.content}
-        </Text>
-
-        <View style={styles.feedbackFooter}>
-          <View style={styles.metaInfo}>
-            <View style={styles.metaItem}>
-              <MaterialIcons name="schedule" size={16} color="#7F8C8D" />
-              <Text style={styles.metaText}>
-                {formatDate(feedback.createdAt)}
-              </Text>
-            </View>
-
-            {feedback.priority && (
-              <View style={styles.metaItem}>
-                <MaterialIcons
-                  name="priority-high"
-                  size={16}
-                  color={getPriorityColor(feedback.priority)}
-                />
-                <Text
-                  style={[
-                    styles.metaText,
-                    { color: getPriorityColor(feedback.priority) },
-                  ]}
-                >
-                  {feedback.priority}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleEdit(feedback)}
-            >
-              <MaterialIcons name="edit" size={20} color="#3498DB" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleView(feedback)}
-            >
-              <MaterialIcons name="visibility" size={20} color="#2C3E50" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ModernCard>
-    </TouchableOpacity>
-  );
-
   return (
     <ModernScreenWrapper
       title="Phản hồi của tôi"
@@ -192,6 +97,7 @@ export default function ResidentFeedbackListScreen() {
       headerColor="#1976D2"
       loading={loading}
       onRefresh={fetchFeedbacks}
+      showBackButton={false}
       rightHeaderComponent={
         <ModernButton
           title="Tạo"
@@ -201,7 +107,7 @@ export default function ResidentFeedbackListScreen() {
         />
       }
     >
-      <View style={{ paddingBottom: 20 }}>
+      <View>
         {!loading && feedbacks.length === 0 ? (
           renderEmptyState()
         ) : (
@@ -213,8 +119,87 @@ export default function ResidentFeedbackListScreen() {
               fullWidth
               style={{ marginBottom: 20 }}
             />
-
-            {feedbacks.map(renderFeedbackItem)}
+            {feedbacks.map((feedback) => (
+              <View key={feedback.feedbackId} style={{ marginBottom: 12 }}>
+                <TouchableOpacity
+                  onPress={() => handleView(feedback)}
+                  activeOpacity={0.8}
+                >
+                  <ModernCard>
+                    <View style={styles.feedbackHeader}>
+                      <Text style={styles.feedbackTitle} numberOfLines={2}>
+                        {feedback.category}
+                      </Text>
+                      <View style={styles.statusContainer}>
+                        <View
+                          style={[
+                            styles.statusBadge,
+                            {
+                              backgroundColor: getStatusColor(feedback.status),
+                            },
+                          ]}
+                        >
+                          <Text style={styles.statusText}>
+                            {getStatusText(feedback.status)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <Text style={styles.feedbackContent} numberOfLines={3}>
+                      {feedback.description || "Không có mô tả"}
+                    </Text>
+                    <View style={styles.feedbackFooter}>
+                      <View style={styles.metaInfo}>
+                        <View style={styles.metaItem}>
+                          <MaterialIcons
+                            name="schedule"
+                            size={16}
+                            color="#7F8C8D"
+                          />
+                          <Text style={styles.metaText}>
+                            {formatDate(feedback.createdAt)}
+                          </Text>
+                        </View>
+                      </View>
+                      {feedback?.responseDate ? (
+                        <View style={styles.metaItem}>
+                          <MaterialIcons
+                            name="check"
+                            size={16}
+                            color="#7F8C8D"
+                          />
+                          <Text style={styles.metaText}>
+                            {formatDate(feedback?.responseDate)}
+                          </Text>
+                        </View>
+                      ) : null}
+                      <View style={styles.actionButtons}>
+                        <TouchableOpacity
+                          style={styles.actionButton}
+                          onPress={() => handleEdit(feedback)}
+                        >
+                          <MaterialIcons
+                            name="edit"
+                            size={20}
+                            color="#3498DB"
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.actionButton}
+                          onPress={() => handleView(feedback)}
+                        >
+                          <MaterialIcons
+                            name="visibility"
+                            size={20}
+                            color="#2C3E50"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </ModernCard>
+                </TouchableOpacity>
+              </View>
+            ))}
           </>
         )}
       </View>

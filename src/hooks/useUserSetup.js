@@ -34,12 +34,12 @@ export const useUserSetup = () => {
             currentUser.name.trim() === "";
 
           // Get required fields based on user role
-          const requiredFields =
+          /* const requiredFields =
             REQUIRED_USER_FIELDS[currentUser.role] ||
-            REQUIRED_USER_FIELDS.resident;
+            REQUIRED_USER_FIELDS.resident; */
 
           // Check for missing fields
-          const missingFields = requiredFields.filter(
+          /* const missingFields = requiredFields.filter(
             (field) =>
               !currentUser[field] ||
               (typeof currentUser[field] === "string" &&
@@ -47,16 +47,17 @@ export const useUserSetup = () => {
               (field === "apartmentId" &&
                 currentUser.role === "resident" &&
                 !currentUser[field])
-          );
+          ); */
 
-          const needsInfoUpdate = missingFields.length > 0;
+          /* const needsInfoUpdate = missingFields.length > 0; */
 
           setSetupStatus({
-            isFirstLogin,
-            needsInfoUpdate,
-            isComplete: !isFirstLogin && !needsInfoUpdate,
+            isFirstLogin: false, // Assuming false for now, as we are not checking first login here
+            //TODO: Uncomment and implement first login logic if needed
+            needsInfoUpdate: false,
+            isComplete: !isFirstLogin && !false, // Assuming no missing fields for now
             loading: false,
-            missingFields,
+            missingFields:[],
           });
         } else {
           setSetupStatus({

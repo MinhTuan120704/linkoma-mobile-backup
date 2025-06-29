@@ -5,22 +5,32 @@ import {
   ModernFormInput,
   ModernButton,
   ModernCard,
+  ModernPicker,
 } from "../../../components";
-// Import notificationService để thực hiện các chức năng:
-// - Cập nhật thông báo (updateNotification)
-// - Xóa thông báo (deleteNotification)
+import announcementService from "../../../services/announcementService";
+
+// Constants for dropdown options
+const TYPE_OPTIONS = [
+  { label: "Chung", value: "General" },
+  { label: "Khẩn cấp", value: "Urgent" },
+  { label: "Bảo trì", value: "Maintenance" },
+  { label: "Sự kiện", value: "Event" },
+];
+
+const PRIORITY_OPTIONS = [
+  { label: "Thấp", value: "Low" },
+  { label: "Trung bình", value: "Medium" },
+  { label: "Cao", value: "High" },
+  { label: "Khẩn cấp", value: "Critical" },
+];
 
 export default function NotificationEditScreen({ route, navigation }) {
   const { notification } = route.params || {};
-
   const [formData, setFormData] = useState({
     title: notification?.title || "",
     content: notification?.content || "",
-    type: notification?.type || "general",
-    priority: notification?.priority || "normal",
-    scheduledTime: notification?.scheduledTime || "",
-    targetAudience: notification?.targetAudience || "all",
-    status: notification?.status || "draft",
+    type: notification?.type || "General",
+    priority: notification?.priority || "Low",
   });
 
   const [loading, setLoading] = useState(false);
@@ -46,15 +56,21 @@ export default function NotificationEditScreen({ route, navigation }) {
       Alert.alert("Lỗi", "Vui lòng kiểm tra lại thông tin");
       return;
     }
-
     setLoading(true);
     try {
-      // TODO: Call API updateNotification(id, data) để cập nhật thông báo
-      Alert.alert("Thành công", "Cập nhật thông báo thành công", [
-        { text: "OK", onPress: () => navigation.goBack() },
-      ]);
+      const response = await announcementService.updateAnnouncement(
+        notification.announcementId,
+        formData
+      );
+      if (response.success) {
+        Alert.alert("Thành công", "Cập nhật thông báo thành công", [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      } else {
+        Alert.alert("Lỗi", response.message || "Không thể cập nhật thông báo");
+      }
     } catch (error) {
-      console.error("Error updating notification:", error);
+      console.log("Error updating notification:", error);
       Alert.alert("Lỗi", "Không thể cập nhật thông báo");
     } finally {
       setLoading(false);
@@ -70,14 +86,20 @@ export default function NotificationEditScreen({ route, navigation }) {
         onPress: async () => {
           setLoading(true);
           try {
-            await notificationService.deleteNotification(notification.id);
-            Alert.alert("Thành công", "Xóa thông báo thành công", [
-              { text: "OK", onPress: () => navigation.goBack() },
-            ]);
+            const response = await announcementService.deleteAnnouncement(
+              notification.announcementId
+            );
+            if (response.success) {
+              Alert.alert("Thành công", "Xóa thông báo thành công", [
+                { text: "OK", onPress: () => navigation.goBack() },
+              ]);
+            } else {
+              Alert.alert("Lỗi", response.message || "Không thể xóa thông báo");
+              setLoading(false);
+            }
           } catch (error) {
-            console.error("Error deleting notification:", error);
+            console.log("Error deleting notification:", error);
             Alert.alert("Lỗi", "Không thể xóa thông báo");
-          } finally {
             setLoading(false);
           }
         },
@@ -109,7 +131,6 @@ export default function NotificationEditScreen({ route, navigation }) {
             icon="title"
             error={errors.title}
           />
-
           <ModernFormInput
             label="Nội dung"
             value={formData.content}
@@ -120,47 +141,21 @@ export default function NotificationEditScreen({ route, navigation }) {
             numberOfLines={6}
             error={errors.content}
           />
-
-          <ModernFormInput
+          <ModernPicker
             label="Loại thông báo"
             value={formData.type}
-            onChangeText={(value) => updateField("type", value)}
-            placeholder="general/urgent/maintenance/event"
+            onValueChange={(value) => updateField("type", value)}
+            placeholder="Chọn loại thông báo"
+            items={TYPE_OPTIONS}
             icon="category"
           />
-
-          <ModernFormInput
+          <ModernPicker
             label="Mức độ ưu tiên"
             value={formData.priority}
-            onChangeText={(value) => updateField("priority", value)}
-            placeholder="low/normal/high/urgent"
+            onValueChange={(value) => updateField("priority", value)}
+            placeholder="Chọn mức độ ưu tiên"
+            items={PRIORITY_OPTIONS}
             icon="priority-high"
-          />
-        </ModernCard>
-
-        <ModernCard title="Cài đặt gửi">
-          <ModernFormInput
-            label="Thời gian gửi"
-            value={formData.scheduledTime}
-            onChangeText={(value) => updateField("scheduledTime", value)}
-            placeholder="DD/MM/YYYY HH:mm hoặc để trống để gửi ngay"
-            icon="schedule"
-          />
-
-          <ModernFormInput
-            label="Đối tượng nhận"
-            value={formData.targetAudience}
-            onChangeText={(value) => updateField("targetAudience", value)}
-            placeholder="all/residents/staff"
-            icon="people"
-          />
-
-          <ModernFormInput
-            label="Trạng thái"
-            value={formData.status}
-            onChangeText={(value) => updateField("status", value)}
-            placeholder="draft/scheduled/sent"
-            icon="info"
           />
         </ModernCard>
 
