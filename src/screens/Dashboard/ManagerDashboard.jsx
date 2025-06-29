@@ -172,7 +172,7 @@ export default function ManagerDashboard() {
     <View style={[styles.container, { paddingTop: safeInsets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#2C3E50" />
       <AdminHeader title="Quản lý Manager" subtitle="Bảng điều khiển quản lý" />
-      <View style={styles.content}>{renderContent()}</View>{" "}
+      <View style={styles.content}>{renderContent()}</View>
       <BottomTabs
         tabs={TAB_CONFIG}
         activeTab={activeTab}

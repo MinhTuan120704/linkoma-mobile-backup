@@ -151,7 +151,6 @@ export default function ManagerApartmentEditScreen({ route, navigation }) {
       subtitle={`Căn hộ ID: ${apartment?.apartmentId || ""}`}
       headerColor="#2C3E50"
     >
-      {" "}
       <View style={{ paddingBottom: 20 }}>
         <ModernPicker
           label="Loại căn hộ"

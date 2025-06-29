@@ -212,7 +212,6 @@ export default function ResidentCreateScreen({ navigation }) {
           error={errors.role}
         />
         <View style={{ marginTop: 20, gap: 12 }}>
-          {" "}
           <ModernButton
             title="Tạo cư dân"
             onPress={handleSubmit}
