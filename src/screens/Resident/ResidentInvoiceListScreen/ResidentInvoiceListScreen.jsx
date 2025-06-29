@@ -26,7 +26,7 @@ export default function ResidentInvoiceListScreen() {
   const [params, setParams] = useState({
     apartmentId: null,
     status: "",
-    sortBy: "dueDate",
+    sortBy: "dueDate:asc",
     limit: 10,
     page: 1,
   });
@@ -42,11 +42,13 @@ export default function ResidentInvoiceListScreen() {
     { label: "Đã thanh toán", value: "Paid" },
   ];
 
-  // Sort options
+  // Sort options - Match backend sortBy format
   const sortOptions = [
-    { label: "Ngày đến hạn", value: "dueDate" },
-    { label: "Ngày tạo", value: "createdAt" },
-    { label: "Số tiền", value: "amount" },
+    { label: "Ngày đến hạn", value: "dueDate:asc" },
+    { label: "Ngày tạo mới nhất", value: "createdAt:desc" },
+    { label: "Ngày tạo cũ nhất", value: "createdAt:asc" },
+    { label: "Số tiền tăng dần", value: "rentFee:asc" },
+    { label: "Số tiền giảm dần", value: "rentFee:desc" },
   ];
   const fetchInvoices = async (isRefresh = false) => {
     if (!user?.apartmentId) return setLoading(false);
@@ -76,11 +78,11 @@ export default function ResidentInvoiceListScreen() {
         setHasNextPage(result.data.hasNextPage || false);
         setTotalCount(result.data.totalCount || 0);
       } else {
-         Alert.alert(
-        "Lỗi",
-        "Có lỗi đã xảy ra: " + result.message || "Không thể tải hóa đơn",
-        [{ text: "OK" }]
-      );
+        Alert.alert(
+          "Lỗi",
+          "Có lỗi đã xảy ra: " + result.message || "Không thể tải hóa đơn",
+          [{ text: "OK" }]
+        );
         if (isRefresh) setInvoices([]);
       }
     } catch (error) {
@@ -126,13 +128,28 @@ export default function ResidentInvoiceListScreen() {
   };
 
   const handleView = (invoice) => {
-    navigation.navigate("ResidentInvoiceViewScreen", { invoiceId: invoice.id });
+    navigation.navigate("ResidentInvoiceViewScreen", {
+      invoiceId: invoice.invoiceId || invoice.id,
+    });
   };
 
-  const handlePay = (invoice) => {
-    navigation.navigate("ResidentInvoicePaymentScreen", {
-      invoiceId: invoice.id,
-    });
+  const handlePay = async (invoice) => {
+    try {
+      const result = await invoiceService.payInvoice(
+        invoice.invoiceId || invoice.id
+      );
+      if (result.success) {
+        Alert.alert("Thành công", "Thanh toán hóa đơn thành công!", [
+          { text: "OK", onPress: () => fetchInvoices(true) },
+        ]);
+      } else {
+        Alert.alert("Lỗi", result.message, [{ text: "OK" }]);
+      }
+    } catch (error) {
+      Alert.alert("Lỗi", "Có lỗi xảy ra khi thanh toán: " + error.message, [
+        { text: "OK" },
+      ]);
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -208,8 +225,16 @@ export default function ResidentInvoiceListScreen() {
         ? "overdue"
         : invoice.status;
 
+    // Calculate total amount from rentFee + serviceFee or use totalAmount
+    const totalAmount =
+      invoice.totalAmount ||
+      parseFloat(invoice.rentFee || 0) + parseFloat(invoice.serviceFee || 0);
+
     return (
-      <ModernCard key={invoice.id} style={styles.invoiceCard}>
+      <ModernCard
+        key={invoice.invoiceId || invoice.id}
+        style={styles.invoiceCard}
+      >
         <TouchableOpacity
           style={styles.invoiceItem}
           onPress={() => handleView(invoice)}
@@ -217,12 +242,12 @@ export default function ResidentInvoiceListScreen() {
           <View style={styles.invoiceHeader}>
             <View style={styles.invoiceInfo}>
               <Text style={styles.invoiceCode}>
-                {invoice.invoiceCode || `Hóa đơn #${invoice.id}`}
+                Hóa đơn #{invoice.invoiceId || invoice.id}
               </Text>
               <Text style={styles.serviceType}>
-                {invoice.serviceType?.name ||
-                  invoice.serviceTypeName ||
-                  "Dịch vụ chung"}
+                {invoice.apartment?.apartmentType?.typeName ||
+                  `Tầng ${invoice.apartment?.floor}` ||
+                  "Căn hộ"}
               </Text>
             </View>
 
@@ -244,10 +269,26 @@ export default function ResidentInvoiceListScreen() {
           <View style={styles.invoiceDetails}>
             <View style={styles.detailRow}>
               <MaterialIcons name="attach-money" size={16} color="#1976D2" />
-              <Text style={styles.amount}>
-                {formatCurrency(invoice.totalAmount || invoice.amount)}
-              </Text>
+              <Text style={styles.amount}>{formatCurrency(totalAmount)}</Text>
             </View>
+
+            {invoice.rentFee && (
+              <View style={styles.detailRow}>
+                <MaterialIcons name="home" size={16} color="#757575" />
+                <Text style={styles.detailText}>
+                  Tiền thuê: {formatCurrency(invoice.rentFee)}
+                </Text>
+              </View>
+            )}
+
+            {invoice.serviceFee && (
+              <View style={styles.detailRow}>
+                <MaterialIcons name="build" size={16} color="#757575" />
+                <Text style={styles.detailText}>
+                  Phí dịch vụ: {formatCurrency(invoice.serviceFee)}
+                </Text>
+              </View>
+            )}
 
             <View style={styles.detailRow}>
               <MaterialIcons name="schedule" size={16} color="#757575" />
@@ -256,14 +297,12 @@ export default function ResidentInvoiceListScreen() {
               </Text>
             </View>
 
-            {(invoice.period || invoice.servicePeriod) && (
-              <View style={styles.detailRow}>
-                <MaterialIcons name="date-range" size={16} color="#757575" />
-                <Text style={styles.period}>
-                  Kỳ: {invoice.period || invoice.servicePeriod}
-                </Text>
-              </View>
-            )}
+            <View style={styles.detailRow}>
+              <MaterialIcons name="date-range" size={16} color="#757575" />
+              <Text style={styles.period}>
+                Tạo: {formatDate(invoice.createdAt)}
+              </Text>
+            </View>
           </View>
 
           {status?.toLowerCase() === "unpaid" || status === "overdue" ? (
@@ -448,6 +487,10 @@ const styles = StyleSheet.create({
     color: "#1976D2",
   },
   dueDate: {
+    fontSize: 14,
+    color: "#757575",
+  },
+  detailText: {
     fontSize: 14,
     color: "#757575",
   },

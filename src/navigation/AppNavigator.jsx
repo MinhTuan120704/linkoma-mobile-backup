@@ -86,7 +86,6 @@ import ResidentFeedbackEditScreen from "../screens/Resident/ResidentFeedbackList
 import ResidentFeedbackViewScreen from "../screens/Resident/ResidentFeedbackListScreen/ResidentFeedbackViewScreen";
 import ResidentInfoScreen from "../screens/Resident/ResidentInfoScreen/ResidentInfoScreen";
 import ResidentInvoiceListScreen from "../screens/Resident/ResidentInvoiceListScreen/ResidentInvoiceListScreen";
-import ResidentInvoicePaymentScreen from "../screens/Resident/ResidentInvoiceListScreen/ResidentInvoicePaymentScreen";
 import ResidentInvoiceViewScreen from "../screens/Resident/ResidentInvoiceListScreen/ResidentInvoiceViewScreen";
 import ResidentNotificationListScreen from "../screens/Resident/ResidentNotificationListScreen/ResidentNotificationListScreen";
 import ResidentNotificationViewScreen from "../screens/Resident/ResidentNotificationListScreen/ResidentNotificationViewScreen";
@@ -328,12 +327,8 @@ const ResidentStack = () => (
       component={ResidentInvoiceListScreen}
     />
     <Stack.Screen
-      name="ResidentInvoiceView"
+      name="ResidentInvoiceViewScreen"
       component={ResidentInvoiceViewScreen}
-    />
-    <Stack.Screen
-      name="ResidentInvoicePayment"
-      component={ResidentInvoicePaymentScreen}
     />
 
     {/* Notification Screens */}

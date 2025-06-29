@@ -1,6 +1,6 @@
 import httpClient from "./httpClient";
 import { ENDPOINTS } from "./apiConfig";
-import { setAccessToken, clearAll, saveTokens, removeCookie } from "./storage";
+import { clearAll, removeCookie } from "./storage";
 import { Alert } from "react-native";
 
 export const login = async (email, password) => {
@@ -18,8 +18,8 @@ export const login = async (email, password) => {
         throw new Error("No access token received");
       }
 
-      // Save access token
-      await saveTokens(accessToken.token);
+      // Token is automatically saved by httpClient response interceptor
+      // No need to manually save here
 
       // Validate user data
       if (!user?.role) {

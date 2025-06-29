@@ -1,6 +1,5 @@
 import httpClient from "./httpClient";
 import { ENDPOINTS } from "./apiConfig";
-import { Alert } from "react-native";
 
 export const createInvoiceDetail = async (invoiceDetailData) => {
   try {
@@ -15,11 +14,6 @@ export const createInvoiceDetail = async (invoiceDetailData) => {
     };
   } catch (error) {
     console.log("Error creating invoice detail:", error);
-    Alert.alert(
-      "Lỗi",
-      error.response?.data?.message || "Có lỗi xảy ra",
-      [{ text: "OK" }]
-    );
     return {
       success: false,
       data: null,
@@ -28,21 +22,38 @@ export const createInvoiceDetail = async (invoiceDetailData) => {
   }
 };
 
-export const getAllInvoiceDetails = async () => {
+export const getAllInvoiceDetails = async (queryParams = {}) => {
   try {
-    const response = await httpClient.get(ENDPOINTS.INVOICE_DETAILS_GET_ALL);
+    const response = await httpClient.get(ENDPOINTS.INVOICE_DETAILS_GET_ALL, {
+      params: queryParams,
+    });
+
+    if (response.data && response.status === 200) {
+      // Transform API response to match expected format
+      const transformedData = {
+        data: response.data.results || [],
+        hasNextPage: response.data.page < response.data.totalPages,
+        totalCount: response.data.totalResults || 0,
+        page: response.data.page,
+        limit: response.data.limit,
+        totalPages: response.data.totalPages,
+      };
+
+      return {
+        success: true,
+        data: transformedData,
+        message: "Lấy danh sách chi tiết hóa đơn thành công",
+      };
+    }
+
     return {
-      success: true,
-      data: response.data,
-      message: "Lấy danh sách chi tiết hóa đơn thành công",
+      success: false,
+      data: null,
+      message:
+        response.data?.message || "Lấy danh sách chi tiết hóa đơn thất bại",
     };
   } catch (error) {
     console.log("Error getting all invoice details:", error);
-    Alert.alert(
-      "Lỗi",
-      error.response?.data?.message || "Có lỗi xảy ra",
-      [{ text: "OK" }]
-    );
     return {
       success: false,
       data: null,
@@ -65,11 +76,6 @@ export const getInvoiceDetailById = async (invoiceDetailId) => {
     };
   } catch (error) {
     console.log("Error getting invoice detail by ID:", error);
-    Alert.alert(
-      "Lỗi",
-      error.response?.data?.message || "Có lỗi xảy ra",
-      [{ text: "OK" }]
-    );
     return {
       success: false,
       data: null,
@@ -82,21 +88,37 @@ export const getInvoiceDetailById = async (invoiceDetailId) => {
 
 export const getInvoiceDetailsByInvoiceId = async (invoiceId) => {
   try {
-    const response = await httpClient.get(
-      `${ENDPOINTS.INVOICE_DETAILS_GET_BY_INVOICE_ID}/${invoiceId}`
-    );
+    const response = await httpClient.get(ENDPOINTS.INVOICE_DETAILS_GET_ALL, {
+      params: { invoiceId },
+    });
+
+    if (response.data && response.status === 200) {
+      // Transform API response to match expected format
+      const transformedData = {
+        data: response.data.results || [],
+        hasNextPage: response.data.page < response.data.totalPages,
+        totalCount: response.data.totalResults || 0,
+        page: response.data.page,
+        limit: response.data.limit,
+        totalPages: response.data.totalPages,
+      };
+
+      return {
+        success: true,
+        data: transformedData,
+        message: "Lấy chi tiết hóa đơn theo mã hóa đơn thành công",
+      };
+    }
+
     return {
-      success: true,
-      data: response.data,
-      message: "Lấy chi tiết hóa đơn theo mã hóa đơn thành công",
+      success: false,
+      data: null,
+      message:
+        response.data?.message ||
+        "Lấy chi tiết hóa đơn theo mã hóa đơn thất bại",
     };
   } catch (error) {
     console.log("Error getting invoice details by invoice ID:", error);
-    Alert.alert(
-      "Lỗi",
-      error.response?.data?.message || "Có lỗi xảy ra",
-      [{ text: "OK" }]
-    );
     return {
       success: false,
       data: null,
@@ -120,11 +142,6 @@ export const updateInvoiceDetail = async (invoiceDetailId, updateData) => {
     };
   } catch (error) {
     console.log("Error updating invoice detail:", error);
-    Alert.alert(
-      "Lỗi",
-      error.response?.data?.message || "Có lỗi xảy ra",
-      [{ text: "OK" }]
-    );
     return {
       success: false,
       data: null,
@@ -146,11 +163,6 @@ export const deleteInvoiceDetail = async (invoiceDetailId) => {
     };
   } catch (error) {
     console.log("Error deleting invoice detail:", error);
-    Alert.alert(
-      "Lỗi",
-      error.response?.data?.message || "Có lỗi xảy ra",
-      [{ text: "OK" }]
-    );
     return {
       success: false,
       data: null,
@@ -159,29 +171,26 @@ export const deleteInvoiceDetail = async (invoiceDetailId) => {
   }
 };
 
-export const deleteInvoiceDetailsByInvoiceId = async (invoiceId) => {
+// Bulk create invoice details for complex invoices
+export const createMultipleInvoiceDetails = async (detailsArray) => {
   try {
-    const response = await httpClient.delete(
-      `${ENDPOINTS.INVOICE_DETAILS_DELETE_BY_INVOICE_ID}/${invoiceId}`
+    const promises = detailsArray.map((detail) =>
+      httpClient.post(ENDPOINTS.INVOICE_DETAILS, detail)
     );
+    const responses = await Promise.all(promises);
+
     return {
       success: true,
-      data: response.data,
-      message: "Xóa tất cả chi tiết hóa đơn theo mã hóa đơn thành công",
+      data: responses.map((response) => response.data),
+      message: "Tạo nhiều chi tiết hóa đơn thành công",
     };
   } catch (error) {
-    console.log("Error deleting invoice details by invoice ID:", error);
-    Alert.alert(
-      "Lỗi",
-      error.response?.data?.message || "Có lỗi xảy ra",
-      [{ text: "OK" }]
-    );
+    console.log("Error creating multiple invoice details:", error);
     return {
       success: false,
       data: null,
       message:
-        error.response?.data?.message ||
-        "Xóa tất cả chi tiết hóa đơn theo mã hóa đơn thất bại",
+        error.response?.data?.message || "Tạo nhiều chi tiết hóa đơn thất bại",
     };
   }
 };
@@ -193,7 +202,7 @@ const invoiceDetailService = {
   getInvoiceDetailsByInvoiceId,
   updateInvoiceDetail,
   deleteInvoiceDetail,
-  deleteInvoiceDetailsByInvoiceId,
+  createMultipleInvoiceDetails,
 };
 
 export default invoiceDetailService;

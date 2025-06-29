@@ -40,3 +40,4 @@ yarn-error.*
 docs-*.md
 docs-*.json
 docs-*.txt
+*.txt

@@ -1,52 +1,77 @@
-import React, { useState, useEffect } from "react";
-import { View, Alert, ScrollView } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
 import {
   ModernScreenWrapper,
   ModernCard,
-  InfoRow,
   ModernButton,
 } from "../../../components";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
 import invoiceService from "../../../services/invoiceService";
+import invoiceDetailService from "../../../services/invoiceDetailService";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 export default function ResidentInvoiceViewScreen() {
-  const route = useRoute();
+  const [invoice, setInvoice] = useState(null);
+  const [invoiceDetails, setInvoiceDetails] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const { invoiceId, invoice: passedInvoice } = route.params;
-  const [invoice, setInvoice] = useState(passedInvoice || null);
-  const [loading, setLoading] = useState(!passedInvoice);
-  const fetchInvoice = async () => {
-    if (!invoiceId) return;
+  const route = useRoute();
+  const { invoiceId } = route.params;
+
+  useEffect(() => {
+    fetchInvoiceData();
+  }, [invoiceId]);
+
+  const fetchInvoiceData = async () => {
     setLoading(true);
     try {
-      const result = await invoiceService.getInvoiceById(invoiceId);
-      if (result.success && result.data) {
-        setInvoice(result.data);
+      // Fetch invoice information
+      const invoiceResult = await invoiceService.getInvoiceById(invoiceId);
+      if (invoiceResult.success) {
+        setInvoice(invoiceResult.data);
       } else {
-        console.log("Failed to fetch invoice:", result.message);
-        Alert.alert("Lỗi", result.message || "Không thể tải thông tin hóa đơn");
+        Alert.alert("Lỗi", invoiceResult.message, [
+          { text: "OK", onPress: () => navigation.goBack() },
+        ]);
+      }
+
+      // Fetch invoice details
+      const detailsResult =
+        await invoiceDetailService.getInvoiceDetailsByInvoiceId(invoiceId);
+      if (detailsResult.success) {
+        setInvoiceDetails(detailsResult.data.data || []);
       }
     } catch (error) {
-      console.log("Error fetching invoice:", error);
-      Alert.alert("Lỗi", "Không thể tải thông tin hóa đơn");
+      Alert.alert(
+        "Lỗi",
+        "Có lỗi xảy ra khi tải thông tin hóa đơn: " + error.message,
+        [{ text: "OK", onPress: () => navigation.goBack() }]
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (!invoice) {
-      fetchInvoice();
+  const handlePay = async () => {
+    try {
+      const result = await invoiceService.payInvoice(invoiceId);
+      if (result.success) {
+        Alert.alert("Thành công", "Thanh toán hóa đơn thành công!", [
+          {
+            text: "OK",
+            onPress: () => {
+              fetchInvoiceData(); // Refresh data
+            },
+          },
+        ]);
+      } else {
+        Alert.alert("Lỗi", result.message, [{ text: "OK" }]);
+      }
+    } catch (error) {
+      Alert.alert("Lỗi", "Có lỗi xảy ra khi thanh toán: " + error.message, [
+        { text: "OK" },
+      ]);
     }
-  }, [invoiceId]);
-
-  const handlePay = () => {
-    navigation.navigate("ResidentInvoicePaymentScreen", { invoiceId, invoice });
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "Không có dữ liệu";
-    return new Date(dateString).toLocaleDateString("vi-VN");
   };
 
   const formatCurrency = (amount) => {
@@ -56,16 +81,22 @@ export default function ResidentInvoiceViewScreen() {
       currency: "VND",
     }).format(amount);
   };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Không có dữ liệu";
+    return new Date(dateString).toLocaleDateString("vi-VN");
+  };
+
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case "paid":
-        return "highlight";
+        return "#4CAF50";
       case "unpaid":
-        return "warning";
+        return "#FF9800";
       case "overdue":
-        return "danger";
+        return "#F44336";
       default:
-        return "default";
+        return "#757575";
     }
   };
 
@@ -86,160 +117,297 @@ export default function ResidentInvoiceViewScreen() {
     if (!dueDate) return false;
     return new Date(dueDate) < new Date();
   };
-  const canPay = (status, dueDate) => {
-    return status?.toLowerCase() === "unpaid";
-  };
 
-  if (!invoice && !loading) {
+  if (!invoice) {
     return (
       <ModernScreenWrapper
         title="Chi tiết hóa đơn"
-        subtitle="Thông tin không tồn tại"
-        headerColor="#1976D2"
+        loading={loading}
+        showBackButton={true}
       >
-        <ModernCard>
-          <InfoRow
-            label="Thông báo"
-            value="Hóa đơn không tồn tại hoặc đã bị xóa"
-            icon="error"
-            type="warning"
-          />
-        </ModernCard>
+        <View />
       </ModernScreenWrapper>
     );
   }
 
+  const status =
+    isOverdue(invoice.dueDate) && invoice.status?.toLowerCase() === "unpaid"
+      ? "overdue"
+      : invoice.status;
+
+  const totalAmount =
+    invoice.totalAmount ||
+    parseFloat(invoice.rentFee || 0) + parseFloat(invoice.serviceFee || 0);
+
   return (
     <ModernScreenWrapper
       title="Chi tiết hóa đơn"
-      subtitle="Thông tin chi tiết hóa đơn"
+      subtitle={`Hóa đơn #${invoice.invoiceId}`}
       headerColor="#1976D2"
       loading={loading}
-      onRefresh={fetchInvoice}
+      showBackButton={true}
+      onRefresh={fetchInvoiceData}
     >
-      {invoice && (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <ModernCard title="Thông tin hóa đơn">
-            <InfoRow
-              label="Mã hóa đơn"
-              value={invoice.invoiceCode || `Hóa đơn #${invoice.id}`}
-              icon="receipt"
-              type="highlight"
-              copyable
-            />
-            <InfoRow
-              label="Căn hộ"
-              value={
-                invoice.apartment?.apartmentCode ||
-                invoice.apartmentName ||
-                `Căn hộ #${invoice.apartmentId}`
-              }
-              icon="home"
-            />
-            <InfoRow
-              label="Trạng thái"
-              value={getStatusText(invoice.status)}
-              icon="info"
-              type={getStatusColor(invoice.status)}
-            />
-          </ModernCard>
-          <ModernCard title="Thông tin dịch vụ">
-            <InfoRow
-              label="Loại dịch vụ"
-              value={
-                invoice.serviceType?.name ||
-                invoice.serviceTypeName ||
-                "Dịch vụ chung"
-              }
-              icon="build"
-            />
-
-            <InfoRow
-              label="Kỳ thanh toán"
-              value={
-                invoice.period || invoice.servicePeriod || "Không xác định"
-              }
-              icon="date-range"
-            />
-
-            {invoice.description && (
-              <InfoRow
-                label="Mô tả"
-                value={invoice.description}
-                icon="description"
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Invoice Status */}
+        <ModernCard style={styles.statusCard}>
+          <View style={styles.statusContainer}>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: getStatusColor(status) },
+              ]}
+            >
+              <MaterialIcons
+                name={status === "paid" ? "check-circle" : "schedule"}
+                size={24}
+                color="#FFFFFF"
               />
-            )}
-          </ModernCard>
-          <ModernCard title="Thông tin thanh toán">
-            <InfoRow
-              label="Số tiền"
-              value={formatCurrency(invoice.totalAmount || invoice.amount)}
-              icon="attach-money"
-              type="highlight"
-            />
+              <Text style={styles.statusText}>{getStatusText(status)}</Text>
+            </View>
+          </View>
+        </ModernCard>
 
-            <InfoRow
-              label="Ngày phát hành"
-              value={formatDate(invoice.issueDate || invoice.createdAt)}
-              icon="today"
-            />
+        {/* Invoice Information */}
+        <ModernCard>
+          <Text style={styles.sectionTitle}>Thông tin hóa đơn</Text>
 
-            <InfoRow
-              label="Ngày đến hạn"
-              value={formatDate(invoice.dueDate)}
-              icon="schedule"
-              type={
-                isOverdue(invoice.dueDate) &&
-                invoice.status?.toLowerCase() === "unpaid"
-                  ? "danger"
-                  : "default"
-              }
-            />
+          <View style={styles.infoRow}>
+            <MaterialIcons name="receipt-long" size={20} color="#1976D2" />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Mã hóa đơn</Text>
+              <Text style={styles.infoValue}>#{invoice.invoiceId}</Text>
+            </View>
+          </View>
 
-            {invoice.paidDate && (
-              <InfoRow
-                label="Ngày thanh toán"
-                value={formatDate(invoice.paidDate)}
-                icon="payment"
-                type="highlight"
-              />
-            )}
-          </ModernCard>
-          {invoice.paymentMethod && (
-            <ModernCard title="Thông tin thanh toán">
-              <InfoRow
-                label="Phương thức thanh toán"
-                value={invoice.paymentMethod}
-                icon="credit-card"
-              />
+          <View style={styles.infoRow}>
+            <MaterialIcons name="home" size={20} color="#1976D2" />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Căn hộ</Text>
+              <Text style={styles.infoValue}>
+                {invoice.apartment?.apartmentType?.typeName ||
+                  `Tầng ${invoice.apartment?.floor}`}
+              </Text>
+            </View>
+          </View>
 
-              {invoice.transactionId && (
-                <InfoRow
-                  label="Mã giao dịch"
-                  value={invoice.transactionId}
-                  icon="confirmation-number"
-                  copyable
-                />
-              )}
-            </ModernCard>
-          )}
-          {invoice.notes && (
-            <ModernCard title="Ghi chú">
-              <InfoRow label="Ghi chú" value={invoice.notes} icon="note" />
-            </ModernCard>
-          )}
-          {canPay(invoice.status, invoice.dueDate) && (
-            <View style={{ marginTop: 20, paddingBottom: 20 }}>
-              <ModernButton
-                title="Thanh toán ngay"
-                onPress={handlePay}
-                icon="payment"
-                variant="primary"
-              />
+          <View style={styles.infoRow}>
+            <MaterialIcons name="schedule" size={20} color="#1976D2" />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Ngày đến hạn</Text>
+              <Text
+                style={[
+                  styles.infoValue,
+                  isOverdue(invoice.dueDate) && { color: "#F44336" },
+                ]}
+              >
+                {formatDate(invoice.dueDate)}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.infoRow}>
+            <MaterialIcons name="date-range" size={20} color="#1976D2" />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Ngày tạo</Text>
+              <Text style={styles.infoValue}>
+                {formatDate(invoice.createdAt)}
+              </Text>
+            </View>
+          </View>
+        </ModernCard>
+
+        {/* Amount Breakdown */}
+        <ModernCard>
+          <Text style={styles.sectionTitle}>Chi tiết thanh toán</Text>
+
+          {invoice.rentFee && (
+            <View style={styles.amountRow}>
+              <Text style={styles.amountLabel}>Tiền thuê nhà</Text>
+              <Text style={styles.amountValue}>
+                {formatCurrency(invoice.rentFee)}
+              </Text>
             </View>
           )}
-        </ScrollView>
-      )}
+
+          {invoice.serviceFee && (
+            <View style={styles.amountRow}>
+              <Text style={styles.amountLabel}>Phí dịch vụ</Text>
+              <Text style={styles.amountValue}>
+                {formatCurrency(invoice.serviceFee)}
+              </Text>
+            </View>
+          )}
+
+          <View style={styles.separator} />
+
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Tổng cộng</Text>
+            <Text style={styles.totalValue}>{formatCurrency(totalAmount)}</Text>
+          </View>
+        </ModernCard>
+
+        {/* Service Details */}
+        {invoiceDetails.length > 0 && (
+          <ModernCard>
+            <Text style={styles.sectionTitle}>Chi tiết dịch vụ</Text>
+
+            {invoiceDetails.map((detail, index) => (
+              <View
+                key={detail.invoiceDetailId || index}
+                style={styles.serviceItem}
+              >
+                <View style={styles.serviceHeader}>
+                  <Text style={styles.serviceName}>
+                    {detail.serviceType?.serviceName || "Dịch vụ"}
+                  </Text>
+                  <Text style={styles.serviceAmount}>
+                    {formatCurrency(detail.totalAmount)}
+                  </Text>
+                </View>
+
+                <View style={styles.serviceDetails}>
+                  <Text style={styles.serviceDetail}>
+                    Sử dụng: {detail.usage}{" "}
+                    {detail.serviceType?.unit || "đơn vị"}
+                  </Text>
+                  <Text style={styles.serviceDetail}>
+                    Đơn giá: {formatCurrency(detail.serviceType?.unitPrice)}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </ModernCard>
+        )}
+
+        {/* Payment Button */}
+        {(status?.toLowerCase() === "unpaid" || status === "overdue") && (
+          <View style={styles.paymentSection}>
+            <ModernButton
+              title="Thanh toán ngay"
+              onPress={handlePay}
+              variant="primary"
+              icon="payment"
+              size="large"
+            />
+          </View>
+        )}
+      </ScrollView>
     </ModernScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  statusCard: {
+    marginBottom: 12,
+  },
+  statusContainer: {
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 8,
+  },
+  statusText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#FFFFFF",
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#212121",
+    marginBottom: 16,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 12,
+  },
+  infoContent: {
+    flex: 1,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: "#757575",
+    marginBottom: 4,
+  },
+  infoValue: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#212121",
+  },
+  amountRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  amountLabel: {
+    fontSize: 16,
+    color: "#212121",
+  },
+  amountValue: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#212121",
+  },
+  separator: {
+    height: 1,
+    backgroundColor: "#E0E0E0",
+    marginVertical: 12,
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  totalLabel: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#212121",
+  },
+  totalValue: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1976D2",
+  },
+  serviceItem: {
+    marginBottom: 16,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F5",
+  },
+  serviceHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  serviceName: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#212121",
+  },
+  serviceAmount: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1976D2",
+  },
+  serviceDetails: {
+    gap: 4,
+  },
+  serviceDetail: {
+    fontSize: 14,
+    color: "#757575",
+  },
+  paymentSection: {
+    padding: 16,
+  },
+});
